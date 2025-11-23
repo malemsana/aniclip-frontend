@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { gray: { 900: '#0f172a', 950: '#020617' } },
+                    animation: { 'spin-slow': 'spin 3s linear infinite' }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background-color: #020617; background-image: radial-gradient(circle at 50% 0%, #1e3a8a 0%, transparent 40%); background-attachment: fixed; }
+        .aspect-16-9 { aspect-ratio: 16 / 9; }
+        .aspect-4-3 { aspect-ratio: 4 / 3; }
+        .material-symbols-rounded { font-size: 24px; }
+        
+        /* Modal & Animation Styles */
+        #preview-modal { visibility: hidden; opacity: 0; transition: all 0.2s ease-out; }
+        #preview-modal.active { visibility: visible; opacity: 1; }
+        
+        /* Thumb Slider Customization */
+        .thumbnail-slider::-webkit-scrollbar { height: 4px; }
+        .thumbnail-slider::-webkit-scrollbar-track { background: #1e293b; }
+        .thumbnail-slider::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        .thumbnail-slider .active-thumbnail { outline: 2px solid #3b82f6; opacity: 1; filter: brightness(1.2); }
+        
+        .fade-in { animation: fadeIn 0.5s ease-in-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Hover Preview Styling */
+        .clip-card video { object-fit: cover; opacity: 0; transition: opacity 0.3s ease; }
+        .clip-card:hover video { opacity: 1; }
+        .clip-card:hover img { opacity: 0; } /* Hide thumb on hover */
+    </style>
+</head>
+<body class="text-slate-100 antialiased min-h-screen flex flex-col">
+
+    <!-- HEADER -->
+<!-- HEADER -->
+    <header class="sticky top-0 z-40 border-b border-white/5 bg-slate-950/80 backdrop-blur-xl">
+        <nav class="container mx-auto px-4 h-16 flex justify-between items-center">
+            
+            <!-- LOGO (Matched Style) -->
+            <a href="index.html" class="flex items-center gap-3 group">
+                <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                    <span class="material-symbols-rounded text-white text-lg">movie</span>
+                </div>
+                <span class="font-black text-xl tracking-tight text-slate-100 group-hover:text-white transition-colors">
+                    Ani<span class="text-blue-500">Clips</span>
+                </span>
+            </a>
+
+            <a href="index.html" class="text-xs font-bold text-slate-500 hover:text-white transition-colors flex items-center gap-1 uppercase tracking-wider">
+                <span class="material-symbols-rounded text-sm">arrow_back</span> Back to Library
+            </a>
+        </nav>
+    </header>
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow container mx-auto p-4 sm:p-6 lg:p-8">
+        <a href="index.html" class="inline-flex items-center text-slate-400 hover:text-blue-400 mb-6 text-sm transition-colors">
+            <span class="material-symbols-rounded text-lg mr-1">arrow_back</span> Back to Library
+        </a>
+
+        <!-- Hero Panel -->
+        <section id="anime-info-panel" class="relative rounded-2xl overflow-hidden mb-12 border border-white/10 shadow-2xl bg-slate-900/40 min-h-[250px]">
+            <!-- Populated by JS -->
+        </section>
+
+        <!-- Loader -->
+        <div id="skeleton-loader" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-0.5">
+            <div class="col-span-full text-center text-slate-500 py-12 animate-pulse">Loading Clips...</div>
+        </div>
+
+        <!-- CLIPS CONTAINER (Your Dense Grid) -->
+        <section id="clips-by-episode-section" class="fade-in"></section>
+    </main>
+
+    <footer class="border-t border-white/10 mt-12 py-8 bg-slate-950/50 text-center text-slate-500 text-sm"><p>&copy; 2025 Anime Clips Library.</p></footer>
+
+    <!-- PREVIEW MODAL (Full Player) -->
+    <div id="preview-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="relative w-full max-w-7xl h-[90vh] md:h-auto bg-slate-900 rounded-xl overflow-hidden border border-slate-700 shadow-2xl flex flex-col lg:flex-row">
+            <button onclick="closePreview()" class="absolute top-2 right-2 lg:top-4 lg:right-4 z-50 bg-black/50 hover:bg-red-500/80 text-white p-1 rounded-full transition-colors"><span class="material-symbols-rounded">close</span></button>
+
+            <!-- Left: Player -->
+            <div class="w-full lg:w-[70%] bg-black flex flex-col">
+                <div class="relative w-full flex-grow flex items-center justify-center bg-black">
+                    <video id="video-player" class="w-full max-h-[65vh] aspect-16-9 object-contain" controls autoplay playsinline></video>
+                    <button id="prev-clip-btn" class="absolute left-0 h-full w-20 flex items-center justify-start pl-2 hover:bg-gradient-to-r from-black/60 to-transparent opacity-0 hover:opacity-100 transition-opacity disabled:hidden"><span class="material-symbols-rounded text-4xl text-white drop-shadow-md">chevron_left</span></button>
+                    <button id="next-clip-btn" class="absolute right-0 h-full w-20 flex items-center justify-end pr-2 hover:bg-gradient-to-l from-black/60 to-transparent opacity-0 hover:opacity-100 transition-opacity disabled:hidden"><span class="material-symbols-rounded text-4xl text-white drop-shadow-md">chevron_right</span></button>
+                </div>
+                <div class="h-24 bg-slate-950 border-t border-white/10 flex flex-col justify-center">
+                    <div id="thumbnail-slider" class="thumbnail-slider flex gap-2 overflow-x-auto px-4 py-2 snap-x items-center"></div>
+                </div>
+            </div>
+
+            <!-- Right: Details -->
+            <div class="w-full lg:w-[30%] bg-slate-900 p-6 lg:p-8 flex flex-col border-l border-slate-800 overflow-y-auto">
+                <div class="mb-2 flex items-center gap-2"><span class="bg-blue-600/20 text-blue-400 text-[10px] font-bold px-2 py-1 rounded border border-blue-500/30 uppercase tracking-wider">HD Source</span></div>
+                <h3 id="preview-filename" class="text-lg md:text-xl font-bold text-white break-words leading-snug mb-6 font-mono">filename.mkv</h3>
+                <div class="text-sm text-slate-400 space-y-3 mb-8 bg-slate-800/50 p-4 rounded-lg">
+                    <div class="flex justify-between border-b border-white/5 pb-2"><span>Duration</span><span id="preview-duration" class="text-slate-200 font-mono">--:--</span></div>
+                    <div class="flex justify-between border-b border-white/5 pb-2"><span>Format</span><span class="text-slate-200">MP4/MKV</span></div>
+                </div>
+                <div class="mt-auto space-y-3">
+                    
+                    <!-- DOWNLOAD BUTTON (Connected to Tracking) -->
+                    <a id="video-download-btn" href="#" download onclick="trackDownload()" class="block w-full py-3 px-4 bg-blue-600 hover:bg-blue-500 text-white text-center rounded-lg font-semibold transition-all shadow-lg flex items-center justify-center gap-2 group">
+                        <span class="material-symbols-rounded group-hover:-translate-y-1 transition-transform">download</span> Download Clip
+                    </a>
+                    
+                    <button onclick="copyClipLink()" class="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg font-medium transition-all border border-slate-700 flex items-center justify-center gap-2 relative">
+                        <span class="material-symbols-rounded text-sm">link</span> Copy Link
+                        <div id="copy-success-msg" class="absolute inset-0 bg-emerald-600 text-white flex items-center justify-center rounded-lg opacity-0 pointer-events-none transition-opacity font-bold"><span class="material-symbols-rounded mr-1">check</span> Copied!</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+        // ⚠️ CONFIGURATION
+        const API_URL = 'http://localhost:3000/api';
+
+        // State for the Details Page
+        let pageClipData = {}; 
+        let currentEpId = null;
+        let currentAnimeId = null; // Crucial for analytics tracking
+
+        // --- 1. INITIAL LOAD ---
+        window.onload = async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const animeName = urlParams.get('name'); 
+            
+            // DOM Elements
+            const infoPanel = document.getElementById('anime-info-panel');
+            const clipsSection = document.getElementById('clips-by-episode-section');
+            const loader = document.getElementById('skeleton-loader');
+
+            if (!animeName) {
+                window.location.href = 'index.html'; // Redirect if broken link
+                return;
+            }
+
+            try {
+                // A. Fetch Anime Metadata
+                const resInfo = await fetch(`${API_URL}/animes/${animeName}`);
+                if (!resInfo.ok) throw new Error("Anime Not Found");
+                const anime = await resInfo.json();
+                
+                if (!anime.id) throw new Error("Invalid Anime Data");
+                
+                currentAnimeId = anime.id; // Store ID for the download tracker
+                document.title = `${anime.title || anime.name} | AnimeClips`;
+                renderHeroPanel(infoPanel, anime);
+
+                // B. Fetch Episodes
+                const resEp = await fetch(`${API_URL}/animes/${animeName}/episodes`);
+                const episodes = await resEp.json();
+
+                // C. Fetch Clips (Parallel requests for speed)
+                const promises = episodes.map(async (ep) => {
+                    const cRes = await fetch(`${API_URL}/animes/${animeName}/episodes/${ep.number}/clips`);
+                    ep.clips = await cRes.json();
+                    pageClipData[ep.id] = ep.clips; // Store for modal navigation
+                    return ep;
+                });
+
+                const fullEpisodes = await Promise.all(promises);
+                loader.style.display = 'none';
+                
+                // D. Render Content
+                fullEpisodes.sort((a,b) => a.number - b.number).forEach(ep => {
+                    if(ep.clips.length > 0) renderEpisodeRow(clipsSection, ep);
+                });
+
+            } catch (e) {
+                console.error(e);
+                infoPanel.innerHTML = `<div class="text-center text-red-400 p-10 border border-red-500/30 rounded-xl">Error loading content: ${e.message}</div>`;
+                loader.style.display = 'none';
+            }
+        };
+
+        // --- 2. RENDERERS (Matches your Density UI) ---
+
+        function renderHeroPanel(container, data) {
+            const poster = data.poster_url || 'https://via.placeholder.com/300x450?text=No+Image';
+            const desc = data.description || 'No description available.';
+            
+            // Render Genres from the database array
+            const genresHtml = (data.genres || []).map(g => 
+                `<span class="text-[9px] bg-slate-800/80 border border-slate-600 px-2 py-0.5 rounded text-slate-300 uppercase font-bold tracking-wide">${g}</span>`
+            ).join('');
+
+            container.innerHTML = `
+                <div class="absolute inset-0 z-0"><img src="${poster}" class="w-full h-full object-cover object-top opacity-30 blur-xl"></div>
+                <div class="absolute inset-0 z-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent"></div>
+                
+                <div class="relative z-10 p-6 md:p-8 flex flex-col md:flex-row gap-6 items-end h-full">
+                    <img src="${poster}" class="w-32 md:w-48 rounded shadow-2xl border border-white/10 aspect-4-3 object-cover bg-slate-950">
+                    <div class="flex-1 mb-2">
+                        <div class="flex gap-2 mb-2 flex-wrap items-center">
+                            <span class="text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded font-bold uppercase tracking-wider shadow-lg shadow-blue-600/20">TV SERIES</span>
+                            ${genresHtml}
+                        </div>
+                        <h1 class="text-3xl md:text-5xl font-black text-white leading-tight drop-shadow-md">${data.title || data.name}</h1>
+                        <p class="text-slate-300 mt-4 text-sm leading-relaxed max-w-2xl line-clamp-3 font-medium text-shadow-sm">${desc}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderEpisodeRow(container, ep) {
+            container.innerHTML += `
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-3">
+                        <span class="w-1 h-6 bg-blue-600 rounded-full block"></span> ${ep.title || 'Episode '+ep.number}
+                    </h2>
+                    <!-- Your Dense 6-Col Grid -->
+                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-[2px] bg-slate-900 border border-slate-800 rounded-lg overflow-hidden">
+                        ${ep.clips.map((clip, idx) => `
+                            <div class="relative group clip-card cursor-pointer overflow-hidden bg-black aspect-16-9" 
+                                 onclick="openPreview(${ep.id}, ${idx})"
+                                 onmouseenter="playPreview(this)" 
+                                 onmouseleave="stopPreview(this)">
+                                
+                                <img src="${clip.thumb_url || 'https://via.placeholder.com/300x169'}" loading="lazy" 
+                                     class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-0 transition-opacity duration-300 z-10">
+                                
+                                ${clip.preview_url ? `<video src="${clip.preview_url}" loop muted playsinline preload="none" class="absolute inset-0 w-full h-full object-cover z-0"></video>` : ''}
+
+                                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20 pointer-events-none">
+                                    <span class="material-symbols-rounded text-4xl text-white drop-shadow-lg scale-90 group-hover:scale-100 transition-transform">play_circle</span>
+                                </div>
+                                
+                                <span class="absolute top-1 left-1 bg-blue-600 text-white text-[9px] font-bold px-1 rounded shadow-md z-20 pointer-events-none">HD</span>
+                                <span class="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] font-mono px-1 rounded z-20 pointer-events-none">${(clip.end_time - clip.start_time).toFixed(0)}s</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- 3. INTERACTION LOGIC ---
+
+        function playPreview(card) {
+            const video = card.querySelector('video');
+            if (video) { video.currentTime = 0; video.play().catch(()=>{}); }
+        }
+        function stopPreview(card) {
+            const video = card.querySelector('video');
+            if (video) { video.pause(); video.currentTime = 0; }
+        }
+
+        // --- 4. MODAL & TRACKING ---
+        const modal = document.getElementById('preview-modal');
+        const videoPlayer = document.getElementById('video-player');
+        const slider = document.getElementById('thumbnail-slider');
+        const downloadBtn = document.getElementById('video-download-btn');
+
+        function openPreview(epId, idx) {
+            currentEpId = epId;
+            const clips = pageClipData[epId];
+            slider.innerHTML = clips.map((c, i) => `
+                <div class="relative flex-shrink-0 cursor-pointer snap-center group" onclick="loadClip(${i})">
+                    <img src="${c.thumb_url || 'https://via.placeholder.com/100'}" class="h-16 w-28 object-cover rounded opacity-50 group-hover:opacity-100 hover:scale-105 transition-all border border-transparent group-hover:border-blue-500">
+                </div>
+            `).join('');
+            
+            loadClip(idx);
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePreview() {
+            modal.classList.remove('active');
+            setTimeout(() => { videoPlayer.pause(); videoPlayer.removeAttribute('src'); }, 200);
+            document.body.style.overflow = 'auto';
+        }
+
+        function loadClip(idx) {
+            const clips = pageClipData[currentEpId];
+            const clip = clips[idx];
+            
+            // Set Player Data
+            videoPlayer.src = clip.video_url;
+            document.getElementById('preview-filename').textContent = clip.clip_name || 'Clip';
+            document.getElementById('preview-duration').textContent = (clip.end_time - clip.start_time).toFixed(1) + 's';
+            
+            // Configure Download Button
+            downloadBtn.href = clip.video_url;
+            downloadBtn.setAttribute('download', (clip.clip_name || 'clip') + '.mp4');
+
+            // Update Thumbs Active State
+            const thumbs = slider.querySelectorAll('img');
+            thumbs.forEach((t, i) => {
+                if (i === idx) { t.classList.add('active-thumbnail', 'opacity-100'); t.scrollIntoView({behavior: 'smooth', inline: 'center'}); }
+                else t.classList.remove('active-thumbnail', 'opacity-100');
+            });
+
+            // Nav Buttons
+            const prev = document.getElementById('prev-clip-btn');
+            const next = document.getElementById('next-clip-btn');
+            prev.onclick = () => idx > 0 ? loadClip(idx - 1) : null;
+            prev.style.display = idx === 0 ? 'none' : 'flex';
+            next.onclick = () => idx < clips.length - 1 ? loadClip(idx + 1) : null;
+            next.style.display = idx === clips.length - 1 ? 'none' : 'flex';
+        }
+
+        // Volume Memory
+        videoPlayer.addEventListener('volumechange', () => localStorage.setItem('ac_vol', videoPlayer.volume));
+        if(localStorage.getItem('ac_vol')) videoPlayer.volume = parseFloat(localStorage.getItem('ac_vol'));
+
+        // 🚀 ANALYTICS FUNCTION
+        function trackDownload() {
+            if(!currentAnimeId) return;
+            // Fire request to update backend score (Downloads +1)
+            fetch(`${API_URL}/animes/${currentAnimeId}/track-download`, { method: 'POST' }).catch(console.error);
+        }
+
+        function copyClipLink() {
+            navigator.clipboard.writeText(videoPlayer.src).then(() => {
+                const msg = document.getElementById('copy-success-msg');
+                msg.classList.replace('opacity-0', 'opacity-100'); 
+                setTimeout(() => msg.classList.replace('opacity-100', 'opacity-0'), 1500);
+            });
+        }
+
+        modal.addEventListener('click', e => e.target === modal && closePreview());
+        document.addEventListener('keydown', e => e.key === 'Escape' && closePreview());
+    </script>
+</body>
+</html>

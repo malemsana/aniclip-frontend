@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Collection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #020617; color: #f1f5f9; }
+        .aspect-4-3 { aspect-ratio: 4/3; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .card-enter { animation: fadeIn 0.5s ease-out forwards; opacity: 0; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+</head>
+<body class="min-h-screen p-4 sm:p-8">
+    
+    <header class="mb-8 flex items-center gap-4">
+        <a href="index.html" class="w-10 h-10 rounded-full bg-slate-900 border border-white/10 flex items-center justify-center text-white hover:bg-blue-600 transition-colors">
+            <span class="material-symbols-rounded">arrow_back</span>
+        </a>
+        <div>
+            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Collection</div>
+            <h1 id="page-title" class="text-3xl font-black text-white uppercase italic">...</h1>
+        </div>
+    </header>
+
+    <!-- Grid -->
+    <div id="browse-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-3">
+        <!-- Loading -->
+        <div class="col-span-full text-center py-20 text-slate-600 animate-pulse">Fetching Series...</div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api'; // CHANGE ME
+        
+        window.onload = async () => {
+            const params = new URLSearchParams(window.location.search);
+            const tag = params.get('tag');
+
+            if(!tag) { window.location.href = 'index.html'; return; }
+            
+            document.title = `${tag} | AnimeClips`;
+            document.getElementById('page-title').innerText = tag;
+
+            try {
+                const res = await fetch(`${API_URL}/animes/browse?tag=${encodeURIComponent(tag)}`);
+                const data = await res.json();
+                renderGrid(data);
+            } catch(e) {
+                document.getElementById('browse-grid').innerHTML = `<div class="text-center col-span-full text-red-500">Error loading content</div>`;
+            }
+        };
+
+        function renderGrid(data) {
+            const container = document.getElementById('browse-grid');
+            if(data.length === 0) return container.innerHTML = `<div class="text-center col-span-full text-slate-500 py-20">No series found in this collection.</div>`;
+
+            container.innerHTML = data.map((anime, i) => `
+                <div class="card-enter" style="animation-delay: ${i*30}ms">
+                    <a href="anime.html?name=${encodeURIComponent(anime.name)}" class="group relative block w-full">
+                        <div class="relative aspect-4-3 rounded bg-slate-900 border border-white/5 overflow-hidden shadow-sm group-hover:shadow-blue-900/20 group-hover:border-blue-500/30 transition-all">
+                            <img src="${anime.poster_url}" class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 opacity-80 group-hover:opacity-100">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-80"></div>
+                        </div>
+                        <div class="mt-2 px-1">
+                            <h3 class="text-[11px] font-bold text-slate-300 leading-tight truncate group-hover:text-blue-400 transition-colors">${anime.title || anime.name}</h3>
+                        </div>
+                    </a>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
