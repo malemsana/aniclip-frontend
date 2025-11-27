@@ -1,0 +1,10 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Blue Rounded Background (blue-600) -->
+    <rect width="256" height="256" rx="60" fill="#2563EB"/>
+    
+    <!-- White "Movie" Clapperboard Icon (Centered) -->
+    <!-- Scale: 24px icon -> scaled up to fit 256 box -->
+    <g transform="translate(64, 64) scale(5.3)">
+        <path d="M18 4L20 8H17L15 4H13L15 8H12L10 4H8L10 8H7L5 4H4C2.9 4 2.01 4.9 2.01 6L2 18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V4H18Z" fill="white"/>
+    </g>
+</svg>
