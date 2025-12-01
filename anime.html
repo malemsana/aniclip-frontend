@@ -3,345 +3,390 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anime Details</title>
+    <title>Anime Details | Performance Optimized</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/svg+xml" href="icon.svg">
-
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { gray: { 900: '#0f172a', 950: '#020617' } },
-                    animation: { 'spin-slow': 'spin 3s linear infinite' }
-                }
-            }
-        }
+        tailwind.config = { theme: { extend: { colors: { gray: { 900: '#0f172a', 950: '#020617' } }, animation: { 'spin-slow': 'spin 3s linear infinite' } } } }
     </script>
-
     <style>
         html { scroll-behavior: smooth; }
         body { font-family: 'Inter', sans-serif; background-color: #020617; background-image: radial-gradient(circle at 50% 0%, #1e3a8a 0%, transparent 40%); background-attachment: fixed; }
         .aspect-16-9 { aspect-ratio: 16 / 9; }
         .aspect-4-3 { aspect-ratio: 4 / 3; }
         .material-symbols-rounded { font-size: 24px; }
+        /* Optimization: Enforce Hardware Acceleration on container to prevent repaint glitches */
+        #episodes-wrapper { transform: translateZ(0); will-change: contents; }
         
-        /* Modal & Animation Styles */
         #preview-modal { visibility: hidden; opacity: 0; transition: all 0.2s ease-out; }
         #preview-modal.active { visibility: visible; opacity: 1; }
-        
-        /* Thumb Slider Customization */
         .thumbnail-slider::-webkit-scrollbar { height: 4px; }
         .thumbnail-slider::-webkit-scrollbar-track { background: #1e293b; }
         .thumbnail-slider::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
         .thumbnail-slider .active-thumbnail { outline: 2px solid #3b82f6; opacity: 1; filter: brightness(1.2); }
-        
-        .fade-in { animation: fadeIn 0.5s ease-in-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Hover Preview Styling */
         .clip-card video { object-fit: cover; opacity: 0; transition: opacity 0.3s ease; }
         .clip-card:hover video { opacity: 1; }
-        .clip-card:hover img { opacity: 0; } /* Hide thumb on hover */
+        .clip-card:hover img { opacity: 0; }
+        .shimmer { background: linear-gradient(90deg, #1e293b 0%, #334155 50%, #1e293b 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        /* Transitions for mounting/unmounting */
+        .ep-content { transition: opacity 0.3s ease-in-out; }
     </style>
 </head>
 <body class="text-slate-100 antialiased min-h-screen flex flex-col">
 
     <!-- HEADER -->
-<!-- HEADER -->
     <header class="sticky top-0 z-40 border-b border-white/5 bg-slate-950/80 backdrop-blur-xl">
         <nav class="container mx-auto px-4 h-16 flex justify-between items-center">
-            
-            <!-- LOGO (Matched Style) -->
             <a href="index.html" class="flex items-center gap-3 group">
                 <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
                     <span class="material-symbols-rounded text-white text-lg">movie</span>
                 </div>
-                <span class="font-black text-xl tracking-tight text-slate-100 group-hover:text-white transition-colors">
-                    Ani<span class="text-blue-500">Clips</span>
-                </span>
+                <span class="font-black text-xl tracking-tight text-slate-100">Ani<span class="text-blue-500">Clips</span></span>
             </a>
-
-            <a href="index.html" class="text-xs font-bold text-slate-500 hover:text-white transition-colors flex items-center gap-1 uppercase tracking-wider">
-                <span class="material-symbols-rounded text-sm">arrow_back</span> Back to Library
-            </a>
+            <!-- Header Nav Back Link -->
+            <a href="index.html" class="text-xs font-bold text-slate-500 hover:text-white transition-colors flex items-center gap-1 uppercase tracking-wider"><span class="material-symbols-rounded text-sm">arrow_back</span> Library</a>
         </nav>
     </header>
-    <!-- MAIN CONTENT -->
+    
     <main class="flex-grow container mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <!-- Back Link -->
         <a href="index.html" class="inline-flex items-center text-slate-400 hover:text-blue-400 mb-6 text-sm transition-colors">
             <span class="material-symbols-rounded text-lg mr-1">arrow_back</span> Back to Library
         </a>
 
         <!-- Hero Panel -->
         <section id="anime-info-panel" class="relative rounded-2xl overflow-hidden mb-12 border border-white/10 shadow-2xl bg-slate-900/40 min-h-[250px]">
-            <!-- Populated by JS -->
+             <div class="flex h-full p-8 gap-8 items-end animate-pulse"><div class="w-32 md:w-48 aspect-4-3 bg-slate-800 rounded"></div><div class="flex-1 space-y-4"><div class="h-8 bg-slate-800 w-3/4 rounded"></div></div></div>
         </section>
 
-        <!-- Loader -->
-        <div id="skeleton-loader" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-0.5">
-            <div class="col-span-full text-center text-slate-500 py-12 animate-pulse">Loading Clips...</div>
-        </div>
-
-        <!-- CLIPS CONTAINER (Your Dense Grid) -->
-        <section id="clips-by-episode-section" class="fade-in"></section>
+        <!-- Container -->
+        <section id="episodes-wrapper" class="space-y-6 min-h-[50vh]"></section>
+        <div class="h-10"></div>
     </main>
 
     <footer class="border-t border-white/10 mt-12 py-8 bg-slate-950/50 text-center text-slate-500 text-sm"><p>&copy; 2025 Anime Clips Library.</p></footer>
 
-    <!-- PREVIEW MODAL (Full Player) -->
-    <div id="preview-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div class="relative w-full max-w-7xl h-[90vh] md:h-auto bg-slate-900 rounded-xl overflow-hidden border border-slate-700 shadow-2xl flex flex-col lg:flex-row">
+    <!-- PREVIEW MODAL (Restored Glassmorphism: Lighter BG + Stronger Blur) -->
+    <div id="preview-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xl flex items-center justify-center z-50 p-4 opacity-0 invisible transition-all duration-300">
+        <div class="relative w-full max-w-7xl h-[90vh] md:h-auto bg-slate-900 rounded-xl overflow-hidden border border-slate-700 shadow-2xl flex flex-col lg:flex-row shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+            
             <button onclick="closePreview()" class="absolute top-2 right-2 lg:top-4 lg:right-4 z-50 bg-black/50 hover:bg-red-500/80 text-white p-1 rounded-full transition-colors"><span class="material-symbols-rounded">close</span></button>
 
-            <!-- Left: Player -->
-            <div class="w-full lg:w-[70%] bg-black flex flex-col">
+            <!-- LEFT: Video Player -->
+            <div class="w-full lg:w-[70%] bg-black flex flex-col relative group/video">
                 <div class="relative w-full flex-grow flex items-center justify-center bg-black">
-                    <video id="video-player" class="w-full max-h-[65vh] aspect-16-9 object-contain" controls autoplay playsinline></video>
-                    <button id="prev-clip-btn" class="absolute left-0 h-full w-20 flex items-center justify-start pl-2 hover:bg-gradient-to-r from-black/60 to-transparent opacity-0 hover:opacity-100 transition-opacity disabled:hidden"><span class="material-symbols-rounded text-4xl text-white drop-shadow-md">chevron_left</span></button>
-                    <button id="next-clip-btn" class="absolute right-0 h-full w-20 flex items-center justify-end pr-2 hover:bg-gradient-to-l from-black/60 to-transparent opacity-0 hover:opacity-100 transition-opacity disabled:hidden"><span class="material-symbols-rounded text-4xl text-white drop-shadow-md">chevron_right</span></button>
+                    <video id="video-player" class="w-full max-h-[65vh] aspect-16-9 object-contain outline-none" controls autoplay playsinline></video>
+                    
+                    <button id="prev-clip-btn" class="absolute left-0 top-0 bottom-14 w-24 flex items-center justify-start pl-4 bg-gradient-to-r from-black/50 to-transparent opacity-0 group-hover/video:opacity-100 transition-opacity disabled:hidden focus:outline-none">
+                        <span class="material-symbols-rounded text-5xl text-white/90 drop-shadow-lg transform active:scale-95 transition-transform">chevron_left</span>
+                    </button>
+                    <button id="next-clip-btn" class="absolute right-0 top-0 bottom-14 w-24 flex items-center justify-end pr-4 bg-gradient-to-l from-black/50 to-transparent opacity-0 group-hover/video:opacity-100 transition-opacity disabled:hidden focus:outline-none">
+                        <span class="material-symbols-rounded text-5xl text-white/90 drop-shadow-lg transform active:scale-95 transition-transform">chevron_right</span>
+                    </button>
                 </div>
-                <div class="h-24 bg-slate-950 border-t border-white/10 flex flex-col justify-center">
-                    <div id="thumbnail-slider" class="thumbnail-slider flex gap-2 overflow-x-auto px-4 py-2 snap-x items-center"></div>
+                <!-- Thumbs Slider -->
+                <div class="h-24 bg-slate-950 border-t border-white/10 flex flex-col justify-center relative">
+                    <div id="thumbnail-slider" class="thumbnail-slider flex gap-2 overflow-x-auto px-4 py-2 snap-x items-center scroll-smooth"></div>
+                    <div class="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-slate-950 to-transparent pointer-events-none"></div>
+                    <div class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-slate-950 to-transparent pointer-events-none"></div>
                 </div>
             </div>
 
-            <!-- Right: Details -->
+            <!-- RIGHT: Details Panel -->
             <div class="w-full lg:w-[30%] bg-slate-900 p-6 lg:p-8 flex flex-col border-l border-slate-800 overflow-y-auto">
-                <div class="mb-2 flex items-center gap-2"><span class="bg-blue-600/20 text-blue-400 text-[10px] font-bold px-2 py-1 rounded border border-blue-500/30 uppercase tracking-wider">HD Source</span></div>
-                <h3 id="preview-filename" class="text-lg md:text-xl font-bold text-white break-words leading-snug mb-6 font-mono">filename.mkv</h3>
-                <div class="text-sm text-slate-400 space-y-3 mb-8 bg-slate-800/50 p-4 rounded-lg">
+                <div class="mb-4 flex items-center justify-between">
+                    <span class="bg-blue-600/20 text-blue-400 text-[10px] font-bold px-2 py-1 rounded border border-blue-500/30 uppercase">HD Source</span>
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <span class="text-xs text-slate-400 font-medium group-hover:text-slate-200">Auto Play</span>
+                        <input type="checkbox" id="autoplay-toggle" class="sr-only peer">
+                        <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600 relative top-0.5"></div>
+                    </label>
+                </div>
+
+                <h3 id="preview-filename" class="text-lg md:text-xl font-bold text-white mb-6 font-mono break-words leading-tight">Loading...</h3>
+                <div class="text-sm text-slate-400 space-y-3 mb-8 bg-slate-800/50 p-4 rounded-lg border border-white/5">
                     <div class="flex justify-between border-b border-white/5 pb-2"><span>Duration</span><span id="preview-duration" class="text-slate-200 font-mono">--:--</span></div>
-                    <div class="flex justify-between border-b border-white/5 pb-2"><span>Format</span><span class="text-slate-200">MP4/MKV</span></div>
+                    <div class="flex justify-between border-b border-white/5 pb-2"><span>Quality</span><span class="text-slate-200">1080p / High</span></div>
                 </div>
+
                 <div class="mt-auto space-y-3">
-                    
-                    <!-- DOWNLOAD BUTTON (Connected to Tracking) -->
-                    <a id="video-download-btn" href="#" download onclick="trackDownload()" class="block w-full py-3 px-4 bg-blue-600 hover:bg-blue-500 text-white text-center rounded-lg font-semibold transition-all shadow-lg flex items-center justify-center gap-2 group">
-                        <span class="material-symbols-rounded group-hover:-translate-y-1 transition-transform">download</span> Download Clip
+                    <a id="video-download-btn" href="#" download onclick="trackDownload()" class="block w-full py-4 px-4 bg-blue-600 hover:bg-blue-500 text-white text-center rounded-lg font-bold shadow-lg flex items-center justify-center gap-2 group transition-all active:scale-[0.98]">
+                        <span class="material-symbols-rounded group-hover:-translate-y-0.5 transition-transform">download</span> Download Clip
                     </a>
-                    
-                    <button onclick="copyClipLink()" class="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg font-medium transition-all border border-slate-700 flex items-center justify-center gap-2 relative">
-                        <span class="material-symbols-rounded text-sm">link</span> Copy Link
-                        <div id="copy-success-msg" class="absolute inset-0 bg-emerald-600 text-white flex items-center justify-center rounded-lg opacity-0 pointer-events-none transition-opacity font-bold"><span class="material-symbols-rounded mr-1">check</span> Copied!</div>
-                    </button>
                 </div>
+                <p class="text-[10px] text-center text-slate-600 mt-4">Arrow Left/Right to Navigate • Space to Pause</p>
             </div>
         </div>
     </div>
 
 <script>
-        // ⚠️ CONFIGURATION
-        const API_URL = 'https://aniclip-backend.onrender.com/api';
+    // ⚙️ CONFIG
+    const API_URL = 'https://aniclip-backend.onrender.com/api';
+    const WINDOW_PADDING = 2;
 
-        // State for the Details Page
-        let pageClipData = {}; 
-        let currentEpId = null;
-        let currentAnimeId = null; // Crucial for analytics tracking
+    const state = {
+        animeSlug: new URLSearchParams(window.location.search).get('name'),
+        animeId: null,
+        episodesList: [],     
+        clipsCache: {},       
+        activeEpIds: new Set(), 
+        visibleEpIndices: new Set(),
+        autoplay: false
+    };
 
-        // --- 1. INITIAL LOAD ---
-        window.onload = async () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const animeName = urlParams.get('name'); 
-            
-            // DOM Elements
-            const infoPanel = document.getElementById('anime-info-panel');
-            const clipsSection = document.getElementById('clips-by-episode-section');
-            const loader = document.getElementById('skeleton-loader');
+    const els = {
+        hero: document.getElementById('anime-info-panel'),
+        wrapper: document.getElementById('episodes-wrapper'),
+        modal: document.getElementById('preview-modal'),
+        player: document.getElementById('video-player'),
+        slider: document.getElementById('thumbnail-slider'),
+        dlBtn: document.getElementById('video-download-btn'),
+        autoPlayInput: document.getElementById('autoplay-toggle'),
+        prevBtn: document.getElementById('prev-clip-btn'),
+        nextBtn: document.getElementById('next-clip-btn')
+    };
 
-            if (!animeName) {
-                window.location.href = 'index.html'; // Redirect if broken link
-                return;
+    window.onload = async () => {
+        if (!state.animeSlug) { window.location.href = 'index.html'; return; }
+        try {
+            const [metaRes, epsRes] = await Promise.all([
+                fetch(`${API_URL}/animes/${state.animeSlug}`),
+                fetch(`${API_URL}/animes/${state.animeSlug}/episodes`)
+            ]);
+            const anime = await metaRes.json();
+            state.episodesList = (await epsRes.json()).sort((a,b) => a.number - b.number).map((ep, idx) => ({ ...ep, index: idx }));
+            state.animeId = anime.id;
+            document.title = `${anime.title} | AniClips`;
+            renderHero(anime);
+            createListStructure();
+            initMemoryManager();
+            if(localStorage.getItem('ac_autoplay') === 'true') {
+                els.autoPlayInput.checked = true;
+                state.autoplay = true;
             }
+        } catch(e) { console.error(e); }
+    };
 
-            try {
-                // A. Fetch Anime Metadata
-                const resInfo = await fetch(`${API_URL}/animes/${animeName}`);
-                if (!resInfo.ok) throw new Error("Anime Not Found");
-                const anime = await resInfo.json();
-                
-                if (!anime.id) throw new Error("Invalid Anime Data");
-                
-                currentAnimeId = anime.id; // Store ID for the download tracker
-                document.title = `${anime.title || anime.name} | AnimeClips`;
-                renderHeroPanel(infoPanel, anime);
+    els.autoPlayInput.addEventListener('change', (e) => {
+        state.autoplay = e.target.checked;
+        localStorage.setItem('ac_autoplay', state.autoplay);
+    });
 
-                // B. Fetch Episodes
-                const resEp = await fetch(`${API_URL}/animes/${animeName}/episodes`);
-                const episodes = await resEp.json();
-
-                // C. Fetch Clips (Parallel requests for speed)
-                const promises = episodes.map(async (ep) => {
-                    const cRes = await fetch(`${API_URL}/animes/${animeName}/episodes/${ep.number}/clips`);
-                    ep.clips = await cRes.json();
-                    pageClipData[ep.id] = ep.clips; // Store for modal navigation
-                    return ep;
-                });
-
-                const fullEpisodes = await Promise.all(promises);
-                loader.style.display = 'none';
-                
-                // D. Render Content
-                fullEpisodes.sort((a,b) => a.number - b.number).forEach(ep => {
-                    if(ep.clips.length > 0) renderEpisodeRow(clipsSection, ep);
-                });
-
-            } catch (e) {
-                console.error(e);
-                infoPanel.innerHTML = `<div class="text-center text-red-400 p-10 border border-red-500/30 rounded-xl">Error loading content: ${e.message}</div>`;
-                loader.style.display = 'none';
-            }
-        };
-
-        // --- 2. RENDERERS (Matches your Density UI) ---
-
-        function renderHeroPanel(container, data) {
-            const poster = data.poster_url || 'https://via.placeholder.com/300x450?text=No+Image';
-            const desc = data.description || 'No description available.';
-            
-            // Render Genres from the database array
-            const genresHtml = (data.genres || []).map(g => 
-                `<span class="text-[9px] bg-slate-800/80 border border-slate-600 px-2 py-0.5 rounded text-slate-300 uppercase font-bold tracking-wide">${g}</span>`
-            ).join('');
-
-            container.innerHTML = `
-                <div class="absolute inset-0 z-0"><img src="${poster}" class="w-full h-full object-cover object-top opacity-30 blur-xl"></div>
-                <div class="absolute inset-0 z-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent"></div>
-                
-                <div class="relative z-10 p-6 md:p-8 flex flex-col md:flex-row gap-6 items-end h-full">
-                    <img src="${poster}" class="w-32 md:w-48 rounded shadow-2xl border border-white/10 aspect-4-3 object-cover bg-slate-950">
-                    <div class="flex-1 mb-2">
-                        <div class="flex gap-2 mb-2 flex-wrap items-center">
-                            <span class="text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded font-bold uppercase tracking-wider shadow-lg shadow-blue-600/20">TV SERIES</span>
-                            ${genresHtml}
-                        </div>
-                        <h1 class="text-3xl md:text-5xl font-black text-white leading-tight drop-shadow-md">${data.title || data.name}</h1>
-                        <p class="text-slate-300 mt-4 text-sm leading-relaxed max-w-2xl line-clamp-3 font-medium text-shadow-sm">${desc}</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderEpisodeRow(container, ep) {
-            container.innerHTML += `
-                <div class="mb-8">
-                    <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-3">
-                        <span class="w-1 h-6 bg-blue-600 rounded-full block"></span> ${ep.title || 'Episode '+ep.number}
+    function createListStructure() {
+        const html = state.episodesList.map(ep => `
+            <div id="row-${ep.index}" class="episode-row transition-all duration-300" data-index="${ep.index}" data-id="${ep.id}">
+                <div class="sticky top-16 bg-slate-950/90 backdrop-blur z-30 py-2 mb-1 border-b border-slate-800/50">
+                    <h2 class="text-lg font-bold text-slate-400 flex items-center gap-3">
+                        <span id="indicator-${ep.index}" class="w-1 h-5 bg-slate-700 rounded-full block transition-colors"></span> Episode ${ep.number}
                     </h2>
-                    <!-- Your Dense 6-Col Grid -->
-                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-[2px] bg-slate-900 border border-slate-800 rounded-lg overflow-hidden">
-                        ${ep.clips.map((clip, idx) => `
-                            <div class="relative group clip-card cursor-pointer overflow-hidden bg-black aspect-16-9" 
-                                 onclick="openPreview(${ep.id}, ${idx})"
-                                 onmouseenter="playPreview(this)" 
-                                 onmouseleave="stopPreview(this)">
-                                
-                                <img src="${clip.thumb_url || 'https://via.placeholder.com/300x169'}" loading="lazy" 
-                                     class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-0 transition-opacity duration-300 z-10">
-                                
-                                ${clip.preview_url ? `<video src="${clip.preview_url}" loop muted playsinline preload="none" class="absolute inset-0 w-full h-full object-cover z-0"></video>` : ''}
+                </div>
+                <div id="content-${ep.index}" class="ep-content min-h-[160px]"></div>
+            </div>
+        `).join('');
+        els.wrapper.innerHTML = html;
+    }
 
-                                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20 pointer-events-none">
-                                    <span class="material-symbols-rounded text-4xl text-white drop-shadow-lg scale-90 group-hover:scale-100 transition-transform">play_circle</span>
-                                </div>
-                                
-                                <span class="absolute top-1 left-1 bg-blue-600 text-white text-[9px] font-bold px-1 rounded shadow-md z-20 pointer-events-none">HD</span>
-                                <span class="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] font-mono px-1 rounded z-20 pointer-events-none">${(clip.end_time - clip.start_time).toFixed(0)}s</span>
-                            </div>
-                        `).join('')}
+    function initMemoryManager() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const idx = parseInt(entry.target.getAttribute('data-index'));
+                if (entry.isIntersecting) state.visibleEpIndices.add(idx);
+                else state.visibleEpIndices.delete(idx);
+            });
+            if(state.visibleEpIndices.size > 0) processActiveWindow();
+        }, { rootMargin: '200px', threshold: 0 });
+        document.querySelectorAll('.episode-row').forEach(row => observer.observe(row));
+    }
+
+    function processActiveWindow() {
+        const indices = Array.from(state.visibleEpIndices);
+        if(!indices.length) return;
+        const minVisible = Math.min(...indices);
+        const maxVisible = Math.max(...indices);
+        const start = Math.max(0, minVisible - WINDOW_PADDING);
+        const end = Math.min(state.episodesList.length - 1, maxVisible + WINDOW_PADDING);
+
+        for (let i = start; i <= end; i++) mountEpisode(i);
+        state.episodesList.forEach(ep => {
+            if (ep.index < start || ep.index > end) unmountEpisode(ep.index);
+        });
+    }
+
+    async function mountEpisode(idx) {
+        if (state.activeEpIds.has(idx)) return;
+        state.activeEpIds.add(idx);
+        const contentDiv = document.getElementById(`content-${idx}`);
+        const ep = state.episodesList[idx];
+
+        document.getElementById(`indicator-${idx}`).className = "w-1 h-5 bg-blue-500 rounded-full block shadow-[0_0_10px_#3b82f6]";
+        document.querySelector(`#row-${idx} h2`).classList.add('text-white');
+        contentDiv.style.height = 'auto';
+
+        if (state.clipsCache[ep.id]) renderClips(contentDiv, ep.id, state.clipsCache[ep.id]);
+        else {
+            renderSkeleton(contentDiv);
+            try {
+                const res = await fetch(`${API_URL}/animes/${state.animeSlug}/episodes/${ep.number}/clips`);
+                const clips = await res.json();
+                state.clipsCache[ep.id] = clips;
+                if (state.activeEpIds.has(idx)) renderClips(contentDiv, ep.id, clips);
+            } catch (e) { contentDiv.innerHTML = '<div class="p-4 text-red-500 text-xs">Load Failed</div>'; }
+        }
+    }
+
+    function unmountEpisode(idx) {
+        if (!state.activeEpIds.has(idx)) return;
+        const contentDiv = document.getElementById(`content-${idx}`);
+        const currentHeight = contentDiv.offsetHeight;
+        if(currentHeight > 0) contentDiv.style.height = `${currentHeight}px`;
+        contentDiv.innerHTML = ''; 
+        state.activeEpIds.delete(idx);
+        document.getElementById(`indicator-${idx}`).className = "w-1 h-5 bg-slate-700 rounded-full block";
+        document.querySelector(`#row-${idx} h2`).classList.remove('text-white');
+    }
+
+    function renderClips(container, epId, clips) {
+        if (clips.length === 0) { container.innerHTML = '<div class="h-12 flex items-center px-4 text-xs text-slate-500 italic">No clips found.</div>'; return; }
+        container.innerHTML = `
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-[2px] rounded-lg overflow-hidden border border-slate-800 bg-slate-900/50 fade-in">
+                ${clips.map((clip, i) => `
+                    <div class="relative group clip-card cursor-pointer overflow-hidden bg-black aspect-16-9"
+                        onclick="openPreview('${epId}', ${i})"
+                        onmouseenter="playPreview(this)" onmouseleave="stopPreview(this)">
+                        <img src="${clip.thumb_url}" loading="lazy" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-0 transition-opacity z-10">
+                        ${clip.preview_url ? `<video src="${clip.preview_url}" loop muted playsinline preload="none" class="absolute inset-0 w-full h-full object-cover z-0"></video>` : ''}
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none">
+                            <span class="material-symbols-rounded text-4xl text-white drop-shadow-md">play_circle</span>
+                        </div>
+                        <span class="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] px-1 rounded z-20 font-mono">${Math.floor(clip.end_time - clip.start_time)}s</span>
                     </div>
+                `).join('')}
+            </div>`;
+    }
+
+    function renderSkeleton(container) {
+        container.innerHTML = `<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-[2px] opacity-50">${Array(6).fill(0).map(()=>`<div class="aspect-16-9 shimmer bg-slate-800"></div>`).join('')}</div>`;
+    }
+
+    function renderHero(d) {
+        const genres = (d.genres||[]).map(g => 
+            `<span class="text-[9px] bg-slate-800/80 border border-slate-600 px-2 py-0.5 rounded text-slate-300 uppercase font-bold tracking-wide">${g}</span>`
+        ).join('');
+
+        els.hero.innerHTML = `
+            <div class="absolute inset-0 z-0"><img src="${d.poster_url}" class="w-full h-full object-cover object-top opacity-30 blur-xl"></div>
+            <div class="absolute inset-0 z-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent"></div>
+            
+            <div class="relative z-10 p-6 md:p-8 flex flex-col md:flex-row gap-6 items-end h-full">
+                <img src="${d.poster_url}" class="w-32 md:w-48 rounded shadow-2xl border border-white/10 aspect-4-3 object-cover bg-slate-950">
+                <div class="flex-1 mb-2">
+                    <div class="flex gap-2 mb-2 flex-wrap items-center">
+                        <span class="text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded font-bold uppercase tracking-wider shadow-lg shadow-blue-600/20">TV SERIES</span>
+                        ${genres}
+                    </div>
+                    <h1 class="text-3xl md:text-5xl font-black text-white leading-tight drop-shadow-md">${d.title}</h1>
+                    <p class="text-slate-300 mt-4 text-sm leading-relaxed max-w-2xl line-clamp-3 font-medium text-shadow-sm">${d.description}</p>
                 </div>
-            `;
-        }
+            </div>`;
+    }
 
-        // --- 3. INTERACTION LOGIC ---
+    // --- SLIDER & PLAYER ---
+    let activeCtx = { epId: null, idx: 0 };
+    let hasSliderRenderedForThisEp = false;
 
-        function playPreview(card) {
-            const video = card.querySelector('video');
-            if (video) { video.currentTime = 0; video.play().catch(()=>{}); }
-        }
-        function stopPreview(card) {
-            const video = card.querySelector('video');
-            if (video) { video.pause(); video.currentTime = 0; }
-        }
+    function openPreview(epId, idx) {
+        if(activeCtx.epId !== epId || !hasSliderRenderedForThisEp) renderSliderBase(epId);
+        activeCtx = { epId, idx };
+        els.modal.classList.add('active');
+        els.modal.classList.remove('invisible', 'opacity-0');
+        loadPlayer(true);
+        document.body.style.overflow = 'hidden';
+    }
 
-        // --- 4. MODAL & TRACKING ---
-        const modal = document.getElementById('preview-modal');
-        const videoPlayer = document.getElementById('video-player');
-        const slider = document.getElementById('thumbnail-slider');
-        const downloadBtn = document.getElementById('video-download-btn');
+    function renderSliderBase(epId) {
+        const clips = state.clipsCache[epId];
+        els.slider.innerHTML = clips.map((c, i) => `
+            <div onclick="userSwitchClip(${i})" class="relative flex-shrink-0 cursor-pointer snap-center group">
+                <img src="${c.thumb_url}" class="h-16 w-28 object-cover rounded opacity-50 group-hover:opacity-100 hover:scale-105 transition-all border border-transparent group-hover:border-blue-500">
+            </div>
+        `).join('');
+        hasSliderRenderedForThisEp = true;
+    }
 
-        function openPreview(epId, idx) {
-            currentEpId = epId;
-            const clips = pageClipData[epId];
-            slider.innerHTML = clips.map((c, i) => `
-                <div class="relative flex-shrink-0 cursor-pointer snap-center group" onclick="loadClip(${i})">
-                    <img src="${c.thumb_url || 'https://via.placeholder.com/100'}" class="h-16 w-28 object-cover rounded opacity-50 group-hover:opacity-100 hover:scale-105 transition-all border border-transparent group-hover:border-blue-500">
-                </div>
-            `).join('');
-            
-            loadClip(idx);
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
+    function userSwitchClip(newIdx) {
+        if(newIdx === activeCtx.idx) return;
+        activeCtx.idx = newIdx;
+        loadPlayer(true);
+    }
 
-        function closePreview() {
-            modal.classList.remove('active');
-            setTimeout(() => { videoPlayer.pause(); videoPlayer.removeAttribute('src'); }, 200);
-            document.body.style.overflow = 'auto';
-        }
+    function loadPlayer(shouldPlay) {
+        const clips = state.clipsCache[activeCtx.epId];
+        const clip = clips[activeCtx.idx];
+        const total = clips.length;
 
-        function loadClip(idx) {
-            const clips = pageClipData[currentEpId];
-            const clip = clips[idx];
-            
-            // Set Player Data
-            videoPlayer.src = clip.video_url;
-            document.getElementById('preview-filename').textContent = clip.clip_name || 'Clip';
-            document.getElementById('preview-duration').textContent = (clip.end_time - clip.start_time).toFixed(1) + 's';
-            
-            // Configure Download Button
-            downloadBtn.href = clip.video_url;
-            downloadBtn.setAttribute('download', (clip.clip_name || 'clip') + '.mp4');
+        els.player.src = clip.video_url;
+        document.getElementById('preview-filename').textContent = clip.clip_name;
+        document.getElementById('preview-duration').textContent = (clip.end_time - clip.start_time).toFixed(1) + 's';
+        els.dlBtn.href = clip.video_url;
+        els.dlBtn.setAttribute('download', `${clip.clip_name}.mp4`);
 
-            // Update Thumbs Active State
-            const thumbs = slider.querySelectorAll('img');
-            thumbs.forEach((t, i) => {
-                if (i === idx) { t.classList.add('active-thumbnail', 'opacity-100'); t.scrollIntoView({behavior: 'smooth', inline: 'center'}); }
-                else t.classList.remove('active-thumbnail', 'opacity-100');
-            });
+        if(shouldPlay) els.player.play().catch(()=>{});
 
-            // Nav Buttons
-            const prev = document.getElementById('prev-clip-btn');
-            const next = document.getElementById('next-clip-btn');
-            prev.onclick = () => idx > 0 ? loadClip(idx - 1) : null;
-            prev.style.display = idx === 0 ? 'none' : 'flex';
-            next.onclick = () => idx < clips.length - 1 ? loadClip(idx + 1) : null;
-            next.style.display = idx === clips.length - 1 ? 'none' : 'flex';
-        }
+        Array.from(els.slider.children).forEach((el, i) => {
+            const img = el.querySelector('img');
+            if (i === activeCtx.idx) {
+                img.className = "h-16 w-28 object-cover rounded hover:scale-105 transition-all opacity-100 border-2 border-blue-500 brightness-110";
+                el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            } else {
+                img.className = "h-16 w-28 object-cover rounded opacity-50 group-hover:opacity-100 hover:scale-105 transition-all border border-transparent group-hover:border-blue-500";
+            }
+        });
 
-        // Volume Memory
-        videoPlayer.addEventListener('volumechange', () => localStorage.setItem('ac_vol', videoPlayer.volume));
-        if(localStorage.getItem('ac_vol')) videoPlayer.volume = parseFloat(localStorage.getItem('ac_vol'));
+        els.prevBtn.style.display = activeCtx.idx === 0 ? 'none' : 'flex';
+        els.nextBtn.style.display = activeCtx.idx === total - 1 ? 'none' : 'flex';
+        els.prevBtn.onclick = (e) => { e.stopPropagation(); userSwitchClip(activeCtx.idx - 1); };
+        els.nextBtn.onclick = (e) => { e.stopPropagation(); userSwitchClip(activeCtx.idx + 1); };
+    }
 
-        // 🚀 ANALYTICS FUNCTION
-        function trackDownload() {
-            if(!currentAnimeId) return;
-            // Fire request to update backend score (Downloads +1)
-            fetch(`${API_URL}/animes/${currentAnimeId}/track-download`, { method: 'POST' }).catch(console.error);
-        }
+    els.player.addEventListener('ended', () => {
+        if(!state.autoplay) return;
+        const clips = state.clipsCache[activeCtx.epId];
+        if(activeCtx.idx < clips.length - 1) userSwitchClip(activeCtx.idx + 1);
+    });
 
-        function copyClipLink() {
-            navigator.clipboard.writeText(videoPlayer.src).then(() => {
-                const msg = document.getElementById('copy-success-msg');
-                msg.classList.replace('opacity-0', 'opacity-100'); 
-                setTimeout(() => msg.classList.replace('opacity-100', 'opacity-0'), 1500);
-            });
-        }
+    function closePreview() {
+        els.modal.classList.add('invisible', 'opacity-0');
+        els.modal.classList.remove('active');
+        setTimeout(() => { els.player.pause(); els.player.removeAttribute('src'); activeCtx.idx = -1; }, 200); 
+        document.body.style.overflow = 'auto';
+    }
 
-        modal.addEventListener('click', e => e.target === modal && closePreview());
-        document.addEventListener('keydown', e => e.key === 'Escape' && closePreview());
-    </script>
+    document.addEventListener('keydown', (e) => {
+        if (!els.modal.classList.contains('active')) return;
+        if(e.key === 'ArrowRight') {
+            const clips = state.clipsCache[activeCtx.epId];
+            if(activeCtx.idx < clips.length - 1) userSwitchClip(activeCtx.idx + 1);
+        } else if(e.key === 'ArrowLeft') {
+            if(activeCtx.idx > 0) userSwitchClip(activeCtx.idx - 1);
+        } else if(e.key === ' ' || e.key === 'Spacebar') {
+            if(document.activeElement !== els.player) {
+                e.preventDefault(); 
+                els.player.paused ? els.player.play() : els.player.pause();
+            }
+        } else if(e.key === 'Escape') closePreview();
+    });
+
+    function playPreview(el) { const v=el.querySelector('video'); if(v) { v.currentTime=0; v.play().catch(()=>{}); } }
+    function stopPreview(el) { const v=el.querySelector('video'); if(v) v.pause(); }
+    function trackDownload() { fetch(`${API_URL}/animes/${state.animeId}/track-download`, { method: 'POST' }).catch(()=>{}); }
+
+    const savedVol = localStorage.getItem('ac_vol');
+    if(savedVol) els.player.volume = parseFloat(savedVol);
+    els.player.onvolumechange = () => localStorage.setItem('ac_vol', els.player.volume);
+
+</script>
 </body>
 </html>
