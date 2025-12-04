@@ -45,13 +45,11 @@
                 </div>
                 <span class="font-black text-xl tracking-tight text-slate-100">Ani<span class="text-blue-500">Clips</span></span>
             </a>
-            <!-- Header Nav Back Link -->
             <a href="index.html" class="text-xs font-bold text-slate-500 hover:text-white transition-colors flex items-center gap-1 uppercase tracking-wider"><span class="material-symbols-rounded text-sm">arrow_back</span> Library</a>
         </nav>
     </header>
     
     <main class="flex-grow container mx-auto p-4 sm:p-6 lg:p-8">
-        
         <!-- Back Link -->
         <a href="index.html" class="inline-flex items-center text-slate-400 hover:text-blue-400 mb-6 text-sm transition-colors">
             <span class="material-symbols-rounded text-lg mr-1">arrow_back</span> Back to Library
@@ -69,25 +67,28 @@
 
     <footer class="border-t border-white/10 mt-12 py-8 bg-slate-950/50 text-center text-slate-500 text-sm"><p>&copy; 2025 Anime Clips Library.</p></footer>
 
-    <!-- PREVIEW MODAL (Restored Glassmorphism: Lighter BG + Stronger Blur) -->
+    <!-- EPISODE NAVIGATION MODAL -->
+    <div id="nav-modal" onclick="closeNav()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-[60] p-4 opacity-0 invisible transition-all duration-200">
+        <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl shadow-2xl w-full max-w-lg flex flex-col max-h-[80vh]" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2"><span class="material-symbols-rounded text-blue-500">format_list_bulleted</span> Jump to Episode</h3>
+                <button onclick="closeNav()" class="text-slate-500 hover:text-white transition-colors"><span class="material-symbols-rounded">close</span></button>
+            </div>
+            <div id="nav-grid" class="grid grid-cols-4 sm:grid-cols-5 gap-3 overflow-y-auto pr-2 custom-scrollbar"></div>
+        </div>
+    </div>
+
+    <!-- PREVIEW MODAL -->
     <div id="preview-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xl flex items-center justify-center z-50 p-4 opacity-0 invisible transition-all duration-300">
         <div class="relative w-full max-w-7xl h-[90vh] md:h-auto bg-slate-900 rounded-xl overflow-hidden border border-slate-700 shadow-2xl flex flex-col lg:flex-row shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-            
             <button onclick="closePreview()" class="absolute top-2 right-2 lg:top-4 lg:right-4 z-50 bg-black/50 hover:bg-red-500/80 text-white p-1 rounded-full transition-colors"><span class="material-symbols-rounded">close</span></button>
-
-            <!-- LEFT: Video Player -->
+            
             <div class="w-full lg:w-[70%] bg-black flex flex-col relative group/video">
                 <div class="relative w-full flex-grow flex items-center justify-center bg-black">
                     <video id="video-player" class="w-full max-h-[65vh] aspect-16-9 object-contain outline-none" controls autoplay playsinline></video>
-                    
-                    <button id="prev-clip-btn" class="absolute left-0 top-0 bottom-14 w-24 flex items-center justify-start pl-4 bg-gradient-to-r from-black/50 to-transparent opacity-0 group-hover/video:opacity-100 transition-opacity disabled:hidden focus:outline-none">
-                        <span class="material-symbols-rounded text-5xl text-white/90 drop-shadow-lg transform active:scale-95 transition-transform">chevron_left</span>
-                    </button>
-                    <button id="next-clip-btn" class="absolute right-0 top-0 bottom-14 w-24 flex items-center justify-end pr-4 bg-gradient-to-l from-black/50 to-transparent opacity-0 group-hover/video:opacity-100 transition-opacity disabled:hidden focus:outline-none">
-                        <span class="material-symbols-rounded text-5xl text-white/90 drop-shadow-lg transform active:scale-95 transition-transform">chevron_right</span>
-                    </button>
+                    <button id="prev-clip-btn" class="absolute left-0 top-0 bottom-14 w-24 flex items-center justify-start pl-4 bg-gradient-to-r from-black/50 to-transparent opacity-0 group-hover/video:opacity-100 transition-opacity disabled:hidden focus:outline-none"><span class="material-symbols-rounded text-5xl text-white/90 drop-shadow-lg transform active:scale-95 transition-transform">chevron_left</span></button>
+                    <button id="next-clip-btn" class="absolute right-0 top-0 bottom-14 w-24 flex items-center justify-end pr-4 bg-gradient-to-l from-black/50 to-transparent opacity-0 group-hover/video:opacity-100 transition-opacity disabled:hidden focus:outline-none"><span class="material-symbols-rounded text-5xl text-white/90 drop-shadow-lg transform active:scale-95 transition-transform">chevron_right</span></button>
                 </div>
-                <!-- Thumbs Slider -->
                 <div class="h-24 bg-slate-950 border-t border-white/10 flex flex-col justify-center relative">
                     <div id="thumbnail-slider" class="thumbnail-slider flex gap-2 overflow-x-auto px-4 py-2 snap-x items-center scroll-smooth"></div>
                     <div class="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-slate-950 to-transparent pointer-events-none"></div>
@@ -95,7 +96,6 @@
                 </div>
             </div>
 
-            <!-- RIGHT: Details Panel -->
             <div class="w-full lg:w-[30%] bg-slate-900 p-6 lg:p-8 flex flex-col border-l border-slate-800 overflow-y-auto">
                 <div class="mb-4 flex items-center justify-between">
                     <span class="bg-blue-600/20 text-blue-400 text-[10px] font-bold px-2 py-1 rounded border border-blue-500/30 uppercase">HD Source</span>
@@ -105,27 +105,32 @@
                         <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600 relative top-0.5"></div>
                     </label>
                 </div>
-
-                <h3 id="preview-filename" class="text-lg md:text-xl font-bold text-white mb-6 font-mono break-words leading-tight">Loading...</h3>
+                <h3 id="preview-filename" class="text-lg md:text-xl font-bold text-white mb-6 font-mono break-words leading-tight">...</h3>
                 <div class="text-sm text-slate-400 space-y-3 mb-8 bg-slate-800/50 p-4 rounded-lg border border-white/5">
                     <div class="flex justify-between border-b border-white/5 pb-2"><span>Duration</span><span id="preview-duration" class="text-slate-200 font-mono">--:--</span></div>
                     <div class="flex justify-between border-b border-white/5 pb-2"><span>Quality</span><span class="text-slate-200">1080p / High</span></div>
                 </div>
-
                 <div class="mt-auto space-y-3">
-                    <a id="video-download-btn" href="#" download onclick="trackDownload()" class="block w-full py-4 px-4 bg-blue-600 hover:bg-blue-500 text-white text-center rounded-lg font-bold shadow-lg flex items-center justify-center gap-2 group transition-all active:scale-[0.98]">
+                    <!-- FIXED: Replaced 'href' with 'onclick' to trigger the blob fetch logic -->
+                    <button id="video-download-btn" class="block w-full py-4 px-4 bg-blue-600 hover:bg-blue-500 text-white text-center rounded-lg font-bold shadow-lg flex items-center justify-center gap-2 group transition-all active:scale-[0.98]">
                         <span class="material-symbols-rounded group-hover:-translate-y-0.5 transition-transform">download</span> Download Clip
-                    </a>
+                    </button>
                 </div>
                 <p class="text-[10px] text-center text-slate-600 mt-4">Arrow Left/Right to Navigate • Space to Pause</p>
             </div>
         </div>
     </div>
 
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    </style>
+
 <script>
     // ⚙️ CONFIG
     const API_URL = 'https://aniclip-backend.onrender.com/api';
-    const WINDOW_PADDING = 2;
+    const WINDOW_PADDING = 1;
 
     const state = {
         animeSlug: new URLSearchParams(window.location.search).get('name'),
@@ -141,6 +146,8 @@
         hero: document.getElementById('anime-info-panel'),
         wrapper: document.getElementById('episodes-wrapper'),
         modal: document.getElementById('preview-modal'),
+        navModal: document.getElementById('nav-modal'),
+        navGrid: document.getElementById('nav-grid'),
         player: document.getElementById('video-player'),
         slider: document.getElementById('thumbnail-slider'),
         dlBtn: document.getElementById('video-download-btn'),
@@ -162,6 +169,7 @@
             document.title = `${anime.title} | AniClips`;
             renderHero(anime);
             createListStructure();
+            populateNavGrid();
             initMemoryManager();
             if(localStorage.getItem('ac_autoplay') === 'true') {
                 els.autoPlayInput.checked = true;
@@ -177,16 +185,48 @@
 
     function createListStructure() {
         const html = state.episodesList.map(ep => `
-            <div id="row-${ep.index}" class="episode-row transition-all duration-300" data-index="${ep.index}" data-id="${ep.id}">
-                <div class="sticky top-16 bg-slate-950/90 backdrop-blur z-30 py-2 mb-1 border-b border-slate-800/50">
-                    <h2 class="text-lg font-bold text-slate-400 flex items-center gap-3">
-                        <span id="indicator-${ep.index}" class="w-1 h-5 bg-slate-700 rounded-full block transition-colors"></span> Episode ${ep.number}
-                    </h2>
+            <div id="row-${ep.index}" class="episode-row transition-all duration-300 scroll-mt-28" data-index="${ep.index}" data-id="${ep.id}">
+                <div class="sticky top-16 bg-slate-950/90 backdrop-blur z-30 py-1 mb-1 border-b border-slate-800/50">
+                    <button onclick="openNav()" class="group flex items-center gap-3 w-full text-left focus:outline-none hover:bg-slate-900/50 px-2 py-0.5 rounded-lg transition-colors -ml-2">
+                        <span id="indicator-${ep.index}" class="w-1 h-5 bg-slate-700 rounded-full block transition-colors"></span> 
+                        <span class="text-lg font-bold text-slate-400 group-hover:text-blue-400 transition-colors">Episode ${ep.number}</span>
+                        <span class="material-symbols-rounded text-slate-600 group-hover:text-blue-400 text-lg transition-colors opacity-0 group-hover:opacity-100 transform translate-y-0.5">expand_more</span>
+                    </button>
                 </div>
                 <div id="content-${ep.index}" class="ep-content min-h-[160px]"></div>
             </div>
         `).join('');
         els.wrapper.innerHTML = html;
+    }
+
+    function populateNavGrid() {
+        els.navGrid.innerHTML = state.episodesList.map(ep => `
+            <button onclick="jumpToEpisode(${ep.index})" 
+                class="py-3 px-2 bg-slate-800 hover:bg-blue-600 hover:text-white rounded-lg border border-slate-700 transition-colors text-slate-300 font-medium text-sm flex flex-col items-center">
+                <span>Ep ${ep.number}</span>
+            </button>
+        `).join('');
+    }
+
+    function openNav() { els.navModal.classList.remove('invisible', 'opacity-0'); }
+    function closeNav() { els.navModal.classList.add('invisible', 'opacity-0'); }
+
+    async function jumpToEpisode(idx) {
+        closeNav();
+        // Force pre-mount to ensure correct layout calculations
+        const rangeStart = Math.max(0, idx - WINDOW_PADDING);
+        const rangeEnd = Math.min(state.episodesList.length - 1, idx + WINDOW_PADDING);
+        for(let i = rangeStart; i <= rangeEnd; i++) await mountEpisode(i);
+
+        const row = document.getElementById(`row-${idx}`);
+        state.activeEpIds.forEach(id => {
+            const ind = document.getElementById(`indicator-${id}`);
+            if(ind) ind.className = "w-1 h-5 bg-slate-700 rounded-full block";
+        });
+        
+        if(row) {
+            requestAnimationFrame(() => row.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+        }
     }
 
     function initMemoryManager() {
@@ -222,7 +262,9 @@
         const ep = state.episodesList[idx];
 
         document.getElementById(`indicator-${idx}`).className = "w-1 h-5 bg-blue-500 rounded-full block shadow-[0_0_10px_#3b82f6]";
-        document.querySelector(`#row-${idx} h2`).classList.add('text-white');
+        const titleSpan = document.querySelector(`#row-${idx} button span.text-lg`);
+        if(titleSpan) { titleSpan.classList.remove('text-slate-400'); titleSpan.classList.add('text-white'); }
+
         contentDiv.style.height = 'auto';
 
         if (state.clipsCache[ep.id]) renderClips(contentDiv, ep.id, state.clipsCache[ep.id]);
@@ -244,8 +286,10 @@
         if(currentHeight > 0) contentDiv.style.height = `${currentHeight}px`;
         contentDiv.innerHTML = ''; 
         state.activeEpIds.delete(idx);
+        
         document.getElementById(`indicator-${idx}`).className = "w-1 h-5 bg-slate-700 rounded-full block";
-        document.querySelector(`#row-${idx} h2`).classList.remove('text-white');
+        const titleSpan = document.querySelector(`#row-${idx} button span.text-lg`);
+        if(titleSpan) { titleSpan.classList.remove('text-white'); titleSpan.classList.add('text-slate-400'); }
     }
 
     function renderClips(container, epId, clips) {
@@ -272,15 +316,11 @@
     }
 
     function renderHero(d) {
-        const genres = (d.genres||[]).map(g => 
-            `<span class="text-[9px] bg-slate-800/80 border border-slate-600 px-2 py-0.5 rounded text-slate-300 uppercase font-bold tracking-wide">${g}</span>`
-        ).join('');
-
+        const genres = (d.genres||[]).map(g => `<span class="text-[9px] bg-slate-800/80 border border-slate-600 px-2 py-0.5 rounded text-slate-300 uppercase font-bold tracking-wide">${g}</span>`).join('');
         els.hero.innerHTML = `
             <div class="absolute inset-0 z-0"><img src="${d.poster_url}" class="w-full h-full object-cover object-top opacity-30 blur-xl"></div>
             <div class="absolute inset-0 z-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent"></div>
-            
-            <div class="relative z-10 p-6 md:p-8 flex flex-col md:flex-row gap-6 items-end h-full">
+            <div class="relative z-10 p-6 md:p-8 flex flex-col md:flex-row gap-6 items-start md:items-end h-full">
                 <img src="${d.poster_url}" class="w-32 md:w-48 rounded shadow-2xl border border-white/10 aspect-4-3 object-cover bg-slate-950">
                 <div class="flex-1 mb-2">
                     <div class="flex gap-2 mb-2 flex-wrap items-center">
@@ -293,7 +333,6 @@
             </div>`;
     }
 
-    // --- SLIDER & PLAYER ---
     let activeCtx = { epId: null, idx: 0 };
     let hasSliderRenderedForThisEp = false;
 
@@ -322,6 +361,37 @@
         loadPlayer(true);
     }
 
+    // 🚀 NEW: Handling Cross-Origin Download via Blob Fetch
+    async function forceDownload(url, filename) {
+        trackDownload();
+        const originalText = els.dlBtn.innerHTML;
+        els.dlBtn.innerHTML = `<span class="material-symbols-rounded animate-spin">progress_activity</span> Downloading...`;
+        els.dlBtn.disabled = true;
+        els.dlBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+        try {
+            const res = await fetch(url);
+            if(!res.ok) throw new Error("Fetch failed");
+            const blob = await res.blob();
+            const tempUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = tempUrl;
+            a.download = `${filename}.mp4`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(tempUrl);
+            a.remove();
+        } catch (e) {
+            console.error(e);
+            window.open(url, '_blank'); // Fallback
+        } finally {
+            els.dlBtn.innerHTML = originalText;
+            els.dlBtn.disabled = false;
+            els.dlBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    }
+
     function loadPlayer(shouldPlay) {
         const clips = state.clipsCache[activeCtx.epId];
         const clip = clips[activeCtx.idx];
@@ -330,8 +400,9 @@
         els.player.src = clip.video_url;
         document.getElementById('preview-filename').textContent = clip.clip_name;
         document.getElementById('preview-duration').textContent = (clip.end_time - clip.start_time).toFixed(1) + 's';
-        els.dlBtn.href = clip.video_url;
-        els.dlBtn.setAttribute('download', `${clip.clip_name}.mp4`);
+        
+        // Attach the new Downloader
+        els.dlBtn.onclick = () => forceDownload(clip.video_url, clip.clip_name);
 
         if(shouldPlay) els.player.play().catch(()=>{});
 
@@ -365,6 +436,7 @@
     }
 
     document.addEventListener('keydown', (e) => {
+        if(els.navModal.classList.contains('invisible') === false) { if(e.key==='Escape') closeNav(); return; } 
         if (!els.modal.classList.contains('active')) return;
         if(e.key === 'ArrowRight') {
             const clips = state.clipsCache[activeCtx.epId];
