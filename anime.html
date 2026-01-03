@@ -397,15 +397,53 @@
         const clip = clips[activeCtx.idx];
         const total = clips.length;
 
+        // Player loads FAST source by default for preview performance
         els.player.src = clip.video_url;
         document.getElementById('preview-filename').textContent = clip.clip_name;
         document.getElementById('preview-duration').textContent = (clip.end_time - clip.start_time).toFixed(1) + 's';
         
-        // Attach the new Downloader
-        els.dlBtn.onclick = () => forceDownload(clip.video_url, clip.clip_name);
+        // --- 🔽 NEW DOWNLOAD BUTTON LOGIC 🔽 ---
+        const btnContainer = document.getElementById('video-download-btn').parentElement;
+        
+        // 1. FAST BUTTON (Always there)
+        const fastBtn = `
+            <button onclick="forceDownload('${clip.video_url}', '${clip.clip_name}_fast')" 
+                class="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 text-white text-center rounded-lg font-bold shadow-md flex items-center justify-between group transition-all mb-2 border border-slate-700">
+                <span class="flex items-center gap-2 text-xs uppercase tracking-wide text-slate-300">
+                    <span class="material-symbols-rounded text-base">bolt</span> Fast
+                </span>
+                <span class="text-xs bg-slate-900 px-2 py-1 rounded text-slate-500">720p</span>
+            </button>
+        `;
+
+        // 2. HQ BUTTON (Conditional)
+        let hqBtn = '';
+        if (clip.videohq_url) {
+            hqBtn = `
+            <button onclick="forceDownload('${clip.videohq_url}', '${clip.clip_name}_hq')" 
+                class="w-full py-4 px-4 bg-blue-600 hover:bg-blue-500 text-white text-center rounded-lg font-bold shadow-lg flex items-center justify-between group transition-all active:scale-[0.98]">
+                <span class="flex items-center gap-2">
+                    <span class="material-symbols-rounded group-hover:-translate-y-0.5 transition-transform">diamond</span> High Quality
+                </span>
+                <span class="text-xs bg-blue-700/50 px-2 py-1 rounded text-blue-100">1080p</span>
+            </button>
+            `;
+        } else {
+            // Disabled State if no HQ
+            hqBtn = `
+            <div class="w-full py-3 px-4 bg-slate-800/50 text-slate-600 rounded-lg font-bold border border-white/5 flex items-center justify-between cursor-not-allowed">
+                <span class="flex items-center gap-2 text-sm"><span class="material-symbols-rounded">block</span> HQ Unavailable</span>
+            </div>
+            `;
+        }
+
+        // Inject Buttons
+        btnContainer.innerHTML = hqBtn + fastBtn;
+        // --- 🔼 END NEW LOGIC 🔼 ---
 
         if(shouldPlay) els.player.play().catch(()=>{});
 
+        // (Rest of your slider highlight logic remains identical)
         Array.from(els.slider.children).forEach((el, i) => {
             const img = el.querySelector('img');
             if (i === activeCtx.idx) {
