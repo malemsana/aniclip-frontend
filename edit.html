@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Anime | Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { gray: { 900: '#0f172a', 950: '#020617' } },
+                    animation: { 'slide-in': 'slideIn 0.3s ease-out forwards', 'slide-out': 'slideOut 0.3s ease-in forwards' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .material-symbols-rounded {
+            font-size: 20px;
+            vertical-align: middle;
+        }
+
+        /* Inputs */
+        .input-dark,
+        select.input-dark,
+        textarea.input-dark {
+            background-color: #1e293b !important;
+            border-color: #334155 !important;
+            color: #f8fafc !important;
+            width: 100%;
+            border-radius: 0.5rem;
+            padding: 0.6rem 1rem;
+            font-size: 0.875rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .input-dark:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        .label-dark {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .upload-zone {
+            background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='8' ry='8' stroke='%23334155FF' stroke-width='2' stroke-dasharray='8%2c8' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+        }
+
+        .upload-zone:hover {
+            background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='8' ry='8' stroke='%233B82F6FF' stroke-width='2' stroke-dasharray='8%2c8' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+
+        #drawer-overlay,
+        #modal-overlay {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col bg-slate-950 relative">
+
+    <!-- ==== NAVBAR ==== -->
+    <nav class="sticky top-0 z-40 border-b border-white/5 bg-slate-950/90 backdrop-blur-md">
+        <div class="container mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="index.html"
+                    class="text-slate-400 hover:text-white flex items-center gap-1 text-sm font-bold transition-colors">
+                    <span class="material-symbols-rounded">arrow_back</span> <span class="hidden sm:inline">Back</span>
+                </a>
+                <div class="h-4 w-[1px] bg-slate-700"></div>
+
+                <span class="text-white font-bold text-lg flex items-center gap-2">
+                    <span class="material-symbols-rounded text-slate-500">edit_square</span> <span
+                        id="page-header-title">Edit Series</span>
+                </span>
+                <!-- Added hidden button -->
+                <a id="btn-view-gist" target="_blank" href="#"
+                    class="hidden ml-4 text-[10px] font-mono text-emerald-400 border border-emerald-500/30 bg-emerald-900/10 px-2 py-1 rounded hover:bg-emerald-500/20 transition-colors">
+                    <span class="flex items-center gap-1"><span class="material-symbols-rounded text-sm">code</span>
+                        VIEW JSON</span>
+                </a>
+            </div>
+            <button onclick="saveAllChanges()" id="main-save-btn"
+                class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg font-semibold text-sm transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2 group">
+                <span class="material-symbols-rounded group-hover:scale-110 transition-transform">save</span> <span>Save
+                    Changes</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ==== MAIN CONTENT ==== -->
+    <main class="container mx-auto px-4 py-8 max-w-5xl">
+
+        <!-- 1. ANIME METADATA -->
+        <div class="bg-slate-900 border border-white/5 rounded-xl p-6 mb-8 shadow-xl">
+            <h2 class="text-base font-bold text-white mb-6 border-b border-white/5 pb-4 flex items-center gap-2">
+                <span class="material-symbols-rounded text-blue-500 bg-blue-500/10 p-1 rounded">settings</span> Series
+                Metadata
+            </h2>
+            <div class="flex flex-col sm:flex-row gap-6">
+                <!-- Poster Upload (4:3) -->
+                <div class="shrink-0 w-48">
+                    <label class="label-dark mb-2">Thumbnail (4:3)</label>
+                    <input type="file" id="poster-upload" accept="image/*" class="hidden"
+                        onchange="handlePosterUpload(event)">
+
+                    <div class="relative group w-full aspect-[4/3] rounded-lg overflow-hidden cursor-pointer transition-all border border-slate-700 hover:border-blue-500"
+                        onclick="document.getElementById('poster-upload').click()">
+                        <div class="upload-zone absolute inset-0 bg-slate-950 transition-all flex flex-col items-center justify-center text-slate-500 group-hover:text-blue-400"
+                            id="poster-zone">
+                            <span class="material-symbols-rounded text-3xl mb-1">add_photo_alternate</span> <span
+                                class="text-[10px] font-bold uppercase">Upload Image</span>
+                        </div>
+                        <img id="poster-preview" src="" class="relative w-full h-full object-cover hidden z-10">
+                        <div
+                            class="absolute inset-0 bg-black/60 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                            <span class="text-white text-xs font-bold flex items-center gap-1"><span
+                                    class="material-symbols-rounded text-sm">edit</span> Change</span>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <input type="text" id="poster-url-input" class="input-dark text-xs font-mono text-slate-400"
+                            placeholder="Or paste image URL..." oninput="updatePosterPreview(this.value)">
+                    </div>
+                </div>
+                <!-- Fields -->
+                <div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 content-start">
+                    <input type="hidden" id="anime-id">
+
+                    <!-- Title & Feature Row -->
+                    <div class="col-span-1 sm:col-span-2 flex gap-4 items-end">
+                        <div class="flex-grow">
+                            <label class="label-dark">Series Title</label>
+                            <input type="text" id="anime-title" placeholder="e.g. Hyouka" class="input-dark">
+                        </div>
+                        <div class="pb-2">
+                            <label class="flex items-center gap-2 cursor-pointer group select-none">
+                                <input type="checkbox" id="anime-featured"
+                                    class="w-4 h-4 rounded bg-slate-700 border-slate-600 text-blue-600 focus:ring-offset-gray-900">
+                                <span
+                                    class="text-xs font-bold text-slate-400 group-hover:text-white transition-colors uppercase tracking-wider">Featured</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-span-1 sm:col-span-2">
+                        <label class="label-dark">Description</label>
+                        <textarea id="anime-desc" class="input-dark h-20" placeholder="Synopsis..."></textarea>
+                    </div>
+                    <div class="col-span-1 sm:col-span-2">
+                        <label class="label-dark">Tags / Genres</label>
+                        <div class="relative">
+                            <input type="text" placeholder="Type tag & press Enter (e.g. Action)"
+                                class="input-dark pl-9" id="tags-input" onkeydown="handleTagInput(event)">
+                            <span
+                                class="material-symbols-rounded absolute left-2.5 top-2 text-slate-500 text-sm">label</span>
+                        </div>
+                        <div id="tags-preview" class="flex gap-2 mt-3 flex-wrap min-h-[1.5rem]"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. CONTENT MANAGER BAR -->
+        <div class="flex justify-between items-end mb-4" id="content-manager-header">
+            <div>
+                <h3 class="text-lg font-bold text-white flex items-center gap-2"><span
+                        class="material-symbols-rounded text-emerald-400">movie_filter</span> Content Manager</h3>
+                <p class="text-xs text-slate-500 mt-1">Manage episodes hierarchy and video files.</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="openImportModal()"
+                    class="bg-slate-800 text-slate-300 border border-slate-700 hover:border-white/20 hover:text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-colors shadow-sm">
+                    <span class="material-symbols-rounded text-lg">data_object</span> Import JSON
+                </button>
+                <button onclick="addEpisode()"
+                    class="bg-blue-600/10 text-blue-400 border border-blue-600/20 hover:bg-blue-600/20 px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-colors shadow-sm">
+                    <span class="material-symbols-rounded text-lg">playlist_add</span> Add Episode
+                </button>
+            </div>
+        </div>
+
+        <div id="episodes-container" class="space-y-6 pb-20"></div>
+        <div class="text-center text-slate-500 py-10 italic" id="empty-msg">Loading content...</div>
+
+    </main>
+
+    <!-- ==== IMPORT JSON MODAL ==== -->
+    <div id="import-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div id="modal-overlay" class="absolute inset-0" onclick="closeImportModal()"></div>
+        <div class="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-2xl p-6 relative z-10 shadow-2xl">
+            <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <span class="material-symbols-rounded text-blue-500">data_object</span> Import Pipeline Data
+            </h2>
+            <div class="flex flex-col gap-4">
+                <div class="border-2 border-dashed border-slate-700 rounded-lg p-6 text-center hover:border-blue-500/50 transition-colors cursor-pointer bg-slate-950/50"
+                    onclick="document.getElementById('json-file-input').click()">
+                    <span class="material-symbols-rounded text-4xl text-slate-600 mb-2">upload_file</span>
+                    <p class="text-slate-400 text-sm font-bold">Click to Upload 'metadata.json'</p>
+                    <input type="file" id="json-file-input" accept=".json" class="hidden"
+                        onchange="handleFileSelect(event)">
+                </div>
+                <div class="text-center text-xs text-slate-600 font-bold uppercase tracking-wider">- OR -</div>
+                <div>
+                    <label class="label-dark mb-1">Paste JSON Text</label>
+                    <textarea id="json-paste-area" class="input-dark h-32 font-mono text-xs"
+                        placeholder='{ "anime_title": "...", "episodes": [...] }'></textarea>
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-white/5">
+                <button onclick="closeImportModal()"
+                    class="px-4 py-2 text-slate-400 hover:text-white text-sm font-bold">Cancel</button>
+                <button onclick="processImport()" id="btn-process-import"
+                    class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-bold text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span class="material-symbols-rounded">publish</span> Import Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==== CLIP EDITOR DRAWER ==== -->
+    <div id="drawer-overlay" class="fixed inset-0 z-40 hidden transition-opacity opacity-0" onclick="closeEditor()">
+    </div>
+    <aside id="clip-editor-drawer"
+        class="fixed top-0 right-0 w-[400px] max-w-[90%] h-full bg-slate-950 border-l border-white/5 shadow-2xl z-50 translate-x-full transition-transform duration-300 ease-out flex flex-col">
+        <div class="h-16 px-6 border-b border-white/5 flex justify-between items-center bg-slate-900/50">
+            <h2 class="text-white font-bold flex items-center gap-2"><span
+                    class="material-symbols-rounded text-blue-500">tune</span> Edit Details</h2>
+            <button onclick="closeEditor()" class="text-slate-500 hover:text-white transition-colors"><span
+                    class="material-symbols-rounded text-2xl">close</span></button>
+        </div>
+        <div class="flex-grow overflow-y-auto p-6 space-y-6">
+            <input type="hidden" id="edit-clip-id"><input type="hidden" id="edit-ep-id">
+
+            <!-- Thumb -->
+            <div>
+                <label class="label-dark mb-2">Clip Thumbnail</label>
+                <div class="relative group w-full aspect-16-9 bg-black rounded-lg overflow-hidden border border-slate-800 cursor-pointer"
+                    onclick="document.getElementById('edit-thumb-upload').click()">
+                    <img id="edit-preview-img" src="" class="w-full h-full object-cover opacity-70">
+                    <div
+                        class="absolute inset-0 flex flex-col items-center justify-center text-white/50 group-hover:bg-black/50 group-hover:text-white transition-all">
+                        <span class="material-symbols-rounded text-3xl mb-1">image_update</span>
+                    </div>
+                </div>
+                <input type="file" id="edit-thumb-upload" class="hidden" accept="image/*"
+                    onchange="previewImage(event, 'edit-preview-img')">
+                <input type="text" id="edit-thumb-url" class="input-dark mt-2 text-xs font-mono"
+                    placeholder="Thumbnail URL">
+            </div>
+
+            <!-- Data Inputs -->
+            <div class="space-y-4">
+                <div><label class="label-dark">Filename</label><input type="text" id="edit-filename"
+                        class="input-dark font-mono"></div>
+                <div>
+                    <label class="label-dark">Direct Video URL</label>
+                    <div class="relative"><input type="text" id="edit-url"
+                            class="input-dark font-mono text-xs pr-10"><span
+                            class="material-symbols-rounded absolute right-2.5 top-2 text-slate-500 text-sm">link</span>
+                    </div>
+                </div>
+                <div><label class="label-dark">Preview URL</label><input type="text" id="edit-preview-url"
+                        class="input-dark text-xs font-mono"></div>
+                <div><label class="label-dark">Duration (Sec)</label><input type="text" id="edit-duration"
+                        placeholder="0" class="input-dark font-mono"></div>
+            </div>
+        </div>
+        <div class="p-4 border-t border-white/5 bg-slate-900/50 flex gap-3 items-center">
+            <button onclick="deleteCurrentClip()"
+                class="p-2 bg-red-500/10 text-red-500 hover:bg-red-600 hover:text-white rounded-lg transition-colors flex items-center justify-center mr-auto"><span
+                    class="material-symbols-rounded text-lg">delete_forever</span></button>
+            <button onclick="closeEditor()"
+                class="px-4 py-2 text-slate-400 hover:text-white font-medium text-sm flex items-center gap-1"><span
+                    class="material-symbols-rounded text-base">close</span> Cancel</button>
+            <button onclick="saveClipEditor()"
+                class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold text-sm transition-colors shadow-lg flex items-center gap-2"><span
+                    class="material-symbols-rounded text-base">check_circle</span> Save</button>
+        </div>
+    </aside>
+
+    <!-- ==== JS LOGIC ==== -->
+    <script>
+        console.log("🚀 Script loaded. Initializing variables...");
+
+        // --- CONFIG ---
+        // ⚠️ PRODUCTION API URL (Matches your deployment)
+        const API_URL = 'https://aniclip-backend.onrender.com/api';
+
+        const ADMIN_KEY = localStorage.getItem('aniclip_admin_key');
+        const IMGBB_HARDCODED_KEY = "adb6a9fa4d9bfd8a79dfd0c0ea519e39";
+
+        let currentEditingEpNum = null;
+        let activeTags = [];
+        let currentEditingRow = null;
+        let importedJsonData = null;
+
+        // --- AUTH CHECK ---
+        if (!ADMIN_KEY) window.location.href = 'auth.html';
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const ANIME_NAME_SLUG = urlParams.get('name');
+
+        // --- INITIALIZATION ---
+        window.onload = async () => {
+            if (ANIME_NAME_SLUG) {
+                document.getElementById('page-header-title').innerText = `Edit: ${ANIME_NAME_SLUG}`;
+                await loadData(ANIME_NAME_SLUG);
+            } else {
+                document.getElementById('page-header-title').innerText = "Create New Series";
+                document.getElementById('empty-msg').innerText = "Save Metadata first to add episodes.";
+                const header = document.getElementById('content-manager-header');
+                if (header) {
+                    header.style.opacity = '0.5';
+                    header.style.pointerEvents = 'none';
+                }
+            }
+        };
+
+        // --- DATA LOADING ---
+        async function loadData(slug) {
+            try {
+                const res = await fetch(`${API_URL}/animes/${slug}`);
+                if (!res.ok) throw new Error("Fetch failed");
+                const anime = await res.json();
+                
+                if (anime.backup_url) {
+                    const gistBtn = document.getElementById('btn-view-gist');
+                    gistBtn.href = anime.backup_url;
+                    gistBtn.classList.remove('hidden');
+                }
+
+
+                if (!anime.id) return alert("Anime not found");
+
+                // Fill Metadata
+                document.getElementById('anime-id').value = anime.id;
+                document.getElementById('anime-title').value = anime.title || anime.name;
+                document.getElementById('anime-desc').value = anime.description || '';
+                if (anime.poster_url) updatePosterPreview(anime.poster_url);
+
+                const featSwitch = document.getElementById('anime-featured');
+                if (featSwitch) featSwitch.checked = anime.is_featured || false;
+
+                activeTags = anime.genres || [];
+                renderTags();
+
+                // Fetch Episodes
+                const epRes = await fetch(`${API_URL}/animes/${slug}/episodes`);
+                const episodes = await epRes.json();
+                document.getElementById('episodes-container').innerHTML = '';
+
+                if (episodes.length > 0) {
+                    document.getElementById('empty-msg').style.display = 'none';
+                    // Fetch clips concurrently
+                    const promises = episodes.map(async (ep) => {
+                        const cRes = await fetch(`${API_URL}/animes/${slug}/episodes/${ep.number}/clips`);
+                        ep.clips = await cRes.json();
+                        return ep;
+                    });
+                    const fullEps = await Promise.all(promises);
+                    fullEps.sort((a, b) => a.number - b.number).forEach(renderEpisode);
+                } else {
+                    document.getElementById('empty-msg').style.display = 'block';
+                    document.getElementById('empty-msg').innerText = "No episodes found. Import JSON to populate.";
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // --- UI RENDERERS ---
+        function renderEpisode(ep) {
+            const safeId = String(ep.id);
+            const html = `
+            <div class="bg-slate-900 border border-white/5 rounded-xl overflow-hidden shadow-sm hover:border-white/10 transition-colors" id="ep-${safeId}">
+                <div class="bg-slate-950/50 px-5 py-3 border-b border-white/5 flex items-center gap-4 cursor-pointer hover:bg-white/5" onclick="toggleAccordion('${safeId}')">
+                    <span class="bg-slate-800 text-slate-400 text-[10px] font-bold px-2 py-1 rounded border border-slate-700">EP ${ep.number}</span>
+                    <input type="text" value="${ep.title || 'Episode ' + ep.number}" class="bg-transparent border-none text-white font-medium w-full text-sm" onclick="event.stopPropagation()">
+                    <div class="ml-auto flex items-center gap-2">
+                        <span class="text-xs text-slate-500 mr-2">${ep.clips ? ep.clips.length : 0} Clips</span>
+                        <span class="material-symbols-rounded text-slate-500 text-lg transition-transform" id="chevron-${safeId}">expand_more</span>
+                        <button onclick="deleteEp(event, '${safeId}')" class="text-slate-600 hover:text-red-500 p-1 hover:bg-red-500/10 rounded"><span class="material-symbols-rounded">delete</span></button>
+                    </div>
+                </div>
+                <div class="p-5 hidden" id="content-${safeId}">
+                    <div class="border border-slate-800 rounded-lg overflow-hidden bg-slate-950">
+                        <table class="w-full text-left text-xs text-slate-400">
+                            <thead class="uppercase font-bold text-[10px] text-slate-500 bg-slate-900 border-b border-slate-800">
+                                <tr><th class="px-4 py-2 text-center">Thumb</th><th class="px-4 py-2">File</th><th class="px-4 py-2">Link</th><th class="px-2 py-2"></th></tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/50">
+                                ${(ep.clips || []).map(c => `
+                                <tr class="hover:bg-blue-900/10 cursor-pointer group" onclick="openEditor(this, '${encodeURIComponent(JSON.stringify(c))}')">
+                                    <td class="px-4 py-2 text-center"><div class="w-8 h-8 rounded bg-slate-800 border border-slate-700 overflow-hidden mx-auto"><img src="${c.thumb_url}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/50'"></div></td>
+                                    <td class="px-4 py-2 text-slate-300 font-mono truncate max-w-[200px]">${c.clip_name}</td>
+                                    <td class="px-4 py-2 font-mono opacity-50 truncate max-w-[150px]">${c.video_url}</td>
+                                    <td class="px-2 py-2 text-right"><span class="material-symbols-rounded text-sm opacity-0 group-hover:opacity-100 text-blue-400">edit</span></td>
+                                </tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-3"><button onclick="openAddDrawer(${ep.number})" class="w-full py-2 border-2 border-dashed border-slate-700 hover:border-blue-500 hover:bg-blue-500/5 text-slate-500 hover:text-blue-400 rounded-lg font-bold text-xs flex justify-center gap-2"><span class="material-symbols-rounded">add_circle</span> Add New Clip</button></div>
+                </div>
+            </div>`;
+            document.getElementById('episodes-container').insertAdjacentHTML('beforeend', html);
+        }
+
+        function toggleAccordion(id) {
+            document.getElementById(`content-${id}`).classList.toggle('hidden');
+            document.getElementById(`chevron-${id}`).classList.toggle('rotate-180');
+        }
+
+        // --- JSON IMPORT LOGIC (Restored!) ---
+        function openImportModal() { document.getElementById('import-modal').classList.remove('hidden'); }
+        function closeImportModal() {
+            document.getElementById('import-modal').classList.add('hidden');
+            document.getElementById('json-file-input').value = '';
+            document.getElementById('json-paste-area').value = '';
+        }
+
+        // 1. FILE READER FIX
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    importedJsonData = JSON.parse(e.target.result);
+                    document.getElementById('json-paste-area').value = JSON.stringify(importedJsonData, null, 2);
+                    alert("JSON parsed successfully. Ready to import.");
+                } catch (err) { alert("Invalid JSON structure."); }
+            };
+            reader.readAsText(file);
+        }
+
+        // 2. SEND TO BACKEND FIX
+        async function processImport() {
+            const textVal = document.getElementById('json-paste-area').value;
+            let data = importedJsonData;
+
+            if (!data && textVal) {
+                try { data = JSON.parse(textVal); } catch (e) { return alert("Invalid JSON text"); }
+            }
+            if (!data || !data.anime_title) return alert("No valid data to import.");
+
+            const btn = document.getElementById('btn-process-import');
+            const oldTxt = btn.innerText;
+            btn.innerText = "Importing..."; btn.disabled = true;
+
+            const title = String(data.anime_title);
+            // Generate slug from title if not present
+            const slug = title.toLowerCase().replace(/ /g, '_').replace(/[^a-z0-9_]/g, '');
+
+            try {
+                const res = await fetch(`${API_URL}/admin/import/season`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ADMIN_KEY}` },
+                    body: JSON.stringify({
+                        anime_slug: slug,
+                        anime_title: title,
+                        season_num: data.season_num || 1,
+                        episodes: data.episodes || []
+                    })
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    alert(result.message);
+                    window.location.href = `edit.html?name=${slug}`;
+                } else throw new Error(result.message);
+            } catch (e) {
+                console.error(e);
+                alert("Import Failed: " + e.message);
+            } finally {
+                btn.innerText = oldTxt; btn.disabled = false; closeImportModal();
+            }
+        }
+
+        // --- GENERIC EDIT/SAVE FUNCTIONS ---
+        async function deleteEp(e, id) {
+            e.stopPropagation();
+            if (String(id).includes('temp')) { document.getElementById(`ep-${id}`).remove(); return; }
+            if (!confirm("Delete this episode and all its clips?")) return;
+            try {
+                const res = await fetch(`${API_URL}/admin/episodes/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${ADMIN_KEY}` } });
+                if (res.ok) document.getElementById(`ep-${id}`).remove();
+            } catch (e) { alert("Server Error"); }
+        }
+
+        function openEditor(row, json) {
+            currentEditingRow = row;
+            const clip = JSON.parse(decodeURIComponent(json));
+            document.getElementById('edit-clip-id').value = clip.id;
+            document.getElementById('edit-filename').value = clip.clip_name;
+            document.getElementById('edit-url').value = clip.video_url;
+            document.getElementById('edit-preview-url').value = clip.preview_url || '';
+            document.getElementById('edit-thumb-url').value = clip.thumb_url || '';
+            document.getElementById('edit-preview-img').src = clip.thumb_url || 'https://via.placeholder.com/150';
+            document.getElementById('edit-duration').value = clip.end_time || 0;
+            showDrawer();
+        }
+
+        function openAddDrawer(epNum) {
+            currentEditingEpNum = epNum;
+            document.getElementById('edit-clip-id').value = "";
+            document.getElementById('edit-filename').value = `Clip`;
+            document.getElementById('edit-url').value = "";
+            document.getElementById('edit-preview-url').value = "";
+            document.getElementById('edit-thumb-url').value = "";
+            document.getElementById('edit-duration').value = "";
+            document.getElementById('edit-preview-img').src = "";
+            showDrawer();
+        }
+
+        async function saveClipEditor() {
+            const clipId = document.getElementById('edit-clip-id').value;
+            const duration = parseInt(document.getElementById('edit-duration').value) || 0;
+            const clipData = {
+                clip_name: document.getElementById('edit-filename').value,
+                video_url: document.getElementById('edit-url').value,
+                preview_url: document.getElementById('edit-preview-url').value,
+                thumb_url: document.getElementById('edit-thumb-url').value,
+                start_time: 0, end_time: duration
+            };
+
+            try {
+                if (clipId) {
+                    await fetch(`${API_URL}/admin/clips/${clipId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ADMIN_KEY}` },
+                        body: JSON.stringify(clipData)
+                    });
+                } else {
+                    await fetch(`${API_URL}/admin/clips/bulk`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ADMIN_KEY}` },
+                        body: JSON.stringify({ anime: ANIME_NAME_SLUG, episode: currentEditingEpNum, clips: [clipData] })
+                    });
+                }
+                closeEditor(); loadData(ANIME_NAME_SLUG);
+            } catch (e) { alert("Save Failed: " + e.message); }
+        }
+
+        async function saveAllChanges() {
+            const title = document.getElementById('anime-title').value;
+            const slug = ANIME_NAME_SLUG || title.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+            const payload = {
+                name: slug,
+                title: title,
+                description: document.getElementById('anime-desc').value,
+                poster_url: document.getElementById('poster-url-input').value,
+                genres: activeTags,
+                is_featured: document.getElementById('anime-featured').checked
+            };
+
+            const btn = document.getElementById('main-save-btn');
+            btn.innerText = "Saving...";
+            try {
+                const res = await fetch(`${API_URL}/admin/animes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ADMIN_KEY}` },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    if (!ANIME_NAME_SLUG) window.location.href = `edit.html?name=${slug}`;
+                    else alert("Metadata Saved!");
+                }
+            } catch (e) { console.error(e); }
+            btn.innerText = "Save Changes";
+        }
+
+        // Helpers
+        function handleTagInput(e) {
+            if (e.key === 'Enter') { e.preventDefault(); const v = e.target.value.trim(); if (v && !activeTags.includes(v)) { activeTags.push(v); renderTags(); e.target.value = ''; } }
+        }
+        function removeTag(t) { activeTags = activeTags.filter(Tag => Tag !== t); renderTags(); }
+        function renderTags() {
+            document.getElementById('tags-preview').innerHTML = activeTags.map(t => `<span class="bg-slate-800 text-slate-200 px-2 py-1 rounded text-xs border border-slate-700 flex gap-1">${t}<button onclick="removeTag('${t}')">×</button></span>`).join('');
+        }
+        function deleteCurrentClip() { if (confirm("Delete?")) { fetch(`${API_URL}/admin/clips/${document.getElementById('edit-clip-id').value}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${ADMIN_KEY}` } }); closeEditor(); currentEditingRow.remove(); } }
+        function updatePosterPreview(u) { const i = document.getElementById('poster-preview'); const z = document.getElementById('poster-zone'); if (u) { i.src = u; i.classList.remove('hidden'); z.classList.add('hidden'); document.getElementById('poster-url-input').value = u; } }
+        async function handlePosterUpload(e) { const f = e.target.files[0]; if (!f) return; const fd = new FormData(); fd.append("image", f); try { const r = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_HARDCODED_KEY}`, { method: 'POST', body: fd }); const d = await r.json(); if (d.success) updatePosterPreview(d.data.url); } catch (err) { alert("Upload error"); } }
+        function previewImage(e, id) { const r = new FileReader(); r.onload = () => document.getElementById(id).src = r.result; if (e.target.files[0]) r.readAsDataURL(e.target.files[0]); }
+
+        function showDrawer() { document.getElementById('clip-editor-drawer').classList.remove('translate-x-full'); document.getElementById('drawer-overlay').classList.remove('hidden'); setTimeout(() => document.getElementById('drawer-overlay').classList.remove('opacity-0'), 10); }
+        function closeEditor() { document.getElementById('clip-editor-drawer').classList.add('translate-x-full'); document.getElementById('drawer-overlay').classList.add('opacity-0'); setTimeout(() => document.getElementById('drawer-overlay').classList.add('hidden'), 300); }
+
+    </script>
+</body>
+
+</html>

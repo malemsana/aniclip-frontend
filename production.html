@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Production | AniClips</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+  <script>
+    tailwind.config = { theme: { extend: { colors: { gray: { 900: '#0f172a', 950: '#020617' } } } } }
+  </script>
+
+  <style>
+    body { font-family: Inter, sans-serif; background:#020617; color:#f8fafc; }
+    .material-symbols-rounded { font-size:20px; }
+    .card { background:#0f172a; border:1px solid rgba(255,255,255,.05); border-radius:12px; }
+    
+    .chunk { height: 6px; width:100%; border-radius: 1px; transition: all 0.2s; cursor: help; margin:0 1px;}
+    .chunk.pending { background: #334155; }
+    .chunk.assigned { background: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.4); animation: pulse 2s infinite; }
+    .chunk.completed { background: #10b981; }
+    .chunk.failed { background: #ef4444; cursor: pointer; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+
+    /* New Tab Styles from V2 */
+    .tab-btn { flex: 1; text-align: center; padding: 12px 0; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.2s; }
+    .tab-btn:hover { color: #f8fafc; background: rgba(255,255,255,0.02); }
+    .tab-btn.active { color: #3b82f6; border-bottom-color: #3b82f6; background: rgba(59,130,246,0.05); }
+    .badge { margin-left: 6px; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); color: #94a3b8; font-size: 9px; }
+    .active .badge { background: #3b82f6; color: white; }
+
+    .source-item { transition: all 0.2s; border: 1px solid rgba(255,255,255,0.05); }
+    .source-item:hover { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.1); }
+    .source-item.selected { background: rgba(59, 130, 246, 0.1); border-color: #3b82f6; }
+
+    ::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-thumb{background:#334155;border-radius:4px}
+    
+    .inspector-overlay { transition: opacity 0.2s ease; }
+    
+    .folder-item { cursor: pointer; transition: all 0.15s; }
+    .folder-item:hover { background: rgba(255,255,255,0.02); }
+    .folder-item.selected { background: rgba(59, 130, 246, 0.15); border-color: #3b82f6; }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col bg-slate-950">
+
+<nav class="sticky top-0 z-50 border-b border-white/5 bg-slate-950/80 backdrop-blur">
+  <div class="container mx-auto px-6 h-16 flex justify-between items-center">
+    <div class="flex items-center gap-6">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-blue-600 rounded flex items-center justify-center text-white"><span class="material-symbols-rounded" style="font-size:18px">factory</span></div>
+        <span class="font-black uppercase tracking-wide text-sm">Ani<span class="text-slate-500">Clips</span></span>
+      </div>
+      <div class="h-6 w-px bg-white/10 hidden sm:block"></div>
+      <a href="index.html" class="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-slate-500 hover:text-white transition-colors">
+        <span class="material-symbols-rounded text-sm">dashboard</span> Panel
+      </a>
+      <div class="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-blue-400">
+        <span class="material-symbols-rounded text-sm">hub</span> Distributed
+      </div>
+    </div>
+    <button onclick="logout()" class="text-xs font-bold text-red-500 hover:text-red-400 uppercase">Logout</button>
+  </div>
+</nav>
+
+<main class="container mx-auto px-6 py-6 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-64px)]">
+
+  <section class="lg:col-span-8 flex flex-col gap-6 h-full overflow-hidden relative">
+    <div class="grid grid-cols-4 gap-4 flex-shrink-0">
+        <div class="card p-4"><div class="text-[10px] uppercase font-bold text-slate-500 mb-1">Queue Size</div><div class="text-2xl font-black text-white" id="stat-queued">--</div></div>
+        <div class="card p-4 border-indigo-500/20"><div class="text-[10px] uppercase font-bold text-indigo-400 mb-1">Needs Review</div><div class="text-2xl font-black text-white" id="stat-review">--</div></div>
+        <div class="card p-4 border-blue-500/20"><div class="text-[10px] uppercase font-bold text-blue-400 mb-1">Chunks Active</div><div class="text-2xl font-black text-white" id="stat-active">--</div></div>
+        <div class="card p-4 hover:bg-slate-800 cursor-pointer" onclick="fetchData()">
+            <div class="h-full flex items-center justify-center flex-col text-slate-500 hover:text-white"><span class="material-symbols-rounded mb-1">sync</span><span class="text-[9px] uppercase font-bold tracking-widest">Refresh</span></div>
+        </div>
+    </div>
+
+    <div class="card flex flex-col flex-grow min-h-0">
+        <div class="px-6 py-4 border-b border-white/5 bg-slate-950/20 flex justify-between items-center">
+            <h2 class="text-xs uppercase font-bold text-blue-400 tracking-widest flex items-center gap-2"><span class="material-symbols-rounded">precision_manufacturing</span> Production Floor</h2>
+            <div class="flex items-center gap-2 text-[10px] font-bold text-slate-500"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> LIVE</div>
+        </div>
+        <div class="grid grid-cols-12 px-6 py-3 bg-slate-950 border-b border-white/5 text-[9px] font-bold text-slate-600 uppercase tracking-widest">
+            <div class="col-span-1">ID</div>
+            <div class="col-span-4">Project</div>
+            <div class="col-span-5">Map</div>
+            <div class="col-span-2 text-right">Completion</div>
+        </div>
+        <div id="container-active" class="overflow-y-auto p-0 flex-grow"></div>
+    </div>
+
+    <!-- V3 INSPECTOR OVERLAY -->
+    <div id="inspector-overlay" class="absolute inset-0 bg-slate-950/95 backdrop-blur-sm z-40 hidden inspector-overlay">
+      <div class="h-full flex flex-col">
+        
+        <div class="flex-shrink-0 px-6 py-4 border-b border-white/10 bg-slate-900/50 flex justify-between items-center">
+          <div class="flex items-center gap-3">
+            <img id="ins-cover" src="" class="w-10 h-14 rounded object-cover bg-black border border-white/10">
+            <div>
+              <h2 class="text-sm font-bold text-white" id="ins-title">Anime Title</h2>
+              <span class="text-[9px] text-slate-400 uppercase tracking-wider font-mono">Source Selection</span>
+            </div>
+          </div>
+          <button onclick="closeInspector()" class="text-slate-400 hover:text-white transition">
+            <span class="material-symbols-rounded">close</span>
+          </button>
+        </div>
+
+        <div class="flex-shrink-0 px-6 py-3 bg-slate-900/30 border-b border-white/5 space-y-2">
+          
+          <div class="flex items-center gap-3">
+            <img id="sum-web-img" src="" class="w-6 h-8 rounded object-cover bg-slate-800 border border-white/5 opacity-40">
+            <div class="flex-grow min-w-0">
+              <span class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Aniwave: </span>
+              <span id="sum-web-text" class="text-[10px] font-bold text-slate-400">Not selected</span>
+            </div>
+            <button onclick="editWebSource()" class="text-slate-500 hover:text-blue-400 transition">
+              <span class="material-symbols-rounded" style="font-size:16px">edit</span>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <img id="sum-tor-img" src="" class="w-6 h-8 rounded object-cover bg-slate-800 border border-white/5 opacity-40">
+            <div class="flex-grow min-w-0">
+              <span class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Torrent: </span>
+              <span id="sum-tor-text" class="text-[10px] font-bold text-slate-400">Not selected</span>
+            </div>
+            <button onclick="editTorrentSource()" class="text-slate-500 hover:text-indigo-400 transition">
+              <span class="material-symbols-rounded" style="font-size:16px">edit</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="inspector-content" class="flex-grow overflow-y-auto px-6 py-4"></div>
+
+        <div id="inspector-footer" class="hidden flex-shrink-0 px-6 py-4 border-t border-white/10 bg-slate-900/50">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <div>
+                <label class="block text-[8px] font-bold text-slate-500 uppercase mb-1">Season #</label>
+                <input id="ins-season" type="number" class="bg-slate-900 border border-slate-700 text-xs text-white rounded px-3 py-2 w-20 text-center" value="1" min="1">
+              </div>
+              <div>
+                <label class="block text-[8px] font-bold text-slate-500 uppercase mb-1">Episodes</label>
+                <input id="ins-eps" type="number" class="bg-slate-900 border border-slate-700 text-xs text-white rounded px-3 py-2 w-20 text-center" value="12" min="1">
+              </div>
+            </div>
+            <button onclick="confirmSources()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase px-8 py-3 rounded shadow-lg tracking-widest transition-all">
+              Confirm & Start Production
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+  <section class="lg:col-span-4 flex flex-col gap-6 h-full overflow-hidden">
+    
+    <div class="card p-5 border-blue-500/20 flex-shrink-0 z-20">
+      <h3 class="text-xs uppercase font-bold text-blue-400 mb-4 flex items-center gap-2"><span class="material-symbols-rounded">search</span> New Scout</h3>
+      
+      <div class="relative">
+          <input id="jikan-input" class="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2.5 text-xs text-white focus:border-blue-500 outline-none" placeholder="Search Anime or ID..." onkeyup="handleJikanSearch(this.value)" autocomplete="off">
+          <span class="material-symbols-rounded absolute right-3 top-2.5 text-slate-600 text-sm">manage_search</span>
+          <div id="jikan-results" class="hidden absolute top-12 left-0 right-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl max-h-48 overflow-y-auto z-30"></div>
+      </div>
+      
+      <div id="selected-view" class="hidden mt-3 p-2 bg-slate-950/50 rounded border border-white/5 flex gap-3 items-center">
+         <img id="sel-img" src="" class="w-8 h-10 bg-black object-cover rounded">
+         <div class="flex-grow overflow-hidden">
+             <div id="sel-title" class="text-xs font-bold text-white truncate">Title</div>
+             <div id="sel-id" class="text-[10px] text-slate-500 font-mono">ID: 00</div>
+         </div>
+         <button onclick="clearSelection()" class="text-slate-500 hover:text-white"><span class="material-symbols-rounded">close</span></button>
+      </div>
+
+      <button onclick="dispatchRequest()" id="btn-dispatch" class="w-full mt-3 bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold py-2 rounded uppercase tracking-widest disabled:opacity-50" disabled>Dispatch Agent</button>
+    </div>
+
+    <!-- TAB SYSTEM RESTORED FROM V2 -->
+    <div class="card flex flex-col flex-grow min-h-0">
+        <div class="flex border-b border-white/5 bg-slate-950/20">
+            <div onclick="setTab('inbox')" id="t-inbox" class="tab-btn active">Review <span class="badge" id="c-inbox">0</span></div>
+            <div onclick="setTab('delivery')" id="t-delivery" class="tab-btn">Ready <span class="badge" id="c-delivery">0</span></div>
+            <div onclick="setTab('workers')" id="t-workers" class="tab-btn">Nodes <span class="badge" id="c-workers">0</span></div>
+        </div>
+        <div id="tab-content" class="flex-grow overflow-y-auto p-4 space-y-3 bg-[#0b1120]"></div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  const API_URL = 'https://aniclip-backend.onrender.com/api'; 
+  const PROD = `${API_URL}/production`;
+  const ADMIN_KEY = localStorage.getItem('aniclip_admin_key');
+  if(!ADMIN_KEY) window.location.href='auth.html';
+
+  let globalData = {};
+  let currentTab = 'inbox'; 
+  
+  let jikanTimeout = null;
+  let selectedAnime = null;
+  
+  // Inspector State
+  let currentJob = null;
+  let currentView = null;
+  let selWeb = null;
+  let selTor = null;
+  let selTorFolder = null;
+  let expandedTorrent = null;
+
+  window.onload = () => { fetchData(); setInterval(fetchData, 5000); };
+
+  async function fetchData() {
+    try {
+      const res = await fetch(`${PROD}/dashboard`, { headers: { 'Authorization': `Bearer ${ADMIN_KEY}` } });
+      globalData = await res.json();
+      renderAll(globalData);
+    } catch(e) {}
+  }
+
+  function renderAll(data) {
+    const scq = data.scout_queue || [];
+    const needsRev = data.inbox.filter(i => i.status === 'NEEDS_APPROVAL');
+    const doneStaging = data.staging || [];
+    const workers = data.workers || [];
+    
+    // Stats Top Left
+    document.getElementById('stat-queued').innerText = scq.length;
+    document.getElementById('stat-review').innerText = needsRev.length;
+
+    let chunks = 0; 
+    (data.active||[]).forEach(j => chunks += parseInt(j.total_tasks||0));
+    document.getElementById('stat-active').innerText = chunks;
+
+    // Tab Counts
+    document.getElementById('c-inbox').innerText = needsRev.length + scq.length;
+    document.getElementById('c-delivery').innerText = doneStaging.length;
+    document.getElementById('c-workers').innerText = workers.length;
+
+    renderFloor(data.active);
+    renderCurrentTab();
+  }
+
+  // --- TAB LOGIC ---
+  function setTab(name) {
+    currentTab = name;
+    // Update active class in CSS
+    document.querySelectorAll('.tab-btn').forEach(b => { 
+        b.classList.remove('active'); 
+        b.querySelector('.badge').classList.remove('bg-blue-600', 'text-white');
+    });
+    const active = document.getElementById(`t-${name}`);
+    active.classList.add('active'); 
+    active.querySelector('.badge').classList.add('bg-blue-600', 'text-white');
+    
+    renderCurrentTab();
+  }
+
+  function renderCurrentTab() {
+    const box = document.getElementById('tab-content');
+    box.innerHTML = '';
+    
+    // --- 1. INBOX TAB (Needs Approval) ---
+    if (currentTab === 'inbox') {
+        const needsRev = globalData.inbox.filter(i => i.status === 'NEEDS_APPROVAL');
+        const pending = globalData.scout_queue || [];
+
+        if (needsRev.length === 0 && pending.length === 0) {
+            box.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-slate-700 italic opacity-50"><span class="material-symbols-rounded mb-2 text-2xl">inbox</span><span class="text-[10px] uppercase font-bold tracking-widest">Inbox Zero</span></div>`;
+            return;
+        }
+
+        needsRev.forEach(j => {
+            const meta = j.metadata || {};
+            box.innerHTML += `
+            <div class="card p-3 border border-indigo-500/30 flex gap-3 hover:bg-white/5 cursor-pointer transition" onclick="openInspector(${j.id})">
+                <img src="${meta.cover||''}" class="w-8 h-10 bg-black rounded object-cover shadow-sm" onerror="this.src='https://placehold.co/40x50'">
+                <div class="flex-grow min-w-0">
+                    <div class="text-[9px] font-bold text-indigo-400 uppercase tracking-widest mb-0.5">Scout Finished</div>
+                    <div class="text-[11px] font-bold text-white truncate">${j.anime_title}</div>
+                </div>
+                <div class="flex items-center text-slate-500"><span class="material-symbols-rounded">chevron_right</span></div>
+            </div>`;
+        });
+
+        if (pending.length > 0) box.innerHTML += `<div class="text-[9px] font-bold text-slate-600 uppercase tracking-widest mt-4 mb-2 text-center border-t border-white/5 pt-2">Processing Scout</div>`;
+        
+        pending.forEach(j => {
+            const meta = j.metadata || {};
+            box.innerHTML += `
+            <div class="flex items-center gap-3 p-2 bg-slate-900/30 border border-white/5 rounded opacity-60">
+                <img src="${meta.cover||''}" class="w-6 h-8 bg-black rounded opacity-50" onerror="this.src='https://placehold.co/40x50'">
+                <div class="flex-grow min-w-0">
+                    <div class="text-[10px] font-bold text-slate-400 truncate">${j.anime_title}</div>
+                    <div class="text-[8px] text-slate-600 uppercase animate-pulse">Waitlist</div>
+                </div>
+                <button onclick="delJob(${j.id})" class="text-slate-700 hover:text-red-500"><span class="material-symbols-rounded text-sm">close</span></button>
+            </div>`;
+        });
+    }
+
+    // --- 2. DELIVERY TAB (Ready for Import) ---
+    else if (currentTab === 'delivery') {
+        const doneStaging = globalData.staging || [];
+        if (doneStaging.length === 0) { 
+            box.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-slate-700 italic opacity-50"><span class="material-symbols-rounded mb-2 text-2xl">local_shipping</span><span class="text-[10px] uppercase font-bold tracking-widest">Zone Empty</span></div>`; 
+            return;
+        }
+        
+        doneStaging.forEach(j => {
+            box.innerHTML += `
+            <div class="bg-emerald-900/10 border border-emerald-500/30 p-3 rounded mb-2 hover:bg-emerald-900/20 transition-colors">
+                <div class="text-[10px] font-bold text-emerald-400 truncate mb-1 flex items-center gap-2"><span class="material-symbols-rounded text-sm">check_circle</span> ${j.anime_title}</div>
+                <div class="flex gap-2 mt-2">
+                    <button onclick="doImport(${j.id})" class="flex-grow bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] font-bold py-1.5 rounded uppercase shadow-lg transition-all">Import to Library</button>
+                    <button onclick="delJob(${j.id})" class="text-slate-600 hover:text-red-500 px-2 rounded hover:bg-red-500/10"><span class="material-symbols-rounded text-base">delete</span></button>
+                </div>
+            </div>`;
+        });
+    }
+
+    // --- 3. WORKERS TAB (Detailed Nodes) ---
+    else if (currentTab === 'workers') {
+        const workers = globalData.workers || [];
+        if (workers.length === 0) {
+             box.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-slate-700 italic opacity-50"><span class="material-symbols-rounded mb-2 text-2xl">power_off</span><span class="text-[10px] uppercase font-bold tracking-widest">Nodes Offline</span></div>`; 
+             return;
+        }
+
+        workers.forEach(w => {
+            const isWorking = w.status === 'WORKING';
+            const color = isWorking ? 'text-blue-400' : 'text-slate-600';
+            const bg = isWorking ? 'bg-blue-500/5 border-blue-500/20' : 'bg-slate-900/50 border-white/5';
+            const icon = isWorking ? 'memory' : 'bedtime';
+            const pulse = isWorking ? 'animate-pulse' : '';
+
+            // Construct Detail String based on Join Data
+            let detailHTML = `<span class="italic text-slate-700">Idling...</span>`;
+            
+            if (isWorking) {
+                if (w.task_type === 'SCOUT') {
+                    detailHTML = `<span class="text-indigo-400">🔍 Scout:</span> <span class="text-slate-300 truncate">${w.anime_title || 'Unknown'}</span>`;
+                } else if (w.task_type === 'PROCESS') {
+                    detailHTML = `<span class="text-blue-400">🎬 Encoding:</span> <span class="text-slate-300 truncate">${w.anime_title || 'Job #' + w.current_task_id}</span> <span class="text-slate-500 text-[9px] ml-1 bg-slate-800 px-1 rounded">Eps ${w.ep_start}-${w.ep_end}</span>`;
+                } else {
+                    detailHTML = `<span class="text-slate-500">Finalizing Task...</span>`;
+                }
+            }
+
+            box.innerHTML += `
+            <div class="p-3 border rounded-lg ${bg} mb-2 flex items-center justify-between transition-all">
+                <div class="flex items-center gap-3 overflow-hidden">
+                    <div class="w-8 h-8 flex-shrink-0 rounded bg-slate-950 flex items-center justify-center border border-white/5 shadow-inner">
+                        <span class="material-symbols-rounded ${color} ${pulse} text-lg">${icon}</span>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="text-[10px] font-bold ${color} font-mono uppercase leading-tight mb-0.5">${w.friendly_name}</div>
+                        <div class="text-[10px] font-medium truncate pr-2 flex items-center gap-1">${detailHTML}</div>
+                    </div>
+                </div>
+                
+                <div class="text-[9px] font-bold ${color} bg-slate-950 px-2 py-1 rounded border border-white/5 uppercase shadow-sm">
+                    ${w.status}
+                </div>
+            </div>`;
+        });
+    }
+  }
+
+
+  // --- INSPECTOR LOGIC (Unchanged from V3) ---
+  function openInspector(id) {
+    const job = globalData.inbox.find(j => j.id === id);
+    if (!job) return;
+
+    currentJob = job;
+    selWeb = null;
+    selTor = null;
+    selTorFolder = null;
+    expandedTorrent = null;
+
+    document.getElementById('ins-title').innerText = job.anime_title;
+    document.getElementById('ins-cover').src = job.metadata?.cover || '';
+    document.getElementById('ins-season').value = 1;
+    document.getElementById('ins-eps').value = 12;
+
+    updateSummary();
+    editWebSource();
+
+    document.getElementById('inspector-overlay').classList.remove('hidden');
+  }
+
+  function closeInspector() {
+    document.getElementById('inspector-overlay').classList.add('hidden');
+    currentJob = null;
+  }
+
+  function updateSummary() {
+    const cover = currentJob?.metadata?.cover || '';
+    
+    const webImg = document.getElementById('sum-web-img');
+    const webText = document.getElementById('sum-web-text');
+    if (selWeb) {
+      const src = currentJob.sources.aniwave.find(s => s.url === selWeb);
+      webImg.src = src?.poster || cover;
+      webImg.classList.remove('opacity-40');
+      webText.textContent = src?.title || 'Selected';
+      webText.classList.remove('text-slate-400');
+      webText.classList.add('text-white');
+    } else {
+      webImg.src = cover;
+      webImg.classList.add('opacity-40');
+      webText.textContent = 'Not selected';
+      webText.classList.remove('text-white');
+      webText.classList.add('text-slate-400');
+    }
+
+    const torImg = document.getElementById('sum-tor-img');
+    const torText = document.getElementById('sum-tor-text');
+    if (selTor) {
+      const src = currentJob.sources.nyaa.find(s => s.magnet === selTor);
+      torImg.src = cover;
+      torImg.classList.remove('opacity-40');
+      const title = src?.title || 'Selected';
+      const shortTitle = title.length > 40 ? title.substring(0, 40) + '...' : title;
+      const folder = selTorFolder ? ` → ${selTorFolder.split('/')[0]}` : '';
+      torText.textContent = shortTitle + folder;
+      torText.classList.remove('text-slate-400');
+      torText.classList.add('text-white');
+    } else {
+      torImg.src = cover;
+      torImg.classList.add('opacity-40');
+      torText.textContent = 'Not selected';
+      torText.classList.remove('text-white');
+      torText.classList.add('text-slate-400');
+    }
+
+    if (selWeb && selTor) {
+      document.getElementById('inspector-footer').classList.remove('hidden');
+    } else {
+      document.getElementById('inspector-footer').classList.add('hidden');
+    }
+  }
+
+  function editWebSource() {
+    currentView = 'web-list';
+    renderWebSourceList();
+  }
+
+  function editTorrentSource() {
+    currentView = 'torrent-list';
+    renderTorrentList();
+  }
+
+  function renderWebSourceList() {
+    const content = document.getElementById('inspector-content');
+    content.innerHTML = `
+      <div class="mb-3">
+        <h3 class="text-xs uppercase font-bold text-blue-400 tracking-widest mb-3">Select Web Preview Source</h3>
+      </div>
+      <div id="web-source-list" class="space-y-2"></div>
+    `;
+
+    const listContainer = document.getElementById('web-source-list');
+    const sources = currentJob.sources.aniwave || [];
+    
+    sources.forEach(src => {
+      const isSelected = selWeb === src.url;
+      const div = document.createElement('div');
+      div.className = `source-item bg-slate-900/50 rounded-lg p-3 cursor-pointer flex gap-3 items-center ${isSelected ? 'selected' : ''}`;
+      div.onclick = () => selectWebSource(src.url);
+      
+      div.innerHTML = `
+        <img src="${src.poster || currentJob.metadata?.cover}" class="w-10 h-14 rounded object-cover bg-slate-800 flex-shrink-0 border border-white/5">
+        <div class="flex-grow min-w-0">
+          <div class="text-xs font-bold text-white mb-1 leading-tight">${src.title}</div>
+          <div class="text-[9px] text-slate-500 font-mono truncate">${src.url}</div>
+          <a href="${src.url}" target="_blank" onclick="event.stopPropagation()" class="inline-flex items-center gap-1 text-[9px] uppercase font-bold text-slate-600 hover:text-blue-400 transition mt-1">
+            <span>Open</span>
+            <span class="material-symbols-rounded" style="font-size:10px">open_in_new</span>
+          </a>
+        </div>
+        ${isSelected ? '<span class="material-symbols-rounded text-blue-400" style="font-size:20px">check_circle</span>' : ''}
+      `;
+      
+      listContainer.appendChild(div);
+    });
+  }
+
+  function selectWebSource(url) {
+    selWeb = url;
+    updateSummary();
+    renderWebSourceList();
+  }
+
+  function renderTorrentList() {
+    const content = document.getElementById('inspector-content');
+    content.innerHTML = `
+      <div class="mb-3">
+        <h3 class="text-xs uppercase font-bold text-indigo-400 tracking-widest mb-3">Select Torrent Source</h3>
+      </div>
+      <div id="torrent-source-list" class="space-y-2"></div>
+    `;
+
+    const listContainer = document.getElementById('torrent-source-list');
+    const sources = currentJob.sources.nyaa || [];
+    
+    sources.forEach(src => {
+      const isSelected = selTor === src.magnet;
+      const fileCount = src.files ? src.files.length : 0;
+      
+      const div = document.createElement('div');
+      div.className = `source-item bg-slate-900/50 rounded-lg p-3 cursor-pointer ${isSelected ? 'selected' : ''}`;
+      div.onclick = () => expandTorrentDetail(src);
+      
+      div.innerHTML = `
+        <div class="flex items-start gap-3 mb-2">
+          <img src="${currentJob.metadata?.cover}" class="w-10 h-14 rounded object-cover bg-slate-800 flex-shrink-0 border border-white/5">
+          <div class="flex-grow min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">${src.score || 0} pts</span>
+              <span class="text-[9px] text-slate-500">${src.seeds || 0} seeds</span>
+            </div>
+            <div class="text-xs font-bold text-white leading-tight">${src.title}</div>
+          </div>
+        </div>
+        <div class="flex items-center justify-between pt-2 border-t border-white/5">
+          <div class="text-[9px] text-slate-500">
+            <span class="font-mono">${src.size || 'Unknown'}</span>
+            <span class="mx-2">•</span>
+            <span>${fileCount} files</span>
+          </div>
+          <div class="flex items-center gap-1 text-[9px] font-bold text-indigo-400">
+            <span>View Files</span>
+            <span class="material-symbols-rounded" style="font-size:12px">chevron_right</span>
+          </div>
+        </div>
+      `;
+      
+      listContainer.appendChild(div);
+    });
+  }
+
+  function expandTorrentDetail(torrent) {
+    expandedTorrent = torrent;
+    selTorFolder = null;
+    currentView = 'torrent-detail';
+    
+    const content = document.getElementById('inspector-content');
+    
+    content.innerHTML = `
+      <button onclick="backToTorrentList()" class="flex items-center gap-1 text-[9px] uppercase font-bold text-slate-500 hover:text-white mb-4 transition">
+        <span class="material-symbols-rounded" style="font-size:14px">arrow_back</span>
+        <span>Back to List</span>
+      </button>
+
+      <div class="mb-4 pb-4 border-b border-white/10">
+        <div class="flex gap-3">
+          <img src="${currentJob.metadata?.cover}" class="w-12 h-16 rounded object-cover bg-slate-800 border border-white/5 flex-shrink-0">
+          <div class="flex-grow min-w-0">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">${torrent.score || 0} pts</span>
+              <span class="text-[9px] text-slate-500">${torrent.seeds || 0} seeds</span>
+              <span class="text-[9px] text-slate-500 font-mono">${torrent.size || 'Unknown'}</span>
+            </div>
+            <div class="text-xs font-bold text-white leading-tight">${torrent.title}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <h3 class="text-xs uppercase font-bold text-indigo-400 tracking-widest mb-2">Select Folder</h3>
+        <div class="text-[9px] text-slate-500 mb-3">Select a folder to download only its contents. Leave unselected to download everything.</div>
+      </div>
+
+      <div id="file-tree-container" class="space-y-1 mb-4"></div>
+
+      <button onclick="confirmTorrentSelection()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs uppercase py-3 rounded tracking-widest transition">
+        Confirm Selection
+      </button>
+    `;
+
+    renderFileTree(torrent.files || []);
+  }
+
+  function renderFileTree(files) {
+    const tree = buildFileTree(files);
+    const container = document.getElementById('file-tree-container');
+    container.innerHTML = '';
+    
+    renderTreeNode(tree, container, '', 0);
+  }
+
+  function buildFileTree(files) {
+    const tree = { folders: {}, files: [] };
+    
+    files.forEach(path => {
+      const parts = path.split('/');
+      let current = tree;
+      
+      for (let i = 0; i < parts.length; i++) {
+        const part = parts[i];
+        const isFile = i === parts.length - 1 && part.includes('.');
+        
+        if (isFile) {
+          current.files.push(part);
+        } else {
+          if (!current.folders[part]) {
+            current.folders[part] = { folders: {}, files: [], fullPath: parts.slice(0, i + 1).join('/') };
+          }
+          current = current.folders[part];
+        }
+      }
+    });
+    
+    return tree;
+  }
+
+  function renderTreeNode(node, container, path, level) {
+    const folders = Object.keys(node.folders).sort();
+    const files = node.files.sort();
+    
+    folders.forEach(folderName => {
+      const folder = node.folders[folderName];
+      const folderPath = folder.fullPath;
+      const isSelected = selTorFolder === folderPath;
+      
+      const div = document.createElement('div');
+      div.className = 'mb-1';
+      div.style.marginLeft = `${level * 16}px`;
+      
+      const folderDiv = document.createElement('div');
+      folderDiv.className = `folder-item flex items-center gap-2 px-3 py-2 rounded border ${isSelected ? 'selected border-blue-500' : 'border-transparent'}`;
+      folderDiv.onclick = (e) => {
+        e.stopPropagation();
+        selectFolder(folderPath);
+      };
+      
+      folderDiv.innerHTML = `
+        <span class="material-symbols-rounded text-yellow-500" style="font-size:16px">folder</span>
+        <span class="text-xs font-bold text-white">${folderName}</span>
+        <span class="text-[9px] text-slate-500 ml-auto">${Object.keys(folder.folders).length + folder.files.length} items</span>
+        ${isSelected ? '<span class="material-symbols-rounded text-blue-400 ml-2" style="font-size:16px">check_circle</span>' : ''}
+      `;
+      
+      div.appendChild(folderDiv);
+      container.appendChild(div);
+      
+      renderTreeNode(folder, container, folderPath, level + 1);
+    });
+    
+    files.forEach(fileName => {
+      const div = document.createElement('div');
+      div.className = 'flex items-center gap-2 px-3 py-1.5 rounded opacity-40';
+      div.style.marginLeft = `${level * 16}px`;
+      
+      const ext = fileName.split('.').pop().toLowerCase();
+      let icon = 'description';
+      if (['mkv', 'mp4', 'avi'].includes(ext)) icon = 'movie';
+      else if (['mp3', 'flac', 'wav'].includes(ext)) icon = 'music_note';
+      else if (['srt', 'ass'].includes(ext)) icon = 'subtitles';
+      
+      div.innerHTML = `
+        <span class="material-symbols-rounded text-slate-600" style="font-size:14px">${icon}</span>
+        <span class="text-[10px] text-slate-500">${fileName}</span>
+      `;
+      
+      container.appendChild(div);
+    });
+  }
+
+  function selectFolder(path) {
+    selTorFolder = selTorFolder === path ? null : path;
+    renderFileTree(expandedTorrent.files || []);
+  }
+
+  function confirmTorrentSelection() {
+    selTor = expandedTorrent.magnet;
+    updateSummary();
+    currentView = null;
+    document.getElementById('inspector-content').innerHTML = `
+      <div class="flex items-center justify-center h-full text-slate-500">
+        <div class="text-center">
+          <span class="material-symbols-rounded text-4xl mb-2">check_circle</span>
+          <div class="text-xs font-bold uppercase tracking-wider">Sources Selected</div>
+          <div class="text-[9px] text-slate-600 mt-1">Complete the form below to start production</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function backToTorrentList() {
+    expandedTorrent = null;
+    renderTorrentList();
+  }
+
+  async function confirmSources() {
+    const eps = document.getElementById('ins-eps').value;
+    const season = document.getElementById('ins-season').value;
+
+    if (!eps || eps < 1) {
+      alert("Episode count is required");
+      return;
+    }
+
+    if (!selWeb && !selTor) {
+      alert("Please select at least one source");
+      return;
+    }
+
+    // BUTTON FEEDBACK
+    const btn = event.target || document.querySelector("#inspector-footer button");
+    const originalText = btn.textContent;
+    btn.textContent = "Processing...";
+    btn.disabled = true;
+
+    try {
+      const payload = {
+          total_episodes: parseInt(eps),
+          selected_sources: {
+            aniwave_url: selWeb,
+            magnet_link: selTor,
+            magnet_filter: selTorFolder || ''
+          }
+      };
+
+      console.log("Sending Payload:", payload); // Debug for you
+
+      const res = await fetch(`${PROD}/job/${currentJob.id}/approve`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${ADMIN_KEY}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      // 🛑 STOP: READ THE RESULT FIRST
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || data.error || "Server rejected request");
+      }
+
+      // ✅ SUCCESS ONLY
+      closeInspector();
+      fetchData();
+
+    } catch (e) {
+      alert("❌ Error: " + e.message);
+      console.error(e);
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }
+  }
+
+
+  // --- REST (Helpers & Floor) ---
+
+function renderFloor(jobs) {
+    const box = document.getElementById('container-active');
+    box.innerHTML = '';
+    
+    if(!jobs || jobs.length === 0) { 
+        box.innerHTML = `<div class="h-full flex items-center justify-center text-[10px] font-bold text-slate-700 uppercase tracking-widest opacity-50">Floor Idle</div>`; 
+        return;
+    }
+
+    jobs.forEach(j => {
+        let tasks = j.task_map || [];
+        
+        // 1. Sort by ID (Chronological) to find the Scout (first created)
+        tasks.sort((a,b) => a.id - b.id);
+
+        // 2. Filter Logic:
+        // Try strict "Type" filter first. 
+        let productionTasks = tasks.filter(t => t.type === 'PROCESS');
+
+        // FALLBACK: If API doesn't send "type" (array empty), assume first task is Scout and hide it.
+        // We only do this if we have more than 1 task (Job initialized with chunks)
+        if (productionTasks.length === 0 && tasks.length > 1) {
+             // Removing the first element (Scout Task with lowest ID)
+             // leaving only the Chunk tasks
+             productionTasks = tasks.slice(1);
+        } else if (productionTasks.length === 0 && tasks.length === 1) {
+            // Edge case: Only Scout exists, chunks haven't generated yet. Show empty.
+            productionTasks = []; 
+        }
+
+        // --- MATH & BARS ---
+        const total = productionTasks.length;
+        const done = productionTasks.filter(t => t.status === 'COMPLETED').length;
+        
+        // Safety for empty states
+        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+        let color = pct === 100 ? 'text-emerald-500' : 'text-blue-500';
+        if (total === 0) { color = 'text-slate-600'; }
+
+        // Bars
+        let bars = '<div class="flex gap-[1px] h-2.5 items-center w-full mt-2 bg-slate-950 rounded overflow-hidden">';
+        
+        if (productionTasks.length === 0) {
+            bars += `<div class="h-full w-full bg-slate-900/50"></div>`;
+        } else {
+            productionTasks.forEach(t => {
+                let cls='pending'; 
+                if(t.status==='ASSIGNED') cls='assigned'; 
+                if(t.status==='COMPLETED') cls='completed'; 
+                if(t.status==='FAILED') cls='failed';
+                const action = t.status==='FAILED' ? `onclick="retryChunk(${t.id})"` : '';
+                bars += `<div class="chunk ${cls} flex-grow" title="#${t.id} (${t.status})" ${action}></div>`;
+            });
+        }
+        bars += '</div>';
+
+        // --- RENDER ---
+        box.innerHTML += `
+        <div class="grid grid-cols-12 px-6 py-4 border-b border-white/5 items-center hover:bg-slate-900/40 transition">
+             <div class="col-span-1 text-[9px] font-mono text-slate-600">#${j.id}</div>
+             <div class="col-span-10 px-2">
+                 <div class="flex justify-between mb-1">
+                    <span class="text-[11px] font-bold text-slate-300 truncate">${j.title}</span>
+                    <span class="text-[9px] font-black ${color}">${pct}%</span>
+                 </div>
+                 ${bars}
+                 <div class="flex justify-between mt-1">
+                     <span class="text-[8px] text-slate-600 uppercase font-bold tracking-wider">${j.total_episodes} EPS · ${j.season_number || 1} SEAS</span>
+                 </div>
+             </div>
+             <div class="col-span-1 text-right">
+                 <button onclick="delJob(${j.id})" class="text-slate-700 hover:text-red-500"><span class="material-symbols-rounded text-sm">cancel</span></button>
+             </div>
+        </div>`;
+    });
+  }
+
+  function handleJikanSearch(q) {
+      if(q.length<3){document.getElementById('jikan-results').classList.add('hidden');return;}
+      clearTimeout(jikanTimeout);
+      jikanTimeout = setTimeout(async ()=>{
+          try {
+             const res = await fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(q)}&limit=8&sfw=true`);
+             const data = await res.json();
+             const list = document.getElementById('jikan-results');
+             list.innerHTML=''; list.classList.remove('hidden');
+             data.data.forEach(x => {
+                const en = x.title_english||x.title;
+                const el = document.createElement('div');
+                el.className = "flex gap-2 p-2 hover:bg-slate-800 cursor-pointer border-b border-white/5 last:border-0 items-center";
+                el.innerHTML = `<img src="${x.images.jpg.image_url}" class="w-6 h-8 bg-black rounded object-cover"><div class="overflow-hidden min-w-0"><div class="text-[10px] font-bold text-white truncate">${en}</div></div>`;
+                el.onclick=()=>{selectAnime(x, en);};
+                list.appendChild(el);
+             });
+          } catch(e){}
+      }, 500);
+  }
+  
+  function selectAnime(x, en) {
+      selectedAnime = { mal_id: x.mal_id, title: en, cover_image: x.images.jpg.image_url };
+      dispatchRequest();
+  }
+  
+  async function dispatchRequest() {
+      const inp = document.getElementById('jikan-input');
+      const box = document.getElementById('jikan-results');
+      box.classList.add('hidden'); inp.value = "Dispatching...";
+      try {
+        await fetch(`${PROD}/request`,{method:'POST',headers:auth(), body:JSON.stringify(selectedAnime)});
+        fetchData();
+      } catch(e) {} 
+      finally { inp.value=''; }
+  }
+
+  function auth() { return {'Content-Type':'application/json','Authorization':`Bearer ${ADMIN_KEY}`}; }
+  async function delJob(id){ if(confirm("Cancel Project?")) await fetch(`${PROD}/job/${id}`, {method:'DELETE',headers:auth()}); fetchData(); }
+  async function retryChunk(tid){ if(confirm("Retry failed chunk?")) await fetch(`${PROD}/job/task/${tid}/reset`, {method:'PUT',headers:auth()}); fetchData(); }
+  async function doImport(id) { 
+      const btn = event.target;
+      btn.innerHTML = "💾 Saving...";
+      btn.disabled = true;
+
+      try {
+          const res = await fetch(`${PROD}/job/${id}/import`, { method: 'POST', headers: auth() });
+          const data = await res.json();
+
+          if (data.status === 'success') {
+              btn.innerHTML = "Done";
+              
+              // 1. Show Gist Link
+              let msg = "Import Successful!";
+              if (data.gist_url) msg += "\n\n Backup Gist created: " + data.gist_url;
+              alert(msg);
+              
+              // 2. Correct Redirect Logic (Use 'redirect_id' and '?name=')
+              if(confirm("Open Edit Page?")) {
+                  // Fallback to anime_id if redirect_id is missing, handles both API versions
+                  const slug = data.redirect_id || data.anime_id;
+                  window.location.href = `edit.html?name=${slug}`;
+              }
+              
+              fetchData();
+          } else {
+              alert("Server Error: " + data.message);
+              btn.innerHTML = "Retry Import";
+              btn.disabled = false;
+          }
+      } catch (e) {
+          alert("Network Error during import");
+          console.error(e);
+          btn.innerHTML = "Import";
+          btn.disabled = false;
+      }
+  }
+  function logout(){ localStorage.removeItem('aniclip_admin_key'); window.location.href='auth.html'; }
+
+</script>
+</body>
+</html>
