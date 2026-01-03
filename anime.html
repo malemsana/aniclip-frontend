@@ -397,53 +397,50 @@
         const clip = clips[activeCtx.idx];
         const total = clips.length;
 
-        // Player loads FAST source by default for preview performance
         els.player.src = clip.video_url;
         document.getElementById('preview-filename').textContent = clip.clip_name;
         document.getElementById('preview-duration').textContent = (clip.end_time - clip.start_time).toFixed(1) + 's';
         
-        // --- 🔽 NEW DOWNLOAD BUTTON LOGIC 🔽 ---
+        // --- 🔽 CLEANER UTILITY BUTTONS 🔽 ---
         const btnContainer = document.getElementById('video-download-btn').parentElement;
         
-        // 1. FAST BUTTON (Always there)
-        const fastBtn = `
-            <button onclick="forceDownload('${clip.video_url}', '${clip.clip_name}_fast')" 
-                class="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 text-white text-center rounded-lg font-bold shadow-md flex items-center justify-between group transition-all mb-2 border border-slate-700">
-                <span class="flex items-center gap-2 text-xs uppercase tracking-wide text-slate-300">
-                    <span class="material-symbols-rounded text-base">bolt</span> Fast
-                </span>
-                <span class="text-xs bg-slate-900 px-2 py-1 rounded text-slate-500">720p</span>
-            </button>
-        `;
-
-        // 2. HQ BUTTON (Conditional)
+        // Simple Grid Layout: 50% / 50%
+        const hasHq = !!clip.videohq_url;
+        
         let hqBtn = '';
-        if (clip.videohq_url) {
+        if (hasHq) {
             hqBtn = `
             <button onclick="forceDownload('${clip.videohq_url}', '${clip.clip_name}_hq')" 
-                class="w-full py-4 px-4 bg-blue-600 hover:bg-blue-500 text-white text-center rounded-lg font-bold shadow-lg flex items-center justify-between group transition-all active:scale-[0.98]">
-                <span class="flex items-center gap-2">
-                    <span class="material-symbols-rounded group-hover:-translate-y-0.5 transition-transform">diamond</span> High Quality
-                </span>
-                <span class="text-xs bg-blue-700/50 px-2 py-1 rounded text-blue-100">1080p</span>
+                class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg shadow-lg shadow-blue-900/30 transition-all active:scale-[0.98]">
+                <span class="material-symbols-rounded text-lg">high_quality</span>
+                <span class="text-xs uppercase tracking-wide">1080p HQ</span>
             </button>
             `;
         } else {
-            // Disabled State if no HQ
+            // Disabled Grey State
             hqBtn = `
-            <div class="w-full py-3 px-4 bg-slate-800/50 text-slate-600 rounded-lg font-bold border border-white/5 flex items-center justify-between cursor-not-allowed">
-                <span class="flex items-center gap-2 text-sm"><span class="material-symbols-rounded">block</span> HQ Unavailable</span>
+            <div class="flex items-center justify-center gap-2 bg-slate-800 border border-slate-700 text-slate-600 font-bold py-3 rounded-lg cursor-not-allowed opacity-50">
+                <span class="material-symbols-rounded text-lg">block</span>
+                <span class="text-xs uppercase tracking-wide">HQ N/A</span>
             </div>
             `;
         }
 
-        // Inject Buttons
-        btnContainer.innerHTML = hqBtn + fastBtn;
-        // --- 🔼 END NEW LOGIC 🔼 ---
+        const fastBtn = `
+            <button onclick="forceDownload('${clip.video_url}', '${clip.clip_name}_fast')" 
+                class="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 hover:border-slate-500 text-slate-300 font-bold py-3 rounded-lg transition-all active:scale-[0.98]">
+                <span class="material-symbols-rounded text-lg">bolt</span>
+                <span class="text-xs uppercase tracking-wide">720p Fast</span>
+            </button>
+        `;
+
+        // Side-by-side Utility Grid
+        btnContainer.innerHTML = `<div class="grid grid-cols-2 gap-3">${hqBtn + fastBtn}</div>`;
+        // --- 🔼 END UPDATED LOGIC 🔼 ---
 
         if(shouldPlay) els.player.play().catch(()=>{});
 
-        // (Rest of your slider highlight logic remains identical)
+        // (Thumbnail scroll logic unchanged)
         Array.from(els.slider.children).forEach((el, i) => {
             const img = el.querySelector('img');
             if (i === activeCtx.idx) {
