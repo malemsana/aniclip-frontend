@@ -25,9 +25,12 @@
         .thumbnail-slider::-webkit-scrollbar-track { background: #1e293b; }
         .thumbnail-slider::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
         .thumbnail-slider .active-thumbnail { outline: 2px solid #3b82f6; opacity: 1; filter: brightness(1.2); }
+        
+        /* RESTORED: These styles were present but unused in the broken version */
         .clip-card video { object-fit: cover; opacity: 0; transition: opacity 0.3s ease; }
         .clip-card:hover video { opacity: 1; }
         .clip-card:hover img { opacity: 0; }
+        
         .shimmer { background: linear-gradient(90deg, #1e293b 0%, #334155 50%, #1e293b 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
         @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
         .ep-content { transition: opacity 0.3s ease-in-out; }
@@ -80,7 +83,6 @@
     </div>
 
     <!-- PREVIEW MODAL -->
-    <!-- Fixed Overlay Blur (separated backdrop for compatibility) -->
     <div id="preview-modal" class="fixed inset-0 z-50 p-4 opacity-0 invisible transition-all duration-300 flex items-center justify-center">
         <!-- Backdrop Blur -->
         <div onclick="closePreview()" class="absolute inset-0 bg-slate-950/80 backdrop-blur-md transition-opacity"></div>
@@ -104,7 +106,7 @@
                 </div>
             </div>
 
-            <!-- Sidebar (Legacy Fonts/Cards Restored) -->
+            <!-- Sidebar -->
             <div class="w-full lg:w-[30%] bg-slate-900 p-6 lg:p-8 flex flex-col border-l border-slate-800 overflow-y-auto">
                 <div class="mb-4 flex items-center justify-between">
                     <span class="bg-blue-600/20 text-blue-400 text-[10px] font-bold px-2 py-1 rounded border border-blue-500/30 uppercase tracking-widest">HD Source</span>
@@ -129,7 +131,6 @@
                 </div>
                 
                 <!-- STABLE DOWNLOAD CONTAINER -->
-                <!-- We insert into this via JS DOM API now to fix caching bugs -->
                 <div id="download-container" class="mt-auto space-y-3 pb-4"></div>
             </div>
         </div>
@@ -190,7 +191,6 @@
         localStorage.setItem('ac_autoplay', state.autoplay);
     });
 
-    // ... (Standard Render functions from previous versions omitted for brevity, they are unchanged) ...
     function createListStructure() {
         els.wrapper.innerHTML = state.episodesList.map(ep => `
             <div id="row-${ep.index}" class="episode-row transition-all duration-300 scroll-mt-28" data-index="${ep.index}" data-id="${ep.id}">
@@ -230,12 +230,32 @@
         if(state.clipsCache[ep.id]) renderClips(cDiv,ep.id,state.clipsCache[ep.id]);
         else { renderSkeleton(cDiv); try { const r=await fetch(`${API_URL}/animes/${state.animeSlug}/episodes/${ep.number}/clips`); const d=await r.json(); state.clipsCache[ep.id]=d; if(state.activeEpIds.has(idx)) renderClips(cDiv,ep.id,d); } catch{ cDiv.innerHTML='<div class="p-4 text-red-500 text-xs">Failed</div>'; } }
     }
-    function unmountEpisode(idx) { /* Basic unmount logic */ } 
     
+    // --- FIXED: RESTORED VIDEO PREVIEW LOGIC HERE ---
     function renderClips(container, epId, clips) {
         if (!clips.length) { container.innerHTML='<div class="h-12 px-4 text-xs text-slate-500">No clips.</div>'; return; }
-        container.innerHTML=`<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-[2px] rounded-lg overflow-hidden border border-slate-800 bg-slate-900/50 fade-in">${clips.map((c,i)=>`<div class="relative group clip-card cursor-pointer overflow-hidden bg-black aspect-16-9" onclick="openPreview('${epId}', ${i})"><img src="${c.thumb_url}" loading="lazy" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-0 transition-opacity z-10"><div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none"><span class="material-symbols-rounded text-4xl text-white">play_circle</span></div><span class="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] px-1 rounded z-20 font-mono">10s</span></div>`).join('')}</div>`;
+        container.innerHTML=`
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-[2px] rounded-lg overflow-hidden border border-slate-800 bg-slate-900/50 fade-in">
+                ${clips.map((c,i)=>`
+                    <div class="relative group clip-card cursor-pointer overflow-hidden bg-black aspect-16-9" 
+                         onclick="openPreview('${epId}', ${i})"
+                         onmouseenter="playPreview(this)" 
+                         onmouseleave="stopPreview(this)">
+                        
+                        <img src="${c.thumb_url}" loading="lazy" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-0 transition-opacity z-10">
+                        
+                        <!-- Restored Video Tag -->
+                        ${c.preview_url ? `<video src="${c.preview_url}" loop muted playsinline preload="none" class="absolute inset-0 w-full h-full object-cover z-0"></video>` : ''}
+                        
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none">
+                            <span class="material-symbols-rounded text-4xl text-white">play_circle</span>
+                        </div>
+                        <span class="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] px-1 rounded z-20 font-mono">10s</span>
+                    </div>
+                `).join('')}
+            </div>`;
     }
+
     function renderSkeleton(container) { container.innerHTML=`<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-[2px] opacity-50">${Array(6).fill(0).map(()=>`<div class="aspect-16-9 shimmer bg-slate-800"></div>`).join('')}</div>`; }
     function renderHero(d) {
         const g=(d.genres||[]).map(x=>`<span class="text-[9px] bg-slate-800/80 border border-slate-600 px-2 py-0.5 rounded text-slate-300 uppercase font-bold tracking-wide">${x}</span>`).join('');
@@ -250,7 +270,7 @@
         activeCtx = { epId, idx };
         els.modal.classList.add('active');
         els.modal.classList.remove('invisible', 'opacity-0');
-        document.body.style.overflow = 'hidden'; // Restore locking
+        document.body.style.overflow = 'hidden'; 
         loadPlayer(true);
     }
 
@@ -307,14 +327,13 @@
         document.getElementById('preview-filename').textContent = clip.clip_name;
         document.getElementById('preview-duration').textContent = (clip.end_time - clip.start_time).toFixed(1) + 's';
         
-        // --- 🔽 FIXED DOWNLOAD BUTTONS (DOM METHOD) 🔽 ---
+        // --- NEW DOWNLOAD LOGIC PRESERVED ---
         const container = els.dlContainer;
-        container.innerHTML = ''; // Wipe stale
+        container.innerHTML = ''; 
 
-        // Shared Style
         const cls = "w-full py-4 px-4 text-white text-center rounded-lg font-bold shadow-lg flex items-center justify-center gap-2 group transition-all active:scale-[0.98]";
 
-        // FAST BUTTON (Top)
+        // FAST BUTTON
         const btnFast = document.createElement('button');
         btnFast.className = `${cls} bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200`;
         btnFast.innerHTML = `<span class="material-symbols-rounded group-hover:-translate-y-0.5 transition-transform">download</span> Fast Clip`;
@@ -322,19 +341,15 @@
         
         container.appendChild(btnFast);
 
-        // HQ BUTTON (Bottom, Blue)
+        // HQ BUTTON
         if(clip.videohq_url) {
             const btnHQ = document.createElement('button');
             btnHQ.className = `${cls} bg-blue-600 hover:bg-blue-500 border border-transparent mt-2`;
             btnHQ.innerHTML = `<span class="material-symbols-rounded group-hover:-translate-y-0.5 transition-transform">download</span> High Quality Clip`;
-            // Using DOM assignment CLOSES OVER 'clip', fixing the stale data bug
             btnHQ.onclick = () => forceDownload(clip.videohq_url, `${clip.clip_name}_HQ`);
             container.appendChild(btnHQ);
         }
         
-        // Tooltip logic omitted for cleanliness per last instruction
-        // --- 🔼 END FIX 🔼 ---
-
         if(shouldPlay) els.player.play().catch(()=>{});
 
         // Highlights
@@ -368,6 +383,10 @@
         if(e.key === ' ' && document.activeElement !== els.player) { e.preventDefault(); els.player.paused ? els.player.play() : els.player.pause(); }
         if(e.key === 'Escape') closePreview();
     });
+
+    // --- RESTORED: HELPER FUNCTIONS FOR HOVER PREVIEW ---
+    function playPreview(el) { const v=el.querySelector('video'); if(v) { v.currentTime=0; v.play().catch(()=>{}); } }
+    function stopPreview(el) { const v=el.querySelector('video'); if(v) v.pause(); }
 
     function trackDownload() { fetch(`${API_URL}/animes/${state.animeId}/track-download`, { method: 'POST' }).catch(()=>{}); }
 </script>
