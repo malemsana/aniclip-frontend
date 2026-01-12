@@ -4,13 +4,14 @@ from xml.etree.ElementTree import Element, SubElement, ElementTree
 
 BASE_API = "https://aniclip-backend.onrender.com/api"
 ARCHIVE_ENDPOINT = "/animes/archive"
-SITE_URL = "https://aniclip.site"   # change if needed
+
+SITE_URL = "https://aniclips.site"
 OUTPUT_FILE = "sitemap.xml"
 
 
 def fetch_all_animes():
     page = 1
-    all_animes = []
+    items = []
 
     print("📡 Fetching anime archive...")
 
@@ -19,22 +20,21 @@ def fetch_all_animes():
         res = requests.get(url, timeout=30)
 
         if res.status_code != 200:
-            raise Exception(f"API error on page {page}: {res.status_code}")
+            raise RuntimeError(f"API error on page {page}")
 
         data = res.json()
-
-        if not data or len(data) == 0:
+        if not data:
             break
 
-        all_animes.extend(data)
+        items.extend(data)
         print(f"  • Page {page}: {len(data)} items")
 
         page += 1
 
-    return all_animes
+    return items
 
 
-def build_sitemap(animes):
+def build_sitemap(items):
     urlset = Element(
         "urlset",
         xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -43,37 +43,40 @@ def build_sitemap(animes):
     today = datetime.utcnow().date().isoformat()
     seen = set()
 
-    for anime in animes:
-        slug = anime.get("slug") or anime.get("name")
-        if not slug or slug in seen:
+    for item in items:
+        name = item.get("name")
+        if not name or name in seen:
             continue
 
-        seen.add(slug)
+        seen.add(name)
 
         url = SubElement(urlset, "url")
 
         loc = SubElement(url, "loc")
-        loc.text = f"{SITE_URL}/anime/{slug}"
+        loc.text = f"{SITE_URL}/anime.html?name={name}"
 
         lastmod = SubElement(url, "lastmod")
         lastmod.text = today
-
-        priority = SubElement(url, "priority")
-        priority.text = "0.8"
 
     return urlset
 
 
 def main():
-    animes = fetch_all_animes()
-    print(f"📦 Total unique anime: {len(animes)}")
+    items = fetch_all_animes()
+    print(f"📦 Total items fetched: {len(items)}")
 
-    sitemap = build_sitemap(animes)
+    sitemap = build_sitemap(items)
 
-    tree = ElementTree(sitemap)
-    tree.write(OUTPUT_FILE, encoding="utf-8", xml_declaration=True)
+    if len(sitemap) == 0:
+        raise RuntimeError("No URLs generated — 'name' field missing")
 
-    print("✅ sitemap.xml generated")
+    ElementTree(sitemap).write(
+        OUTPUT_FILE,
+        encoding="utf-8",
+        xml_declaration=True
+    )
+
+    print("✅ sitemap.xml generated successfully")
 
 
 if __name__ == "__main__":
