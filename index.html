@@ -9,11 +9,23 @@
     <meta property="og:image" content="https://cdn.jsdelivr.net/gh/malemsana/aniclip-frontend@main/preview.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:title" content="Aniclips – Anime Clips Library">
+    <meta property="og:description"
+        content="Browse and download high-quality anime clips in 4K and RAW. Action, romance, fights and cinematic scenes.">
+    <meta property="og:url" content="https://aniclips.site">
+
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/malemsana/aniclip-frontend@main/preview.png" />
+    <meta name="description"
+        content="Aniclips is a high-quality anime clips library featuring 4K, RAW, action, romance, fight and cinematic scenes for editors and fans.">
 
 
-    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="icon" href="/favicon.ico" sizes="48x48">
+    <link rel="icon" href="/favicon-48.png" sizes="48x48" type="image/png">
+    <link rel="icon" href="/favicon-96.png" sizes="96x96" type="image/png">
+    <link rel="icon" href="/favicon-192.png" sizes="192x192" type="image/png">
+    <link rel="icon" href="/favicon-512.png" sizes="512x512" type="image/png">
+
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -112,14 +124,15 @@
     <!-- ==== HEADER ==== -->
     <header class="fixed top-0 w-full z-50 glass-nav transition-all duration-300" id="navbar">
         <nav class="container mx-auto px-4 h-16 flex justify-between items-center">
-            
+
             <!-- LOGO (Corrected Spacing) -->
             <a href="index.html" class="flex items-center gap-3 group z-50">
                 <!-- Icon with Glow -->
-                <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                <div
+                    class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
                     <span class="material-symbols-rounded text-white text-lg">movie</span>
                 </div>
-                
+
                 <!-- TEXT UPDATE: 'tracking-wide' instead of 'tracking-tight' -->
                 <span class="font-black text-xl tracking-wide text-slate-100 group-hover:text-white transition-colors">
                     Ani<span class="text-blue-500">Clips</span>
@@ -129,28 +142,35 @@
             <!-- SEARCH SECTION -->
             <div class="hidden md:block flex-grow max-w-md mx-6 relative group z-50" id="search-wrapper">
                 <div class="relative">
-                    <input type="text" id="global-search" oninput="handleGlobalSearch(this.value)" placeholder="Quick search library..." autocomplete="off"
+                    <input type="text" id="global-search" oninput="handleGlobalSearch(this.value)"
+                        placeholder="Quick search library..." autocomplete="off"
                         class="w-full bg-slate-950/60 border border-slate-800 rounded-lg pl-10 pr-4 py-2 text-xs text-slate-200 placeholder-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:bg-slate-950 outline-none transition-all shadow-inner font-medium">
-                    <span class="material-symbols-rounded absolute left-3 top-1.5 text-slate-600 text-sm pointer-events-none">search</span>
+                    <span
+                        class="material-symbols-rounded absolute left-3 top-1.5 text-slate-600 text-sm pointer-events-none">search</span>
                     <div id="search-spinner" class="absolute right-3 top-1.5 hidden">
-                        <span class="material-symbols-rounded animate-spin text-blue-500 text-sm">progress_activity</span>
+                        <span
+                            class="material-symbols-rounded animate-spin text-blue-500 text-sm">progress_activity</span>
                     </div>
                 </div>
 
-                <div id="search-dropdown" class="absolute top-full left-0 w-full bg-[#0f172a] border border-slate-700/50 rounded-lg shadow-2xl mt-2 hidden flex-col overflow-hidden ring-1 ring-black/50 origin-top scale-95 opacity-0 transition-all duration-200 ease-out transform">
+                <div id="search-dropdown"
+                    class="absolute top-full left-0 w-full bg-[#0f172a] border border-slate-700/50 rounded-lg shadow-2xl mt-2 hidden flex-col overflow-hidden ring-1 ring-black/50 origin-top scale-95 opacity-0 transition-all duration-200 ease-out transform">
                     <div class="bg-slate-950/50 px-3 py-2 border-b border-white/5 flex justify-between items-center">
                         <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Results</span>
                         <span class="text-[9px] text-slate-600">ESC to close</span>
                     </div>
                     <div id="search-results-list" class="max-h-[60vh] overflow-y-auto scrollbar-thin"></div>
                     <div id="search-footer" class="p-2 bg-slate-950/80 border-t border-white/5 hidden">
-                        <button class="block w-full text-center bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white py-1.5 rounded text-[10px] font-bold transition-colors uppercase tracking-wider">View all results ›</button>
+                        <button
+                            class="block w-full text-center bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white py-1.5 rounded text-[10px] font-bold transition-colors uppercase tracking-wider">View
+                            all results ›</button>
                     </div>
                 </div>
             </div>
 
             <div class="flex items-center gap-4">
-                <a href="#browse-genres" class="text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-wider transition-colors">Collections</a>
+                <a href="#browse-genres"
+                    class="text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-wider transition-colors">Collections</a>
             </div>
         </nav>
     </header>
@@ -542,4 +562,3 @@
 
 
 </html>
-
