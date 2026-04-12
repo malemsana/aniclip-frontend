@@ -1,917 +1,1165 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Production | AniClips</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>v4 Production Console | AniClips</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@500&display=swap');
 
-  <script>
-    tailwind.config = { theme: { extend: { colors: { gray: { 900: '#0f172a', 950: '#020617' } } } } }
-  </script>
-
-  <style>
-    body { font-family: Inter, sans-serif; background:#020617; color:#f8fafc; }
-    .material-symbols-rounded { font-size:20px; }
-    .card { background:#0f172a; border:1px solid rgba(255,255,255,.05); border-radius:12px; }
-    
-    .chunk { height: 6px; width:100%; border-radius: 1px; transition: all 0.2s; cursor: help; margin:0 1px;}
-    .chunk.pending { background: #334155; }
-    .chunk.assigned { background: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.4); animation: pulse 2s infinite; }
-    .chunk.completed { background: #10b981; }
-    .chunk.failed { background: #ef4444; cursor: pointer; }
-    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
-
-    /* New Tab Styles from V2 */
-    .tab-btn { flex: 1; text-align: center; padding: 12px 0; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.2s; }
-    .tab-btn:hover { color: #f8fafc; background: rgba(255,255,255,0.02); }
-    .tab-btn.active { color: #3b82f6; border-bottom-color: #3b82f6; background: rgba(59,130,246,0.05); }
-    .badge { margin-left: 6px; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); color: #94a3b8; font-size: 9px; }
-    .active .badge { background: #3b82f6; color: white; }
-
-    .source-item { transition: all 0.2s; border: 1px solid rgba(255,255,255,0.05); }
-    .source-item:hover { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.1); }
-    .source-item.selected { background: rgba(59, 130, 246, 0.1); border-color: #3b82f6; }
-
-    ::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-thumb{background:#334155;border-radius:4px}
-    
-    .inspector-overlay { transition: opacity 0.2s ease; }
-    
-    .folder-item { cursor: pointer; transition: all 0.15s; }
-    .folder-item:hover { background: rgba(255,255,255,0.02); }
-    .folder-item.selected { background: rgba(59, 130, 246, 0.15); border-color: #3b82f6; }
-  </style>
-</head>
-
-<body class="min-h-screen flex flex-col bg-slate-950">
-
-<nav class="sticky top-0 z-50 border-b border-white/5 bg-slate-950/80 backdrop-blur">
-  <div class="container mx-auto px-6 h-16 flex justify-between items-center">
-    <div class="flex items-center gap-6">
-      <div class="flex items-center gap-2">
-        <div class="w-7 h-7 bg-blue-600 rounded flex items-center justify-center text-white"><span class="material-symbols-rounded" style="font-size:18px">factory</span></div>
-        <span class="font-black uppercase tracking-wide text-sm">Ani<span class="text-slate-500">Clips</span></span>
-      </div>
-      <div class="h-6 w-px bg-white/10 hidden sm:block"></div>
-      <a href="admin.html" class="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-slate-500 hover:text-white transition-colors">
-        <span class="material-symbols-rounded text-sm">dashboard</span> Panel
-      </a>
-      <div class="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-blue-400">
-        <span class="material-symbols-rounded text-sm">hub</span> Distributed
-      </div>
-    </div>
-    <button onclick="logout()" class="text-xs font-bold text-red-500 hover:text-red-400 uppercase">Logout</button>
-  </div>
-</nav>
-
-<main class="container mx-auto px-6 py-6 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-64px)]">
-
-  <section class="lg:col-span-8 flex flex-col gap-6 h-full overflow-hidden relative">
-    <div class="grid grid-cols-4 gap-4 flex-shrink-0">
-        <div class="card p-4"><div class="text-[10px] uppercase font-bold text-slate-500 mb-1">Queue Size</div><div class="text-2xl font-black text-white" id="stat-queued">--</div></div>
-        <div class="card p-4 border-indigo-500/20"><div class="text-[10px] uppercase font-bold text-indigo-400 mb-1">Needs Review</div><div class="text-2xl font-black text-white" id="stat-review">--</div></div>
-        <div class="card p-4 border-blue-500/20"><div class="text-[10px] uppercase font-bold text-blue-400 mb-1">Chunks Active</div><div class="text-2xl font-black text-white" id="stat-active">--</div></div>
-        <div class="card p-4 hover:bg-slate-800 cursor-pointer" onclick="fetchData()">
-            <div class="h-full flex items-center justify-center flex-col text-slate-500 hover:text-white"><span class="material-symbols-rounded mb-1">sync</span><span class="text-[9px] uppercase font-bold tracking-widest">Refresh</span></div>
-        </div>
-    </div>
-
-    <div class="card flex flex-col flex-grow min-h-0">
-        <div class="px-6 py-4 border-b border-white/5 bg-slate-950/20 flex justify-between items-center">
-            <h2 class="text-xs uppercase font-bold text-blue-400 tracking-widest flex items-center gap-2"><span class="material-symbols-rounded">precision_manufacturing</span> Production Floor</h2>
-            <div class="flex items-center gap-2 text-[10px] font-bold text-slate-500"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> LIVE</div>
-        </div>
-        <div class="grid grid-cols-12 px-6 py-3 bg-slate-950 border-b border-white/5 text-[9px] font-bold text-slate-600 uppercase tracking-widest">
-            <div class="col-span-1">ID</div>
-            <div class="col-span-4">Project</div>
-            <div class="col-span-5">Map</div>
-            <div class="col-span-2 text-right">Completion</div>
-        </div>
-        <div id="container-active" class="overflow-y-auto p-0 flex-grow"></div>
-    </div>
-
-    <!-- V3 INSPECTOR OVERLAY -->
-    <div id="inspector-overlay" class="absolute inset-0 bg-slate-950/95 backdrop-blur-sm z-40 hidden inspector-overlay">
-      <div class="h-full flex flex-col">
-        
-        <div class="flex-shrink-0 px-6 py-4 border-b border-white/10 bg-slate-900/50 flex justify-between items-center">
-          <div class="flex items-center gap-3">
-            <img id="ins-cover" src="" class="w-10 h-14 rounded object-cover bg-black border border-white/10">
-            <div>
-              <h2 class="text-sm font-bold text-white" id="ins-title">Anime Title</h2>
-              <span class="text-[9px] text-slate-400 uppercase tracking-wider font-mono">Source Selection</span>
-            </div>
-          </div>
-          <button onclick="closeInspector()" class="text-slate-400 hover:text-white transition">
-            <span class="material-symbols-rounded">close</span>
-          </button>
-        </div>
-
-        <div class="flex-shrink-0 px-6 py-3 bg-slate-900/30 border-b border-white/5 space-y-2">
-          
-          <div class="flex items-center gap-3">
-            <img id="sum-web-img" src="" class="w-6 h-8 rounded object-cover bg-slate-800 border border-white/5 opacity-40">
-            <div class="flex-grow min-w-0">
-              <span class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Aniwave: </span>
-              <span id="sum-web-text" class="text-[10px] font-bold text-slate-400">Not selected</span>
-            </div>
-            <button onclick="editWebSource()" class="text-slate-500 hover:text-blue-400 transition">
-              <span class="material-symbols-rounded" style="font-size:16px">edit</span>
-            </button>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <img id="sum-tor-img" src="" class="w-6 h-8 rounded object-cover bg-slate-800 border border-white/5 opacity-40">
-            <div class="flex-grow min-w-0">
-              <span class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Torrent: </span>
-              <span id="sum-tor-text" class="text-[10px] font-bold text-slate-400">Not selected</span>
-            </div>
-            <button onclick="editTorrentSource()" class="text-slate-500 hover:text-indigo-400 transition">
-              <span class="material-symbols-rounded" style="font-size:16px">edit</span>
-            </button>
-          </div>
-        </div>
-
-        <div id="inspector-content" class="flex-grow overflow-y-auto px-6 py-4"></div>
-
-        <div id="inspector-footer" class="hidden flex-shrink-0 px-6 py-4 border-t border-white/10 bg-slate-900/50">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-4">
-              <div>
-                <label class="block text-[8px] font-bold text-slate-500 uppercase mb-1">Season #</label>
-                <input id="ins-season" type="number" class="bg-slate-900 border border-slate-700 text-xs text-white rounded px-3 py-2 w-20 text-center" value="1" min="1">
-              </div>
-              <div>
-                <label class="block text-[8px] font-bold text-slate-500 uppercase mb-1">Episodes</label>
-                <input id="ins-eps" type="number" class="bg-slate-900 border border-slate-700 text-xs text-white rounded px-3 py-2 w-20 text-center" value="12" min="1">
-              </div>
-            </div>
-            <button onclick="confirmSources()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase px-8 py-3 rounded shadow-lg tracking-widest transition-all">
-              Confirm & Start Production
-            </button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-  </section>
-
-  <section class="lg:col-span-4 flex flex-col gap-6 h-full overflow-hidden">
-    
-    <div class="card p-5 border-blue-500/20 flex-shrink-0 z-20">
-      <h3 class="text-xs uppercase font-bold text-blue-400 mb-4 flex items-center gap-2"><span class="material-symbols-rounded">search</span> New Scout</h3>
-      
-      <div class="relative">
-          <input id="jikan-input" class="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2.5 text-xs text-white focus:border-blue-500 outline-none" placeholder="Search Anime or ID..." onkeyup="handleJikanSearch(this.value)" autocomplete="off">
-          <span class="material-symbols-rounded absolute right-3 top-2.5 text-slate-600 text-sm">manage_search</span>
-          <div id="jikan-results" class="hidden absolute top-12 left-0 right-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl max-h-48 overflow-y-auto z-30"></div>
-      </div>
-      
-      <div id="selected-view" class="hidden mt-3 p-2 bg-slate-950/50 rounded border border-white/5 flex gap-3 items-center">
-         <img id="sel-img" src="" class="w-8 h-10 bg-black object-cover rounded">
-         <div class="flex-grow overflow-hidden">
-             <div id="sel-title" class="text-xs font-bold text-white truncate">Title</div>
-             <div id="sel-id" class="text-[10px] text-slate-500 font-mono">ID: 00</div>
-         </div>
-         <button onclick="clearSelection()" class="text-slate-500 hover:text-white"><span class="material-symbols-rounded">close</span></button>
-      </div>
-
-      <button onclick="dispatchRequest()" id="btn-dispatch" class="w-full mt-3 bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold py-2 rounded uppercase tracking-widest disabled:opacity-50" disabled>Dispatch Agent</button>
-    </div>
-
-    <!-- TAB SYSTEM RESTORED FROM V2 -->
-    <div class="card flex flex-col flex-grow min-h-0">
-        <div class="flex border-b border-white/5 bg-slate-950/20">
-            <div onclick="setTab('inbox')" id="t-inbox" class="tab-btn active">Review <span class="badge" id="c-inbox">0</span></div>
-            <div onclick="setTab('delivery')" id="t-delivery" class="tab-btn">Ready <span class="badge" id="c-delivery">0</span></div>
-            <div onclick="setTab('workers')" id="t-workers" class="tab-btn">Nodes <span class="badge" id="c-workers">0</span></div>
-        </div>
-        <div id="tab-content" class="flex-grow overflow-y-auto p-4 space-y-3 bg-[#0b1120]"></div>
-    </div>
-  </section>
-
-</main>
-
-<script>
-  const API_URL = 'https://aniclip-backend.onrender.com/api'; 
-  const PROD = `${API_URL}/production`;
-  const ADMIN_KEY = localStorage.getItem('aniclip_admin_key');
-  if(!ADMIN_KEY) window.location.href='auth.html';
-
-  let globalData = {};
-  let currentTab = 'inbox'; 
-  
-  let jikanTimeout = null;
-  let selectedAnime = null;
-  
-  // Inspector State
-  let currentJob = null;
-  let currentView = null;
-  let selWeb = null;
-  let selTor = null;
-  let selTorFolder = null;
-  let expandedTorrent = null;
-
-  window.onload = () => { fetchData(); setInterval(fetchData, 5000); };
-
-  async function fetchData() {
-    try {
-      const res = await fetch(`${PROD}/dashboard`, { headers: { 'Authorization': `Bearer ${ADMIN_KEY}` } });
-      globalData = await res.json();
-      renderAll(globalData);
-    } catch(e) {}
-  }
-
-  function renderAll(data) {
-    const scq = data.scout_queue || [];
-    const needsRev = data.inbox.filter(i => i.status === 'NEEDS_APPROVAL');
-    const doneStaging = data.staging || [];
-    const workers = data.workers || [];
-    
-    // Stats Top Left
-    document.getElementById('stat-queued').innerText = scq.length;
-    document.getElementById('stat-review').innerText = needsRev.length;
-
-    let chunks = 0; 
-    (data.active||[]).forEach(j => chunks += parseInt(j.total_tasks||0));
-    document.getElementById('stat-active').innerText = chunks;
-
-    // Tab Counts
-    document.getElementById('c-inbox').innerText = needsRev.length + scq.length;
-    document.getElementById('c-delivery').innerText = doneStaging.length;
-    document.getElementById('c-workers').innerText = workers.length;
-
-    renderFloor(data.active);
-    renderCurrentTab();
-  }
-
-  // --- TAB LOGIC ---
-  function setTab(name) {
-    currentTab = name;
-    // Update active class in CSS
-    document.querySelectorAll('.tab-btn').forEach(b => { 
-        b.classList.remove('active'); 
-        b.querySelector('.badge').classList.remove('bg-blue-600', 'text-white');
-    });
-    const active = document.getElementById(`t-${name}`);
-    active.classList.add('active'); 
-    active.querySelector('.badge').classList.add('bg-blue-600', 'text-white');
-    
-    renderCurrentTab();
-  }
-
-  function renderCurrentTab() {
-    const box = document.getElementById('tab-content');
-    box.innerHTML = '';
-    
-    // --- 1. INBOX TAB (Needs Approval) ---
-    if (currentTab === 'inbox') {
-        const needsRev = globalData.inbox.filter(i => i.status === 'NEEDS_APPROVAL');
-        const pending = globalData.scout_queue || [];
-
-        if (needsRev.length === 0 && pending.length === 0) {
-            box.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-slate-700 italic opacity-50"><span class="material-symbols-rounded mb-2 text-2xl">inbox</span><span class="text-[10px] uppercase font-bold tracking-widest">Inbox Zero</span></div>`;
-            return;
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+            overflow: hidden;
         }
 
-        needsRev.forEach(j => {
-            const meta = j.metadata || {};
-            box.innerHTML += `
-            <div class="card p-3 border border-indigo-500/30 flex gap-3 hover:bg-white/5 cursor-pointer transition" onclick="openInspector(${j.id})">
-                <img src="${meta.cover||''}" class="w-8 h-10 bg-black rounded object-cover shadow-sm" onerror="this.src='https://placehold.co/40x50'">
-                <div class="flex-grow min-w-0">
-                    <div class="text-[9px] font-bold text-indigo-400 uppercase tracking-widest mb-0.5">Scout Finished</div>
-                    <div class="text-[11px] font-bold text-white truncate">${j.anime_title}</div>
-                </div>
-                <div class="flex items-center text-slate-500"><span class="material-symbols-rounded">chevron_right</span></div>
-            </div>`;
-        });
-
-        if (pending.length > 0) box.innerHTML += `<div class="text-[9px] font-bold text-slate-600 uppercase tracking-widest mt-4 mb-2 text-center border-t border-white/5 pt-2">Processing Scout</div>`;
-        
-        pending.forEach(j => {
-            const meta = j.metadata || {};
-            box.innerHTML += `
-            <div class="flex items-center gap-3 p-2 bg-slate-900/30 border border-white/5 rounded opacity-60">
-                <img src="${meta.cover||''}" class="w-6 h-8 bg-black rounded opacity-50" onerror="this.src='https://placehold.co/40x50'">
-                <div class="flex-grow min-w-0">
-                    <div class="text-[10px] font-bold text-slate-400 truncate">${j.anime_title}</div>
-                    <div class="text-[8px] text-slate-600 uppercase animate-pulse">Waitlist</div>
-                </div>
-                <button onclick="delJob(${j.id})" class="text-slate-700 hover:text-red-500"><span class="material-symbols-rounded text-sm">close</span></button>
-            </div>`;
-        });
-    }
-
-    // --- 2. DELIVERY TAB (Ready for Import) ---
-    else if (currentTab === 'delivery') {
-        const doneStaging = globalData.staging || [];
-        if (doneStaging.length === 0) { 
-            box.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-slate-700 italic opacity-50"><span class="material-symbols-rounded mb-2 text-2xl">local_shipping</span><span class="text-[10px] uppercase font-bold tracking-widest">Zone Empty</span></div>`; 
-            return;
-        }
-        
-        doneStaging.forEach(j => {
-            box.innerHTML += `
-            <div class="bg-emerald-900/10 border border-emerald-500/30 p-3 rounded mb-2 hover:bg-emerald-900/20 transition-colors">
-                <div class="text-[10px] font-bold text-emerald-400 truncate mb-1 flex items-center gap-2"><span class="material-symbols-rounded text-sm">check_circle</span> ${j.anime_title}</div>
-                <div class="flex gap-2 mt-2">
-                    <button onclick="doImport(${j.id})" class="flex-grow bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] font-bold py-1.5 rounded uppercase shadow-lg transition-all">Import to Library</button>
-                    <button onclick="delJob(${j.id})" class="text-slate-600 hover:text-red-500 px-2 rounded hover:bg-red-500/10"><span class="material-symbols-rounded text-base">delete</span></button>
-                </div>
-            </div>`;
-        });
-    }
-
-    // --- 3. WORKERS TAB (Detailed Nodes) ---
-    else if (currentTab === 'workers') {
-        const workers = globalData.workers || [];
-        if (workers.length === 0) {
-             box.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-slate-700 italic opacity-50"><span class="material-symbols-rounded mb-2 text-2xl">power_off</span><span class="text-[10px] uppercase font-bold tracking-widest">Nodes Offline</span></div>`; 
-             return;
+        .material-symbols-rounded {
+            font-size: 18px;
         }
 
-        workers.forEach(w => {
-            const isWorking = w.status === 'WORKING';
-            const color = isWorking ? 'text-blue-400' : 'text-slate-600';
-            const bg = isWorking ? 'bg-blue-500/5 border-blue-500/20' : 'bg-slate-900/50 border-white/5';
-            const icon = isWorking ? 'memory' : 'bedtime';
-            const pulse = isWorking ? 'animate-pulse' : '';
+        .chunk {
+            height: 6px;
+            border-radius: 1px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
 
-            // Construct Detail String based on Join Data
-            let detailHTML = `<span class="italic text-slate-700">Idling...</span>`;
-            
-            if (isWorking) {
-                if (w.task_type === 'SCOUT') {
-                    detailHTML = `<span class="text-indigo-400">🔍 Scout:</span> <span class="text-slate-300 truncate">${w.anime_title || 'Unknown'}</span>`;
-                } else if (w.task_type === 'PROCESS') {
-                    detailHTML = `<span class="text-blue-400">🎬 Encoding:</span> <span class="text-slate-300 truncate">${w.anime_title || 'Job #' + w.current_task_id}</span> <span class="text-slate-500 text-[9px] ml-1 bg-slate-800 px-1 rounded">Eps ${w.ep_start}-${w.ep_end}</span>`;
-                } else {
-                    detailHTML = `<span class="text-slate-500">Finalizing Task...</span>`;
-                }
+        .chunk.pending {
+            background: #1e293b;
+        }
+
+        .chunk.assigned {
+            background: #3b82f6;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .chunk.completed {
+            background: #10b981;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
             }
 
-            box.innerHTML += `
-            <div class="p-3 border rounded-lg ${bg} mb-2 flex items-center justify-between transition-all">
-                <div class="flex items-center gap-3 overflow-hidden">
-                    <div class="w-8 h-8 flex-shrink-0 rounded bg-slate-950 flex items-center justify-center border border-white/5 shadow-inner">
-                        <span class="material-symbols-rounded ${color} ${pulse} text-lg">${icon}</span>
-                    </div>
-                    <div class="min-w-0">
-                        <div class="text-[10px] font-bold ${color} font-mono uppercase leading-tight mb-0.5">${w.friendly_name}</div>
-                        <div class="text-[10px] font-medium truncate pr-2 flex items-center gap-1">${detailHTML}</div>
-                    </div>
-                </div>
-                
-                <div class="text-[9px] font-bold ${color} bg-slate-950 px-2 py-1 rounded border border-white/5 uppercase shadow-sm">
-                    ${w.status}
-                </div>
-            </div>`;
-        });
-    }
-  }
+            50% {
+                opacity: 0.6;
+            }
 
-
-  // --- INSPECTOR LOGIC (Unchanged from V3) ---
-  function openInspector(id) {
-    const job = globalData.inbox.find(j => j.id === id);
-    if (!job) return;
-
-    currentJob = job;
-    selWeb = null;
-    selTor = null;
-    selTorFolder = null;
-    expandedTorrent = null;
-
-    document.getElementById('ins-title').innerText = job.anime_title;
-    document.getElementById('ins-cover').src = job.metadata?.cover || '';
-    document.getElementById('ins-season').value = 1;
-    document.getElementById('ins-eps').value = 12;
-
-    updateSummary();
-    editWebSource();
-
-    document.getElementById('inspector-overlay').classList.remove('hidden');
-  }
-
-  function closeInspector() {
-    document.getElementById('inspector-overlay').classList.add('hidden');
-    currentJob = null;
-  }
-
-  function updateSummary() {
-    const cover = currentJob?.metadata?.cover || '';
-    
-    const webImg = document.getElementById('sum-web-img');
-    const webText = document.getElementById('sum-web-text');
-    if (selWeb) {
-      const src = currentJob.sources.aniwave.find(s => s.url === selWeb);
-      webImg.src = src?.poster || cover;
-      webImg.classList.remove('opacity-40');
-      webText.textContent = src?.title || 'Selected';
-      webText.classList.remove('text-slate-400');
-      webText.classList.add('text-white');
-    } else {
-      webImg.src = cover;
-      webImg.classList.add('opacity-40');
-      webText.textContent = 'Not selected';
-      webText.classList.remove('text-white');
-      webText.classList.add('text-slate-400');
-    }
-
-    const torImg = document.getElementById('sum-tor-img');
-    const torText = document.getElementById('sum-tor-text');
-    if (selTor) {
-      const src = currentJob.sources.nyaa.find(s => s.magnet === selTor);
-      torImg.src = cover;
-      torImg.classList.remove('opacity-40');
-      const title = src?.title || 'Selected';
-      const shortTitle = title.length > 40 ? title.substring(0, 40) + '...' : title;
-      const folder = selTorFolder ? ` → ${selTorFolder.split('/')[0]}` : '';
-      torText.textContent = shortTitle + folder;
-      torText.classList.remove('text-slate-400');
-      torText.classList.add('text-white');
-    } else {
-      torImg.src = cover;
-      torImg.classList.add('opacity-40');
-      torText.textContent = 'Not selected';
-      torText.classList.remove('text-white');
-      torText.classList.add('text-slate-400');
-    }
-
-    if (selWeb && selTor) {
-      document.getElementById('inspector-footer').classList.remove('hidden');
-    } else {
-      document.getElementById('inspector-footer').classList.add('hidden');
-    }
-  }
-
-  function editWebSource() {
-    currentView = 'web-list';
-    renderWebSourceList();
-  }
-
-  function editTorrentSource() {
-    currentView = 'torrent-list';
-    renderTorrentList();
-  }
-
-  function renderWebSourceList() {
-    const content = document.getElementById('inspector-content');
-    content.innerHTML = `
-      <div class="mb-3">
-        <h3 class="text-xs uppercase font-bold text-blue-400 tracking-widest mb-3">Select Web Preview Source</h3>
-      </div>
-      <div id="web-source-list" class="space-y-2"></div>
-    `;
-
-    const listContainer = document.getElementById('web-source-list');
-    const sources = currentJob.sources.aniwave || [];
-    
-    sources.forEach(src => {
-      const isSelected = selWeb === src.url;
-      const div = document.createElement('div');
-      div.className = `source-item bg-slate-900/50 rounded-lg p-3 cursor-pointer flex gap-3 items-center ${isSelected ? 'selected' : ''}`;
-      div.onclick = () => selectWebSource(src.url);
-      
-      div.innerHTML = `
-        <img src="${src.poster || currentJob.metadata?.cover}" class="w-10 h-14 rounded object-cover bg-slate-800 flex-shrink-0 border border-white/5">
-        <div class="flex-grow min-w-0">
-          <div class="text-xs font-bold text-white mb-1 leading-tight">${src.title}</div>
-          <div class="text-[9px] text-slate-500 font-mono truncate">${src.url}</div>
-          <a href="${src.url}" target="_blank" onclick="event.stopPropagation()" class="inline-flex items-center gap-1 text-[9px] uppercase font-bold text-slate-600 hover:text-blue-400 transition mt-1">
-            <span>Open</span>
-            <span class="material-symbols-rounded" style="font-size:10px">open_in_new</span>
-          </a>
-        </div>
-        ${isSelected ? '<span class="material-symbols-rounded text-blue-400" style="font-size:20px">check_circle</span>' : ''}
-      `;
-      
-      listContainer.appendChild(div);
-    });
-  }
-
-  function selectWebSource(url) {
-    selWeb = url;
-    updateSummary();
-    renderWebSourceList();
-  }
-
-  function renderTorrentList() {
-    const content = document.getElementById('inspector-content');
-    content.innerHTML = `
-      <div class="mb-3">
-        <h3 class="text-xs uppercase font-bold text-indigo-400 tracking-widest mb-3">Select Torrent Source</h3>
-      </div>
-      <div id="torrent-source-list" class="space-y-2"></div>
-    `;
-
-    const listContainer = document.getElementById('torrent-source-list');
-    const sources = currentJob.sources.nyaa || [];
-    
-    sources.forEach(src => {
-      const isSelected = selTor === src.magnet;
-      const fileCount = src.files ? src.files.length : 0;
-      
-      const div = document.createElement('div');
-      div.className = `source-item bg-slate-900/50 rounded-lg p-3 cursor-pointer ${isSelected ? 'selected' : ''}`;
-      div.onclick = () => expandTorrentDetail(src);
-      
-      div.innerHTML = `
-        <div class="flex items-start gap-3 mb-2">
-          <img src="${currentJob.metadata?.cover}" class="w-10 h-14 rounded object-cover bg-slate-800 flex-shrink-0 border border-white/5">
-          <div class="flex-grow min-w-0">
-            <div class="flex items-center gap-2 mb-1">
-              <span class="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">${src.score || 0} pts</span>
-              <span class="text-[9px] text-slate-500">${src.seeds || 0} seeds</span>
-            </div>
-            <div class="text-xs font-bold text-white leading-tight">${src.title}</div>
-          </div>
-        </div>
-        <div class="flex items-center justify-between pt-2 border-t border-white/5">
-          <div class="text-[9px] text-slate-500">
-            <span class="font-mono">${src.size || 'Unknown'}</span>
-            <span class="mx-2">•</span>
-            <span>${fileCount} files</span>
-          </div>
-          <div class="flex items-center gap-1 text-[9px] font-bold text-indigo-400">
-            <span>View Files</span>
-            <span class="material-symbols-rounded" style="font-size:12px">chevron_right</span>
-          </div>
-        </div>
-      `;
-      
-      listContainer.appendChild(div);
-    });
-  }
-
-  function expandTorrentDetail(torrent) {
-    expandedTorrent = torrent;
-    selTorFolder = null;
-    currentView = 'torrent-detail';
-    
-    const content = document.getElementById('inspector-content');
-    
-    content.innerHTML = `
-      <button onclick="backToTorrentList()" class="flex items-center gap-1 text-[9px] uppercase font-bold text-slate-500 hover:text-white mb-4 transition">
-        <span class="material-symbols-rounded" style="font-size:14px">arrow_back</span>
-        <span>Back to List</span>
-      </button>
-
-      <div class="mb-4 pb-4 border-b border-white/10">
-        <div class="flex gap-3">
-          <img src="${currentJob.metadata?.cover}" class="w-12 h-16 rounded object-cover bg-slate-800 border border-white/5 flex-shrink-0">
-          <div class="flex-grow min-w-0">
-            <div class="flex items-center gap-2 mb-2">
-              <span class="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">${torrent.score || 0} pts</span>
-              <span class="text-[9px] text-slate-500">${torrent.seeds || 0} seeds</span>
-              <span class="text-[9px] text-slate-500 font-mono">${torrent.size || 'Unknown'}</span>
-            </div>
-            <div class="text-xs font-bold text-white leading-tight">${torrent.title}</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="mb-3">
-        <h3 class="text-xs uppercase font-bold text-indigo-400 tracking-widest mb-2">Select Folder</h3>
-        <div class="text-[9px] text-slate-500 mb-3">Select a folder to download only its contents. Leave unselected to download everything.</div>
-      </div>
-
-      <div id="file-tree-container" class="space-y-1 mb-4"></div>
-
-      <button onclick="confirmTorrentSelection()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs uppercase py-3 rounded tracking-widest transition">
-        Confirm Selection
-      </button>
-    `;
-
-    renderFileTree(torrent.files || []);
-  }
-
-  function renderFileTree(files) {
-    const tree = buildFileTree(files);
-    const container = document.getElementById('file-tree-container');
-    container.innerHTML = '';
-    
-    renderTreeNode(tree, container, '', 0);
-  }
-
-  function buildFileTree(files) {
-    const tree = { folders: {}, files: [] };
-    
-    files.forEach(path => {
-      const parts = path.split('/');
-      let current = tree;
-      
-      for (let i = 0; i < parts.length; i++) {
-        const part = parts[i];
-        const isFile = i === parts.length - 1 && part.includes('.');
-        
-        if (isFile) {
-          current.files.push(part);
-        } else {
-          if (!current.folders[part]) {
-            current.folders[part] = { folders: {}, files: [], fullPath: parts.slice(0, i + 1).join('/') };
-          }
-          current = current.folders[part];
+            100% {
+                opacity: 1;
+            }
         }
-      }
-    });
-    
-    return tree;
-  }
 
-  function renderTreeNode(node, container, path, level) {
-    const folders = Object.keys(node.folders).sort();
-    const files = node.files.sort();
-    
-    folders.forEach(folderName => {
-      const folder = node.folders[folderName];
-      const folderPath = folder.fullPath;
-      const isSelected = selTorFolder === folderPath;
-      
-      const div = document.createElement('div');
-      div.className = 'mb-1';
-      div.style.marginLeft = `${level * 16}px`;
-      
-      const folderDiv = document.createElement('div');
-      folderDiv.className = `folder-item flex items-center gap-2 px-3 py-2 rounded border ${isSelected ? 'selected border-blue-500' : 'border-transparent'}`;
-      folderDiv.onclick = (e) => {
-        e.stopPropagation();
-        selectFolder(folderPath);
-      };
-      
-      folderDiv.innerHTML = `
-        <span class="material-symbols-rounded text-yellow-500" style="font-size:16px">folder</span>
-        <span class="text-xs font-bold text-white">${folderName}</span>
-        <span class="text-[9px] text-slate-500 ml-auto">${Object.keys(folder.folders).length + folder.files.length} items</span>
-        ${isSelected ? '<span class="material-symbols-rounded text-blue-400 ml-2" style="font-size:16px">check_circle</span>' : ''}
-      `;
-      
-      div.appendChild(folderDiv);
-      container.appendChild(div);
-      
-      renderTreeNode(folder, container, folderPath, level + 1);
-    });
-    
-    files.forEach(fileName => {
-      const div = document.createElement('div');
-      div.className = 'flex items-center gap-2 px-3 py-1.5 rounded opacity-40';
-      div.style.marginLeft = `${level * 16}px`;
-      
-      const ext = fileName.split('.').pop().toLowerCase();
-      let icon = 'description';
-      if (['mkv', 'mp4', 'avi'].includes(ext)) icon = 'movie';
-      else if (['mp3', 'flac', 'wav'].includes(ext)) icon = 'music_note';
-      else if (['srt', 'ass'].includes(ext)) icon = 'subtitles';
-      
-      div.innerHTML = `
-        <span class="material-symbols-rounded text-slate-600" style="font-size:14px">${icon}</span>
-        <span class="text-[10px] text-slate-500">${fileName}</span>
-      `;
-      
-      container.appendChild(div);
-    });
-  }
+        .input-dark {
+            background: #020617;
+            border: 1px solid #1e293b;
+            color: white;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 13px;
+            width: 100%;
+            outline: none;
+            transition: all 0.2s;
+        }
 
-  function selectFolder(path) {
-    selTorFolder = selTorFolder === path ? null : path;
-    renderFileTree(expandedTorrent.files || []);
-  }
+        .input-dark:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
 
-  function confirmTorrentSelection() {
-    selTor = expandedTorrent.magnet;
-    updateSummary();
-    currentView = null;
-    document.getElementById('inspector-content').innerHTML = `
-      <div class="flex items-center justify-center h-full text-slate-500">
-        <div class="text-center">
-          <span class="material-symbols-rounded text-4xl mb-2">check_circle</span>
-          <div class="text-xs font-bold uppercase tracking-wider">Sources Selected</div>
-          <div class="text-[9px] text-slate-600 mt-1">Complete the form below to start production</div>
+        .search-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        .torrent-item:hover {
+            border-color: #3b82f6;
+            background: #0f172a;
+        }
+
+        .row-ignored {
+            opacity: 0.3;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 10px;
+        }
+
+        .chunk-container {
+            display: grid;
+            grid-template-columns: repeat(24, minmax(0, 1fr));
+            gap: 2px;
+        }
+
+        .step-dot {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #1e293b;
+        }
+
+        .step-dot.active {
+            background: #3b82f6;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+            transform: scale(1.2);
+        }
+
+        .mapping-slot {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border-width: 2px;
+        }
+
+        .mapping-slot.active {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+            box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.05);
+        }
+
+        .folder-node {
+            user-select: none;
+            transition: background 0.1s;
+        }
+
+        .folder-node:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .file-node {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-node:hover {
+            color: #3b82f6;
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .file-node.used {
+            opacity: 0.4;
+            pointer-events: none;
+            text-decoration: line-through;
+        }
+
+        .modal-overlay {
+            background: rgba(2, 6, 23, 0.7);
+            backdrop-filter: blur(8px);
+        }
+
+        /* Context Menu Redesign & Hover Bridge */
+        .menu-content {
+            padding-top: 8px;
+            /* The Bridge to prevent menu closing gap */
+            margin-top: -4px;
+            /* Ensure visual alignment with no gap */
+        }
+
+        .menu-btn {
+            font-family: 'Inter', sans-serif !important;
+            text-transform: uppercase;
+            font-weight: 900;
+            font-size: 10px;
+            letter-spacing: 0.05em;
+            color: #3b82f6;
+            /* Theme Blue */
+            transition: all 0.2s;
+        }
+
+        .menu-btn:hover {
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-slate-950 flex flex-col">
+
+    <!-- NAVBAR -->
+    <nav
+        class="border-b border-white/5 bg-slate-950/80 backdrop-blur-md h-14 flex items-center px-6 shrink-0 z-40 justify-between">
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-white"><span
+                        class="material-symbols-rounded text-sm">factory</span></div>
+                <span class="text-slate-200 font-black uppercase text-xs tracking-tighter">AniClips <span
+                        class="text-blue-500 font-mono text-[9px] ml-1">V4_STABLE</span></span>
+            </div>
+            <div class="h-4 w-px bg-white/10"></div>
+            <div class="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                <a href="#" class="hover:text-white transition-colors">Admin Panel</a>
+                <a href="#" class="text-blue-400">Production Console</a>
+            </div>
         </div>
-      </div>
-    `;
-  }
+        <div class="flex items-center gap-4">
+            <button onclick="openReviewInbox()" title="Pending Reviews"
+                class="relative bg-slate-900 border border-white/10 hover:bg-slate-800 text-white p-2 rounded-lg transition-all shadow-lg flex items-center justify-center">
+                <span class="material-symbols-rounded text-[20px]">inbox</span>
+                <span id="inbox-badge"
+                    class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-black translate-x-1/4 -translate-y-1/4 min-w-[20px] h-5 rounded-full flex items-center justify-center border-2 border-slate-950 hidden shadow-[0_0_10px_rgba(239,68,68,0.5)]">0</span>
+            </button>
+            <button onclick="openQueueModal()"
+                class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-black text-[10px] flex items-center gap-2 transition-all uppercase tracking-widest shadow-lg shadow-blue-500/20">
+                <span class="material-symbols-rounded text-sm">add_task</span> Queue Production
+            </button>
+        </div>
+    </nav>
 
-  function backToTorrentList() {
-    expandedTorrent = null;
-    renderTorrentList();
-  }
+    <!-- STATUS STRIP -->
+    <div class="bg-slate-900/40 border-b border-white/5 h-12 flex items-stretch shrink-0">
+        <div class="container mx-auto px-6 flex items-center gap-8">
+            <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-tighter text-slate-500">
+                <span class="material-symbols-rounded text-blue-500 text-sm">robot_2</span>
+                <span>Titans:</span> <span id="stat-workers" class="text-white ml-1">0</span>
+            </div>
+            <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-tighter text-slate-500">
+                <span class="material-symbols-rounded text-emerald-500 text-sm">inventory_2</span>
+                <span>Projects:</span> <span id="stat-animes" class="text-white ml-1">0</span>
+            </div>
+            <div id="sync-indicator"
+                class="ml-auto flex items-center gap-2 text-[8px] font-mono text-slate-600 uppercase">
+                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500" id="sync-dot"></div>
+                <span id="last-sync">System Nominal</span>
+            </div>
+        </div>
+    </div>
 
-  async function confirmSources() {
-    const eps = document.getElementById('ins-eps').value;
-    const season = document.getElementById('ins-season').value;
+    <!-- MAIN GRID -->
+    <main class="flex-grow grid grid-cols-12 gap-6 p-6 overflow-hidden">
+        <div
+            class="col-span-8 flex flex-col bg-slate-900/50 border border-white/5 rounded-2xl shadow-2xl overflow-hidden">
+            <div id="content-pane" class="flex-grow overflow-y-auto divide-y divide-white/5">
+                <div
+                    class="p-20 text-center text-slate-700 uppercase font-black text-[10px] tracking-widest italic animate-pulse">
+                    Scanning production floor...</div>
+            </div>
+        </div>
 
-    if (!eps || eps < 1) {
-      alert("Episode count is required");
-      return;
-    }
+        <div
+            class="col-span-4 flex flex-col bg-slate-900/50 border border-white/5 rounded-2xl shadow-xl overflow-hidden h-full">
+            <div
+                class="bg-slate-950/20 px-6 py-3 border-b border-white/5 flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-500">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-rounded text-blue-500 text-sm">sensors</span>
+                    <span>Active Nodes</span>
+                </div>
+                <!-- Summary Stats -->
+                <div id="fleet-summary" class="flex gap-3">
+                    <span class="text-blue-400" id="summary-working">0W</span>
+                    <span class="text-slate-500" id="summary-idle">0I</span>
+                    <span class="text-red-500" id="summary-offline">0O</span>
+                </div>
+            </div>
+            <div id="fleet-list" class="flex-grow overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                <div class="text-center text-[10px] font-bold text-slate-700 mt-10 uppercase tracking-widest">No active
+                    Titans</div>
+            </div>
+        </div>
+    </main>
 
-    if (!selWeb && !selTor) {
-      alert("Please select at least one source");
-      return;
-    }
+    <!-- QUEUE MODAL (IMPROVED UX) -->
+    <div id="queue-modal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
+        <div
+            class="bg-slate-900 border border-white/10 w-full max-w-5xl h-[85vh] rounded-[32px] shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
 
-    // BUTTON FEEDBACK
-    const btn = event.target || document.querySelector("#inspector-footer button");
-    const originalText = btn.textContent;
-    btn.textContent = "Processing...";
-    btn.disabled = true;
+            <!-- Modal Header -->
+            <div class="px-8 py-5 border-b border-white/5 flex justify-between items-center bg-slate-950/50">
+                <div class="flex items-center gap-6">
+                    <div class="flex gap-2">
+                        <div id="dot-1" class="step-dot w-2 h-2 rounded-full active"></div>
+                        <div id="dot-2" class="step-dot w-2 h-2 rounded-full"></div>
+                        <div id="dot-3" class="step-dot w-2 h-2 rounded-full"></div>
+                    </div>
+                    <h2 id="modal-title" class="text-xs font-black text-white uppercase tracking-widest">Search Anime
+                    </h2>
+                </div>
+                <button onclick="closeQueueModal()"
+                    class="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all">
+                    <span class="material-symbols-rounded">close</span>
+                </button>
+            </div>
 
-    try {
-      const payload = {
-          total_episodes: parseInt(eps),
-          selected_sources: {
-            aniwave_url: selWeb,
-            magnet_link: selTor,
-            magnet_filter: selTorFolder || ''
-          }
-      };
+            <!-- STEP 1: SEARCH -->
+            <div id="step-1" class="p-8 flex flex-col h-full overflow-hidden">
+                <div class="flex gap-3 mb-8">
+                    <input type="text" id="jikan-input" onkeydown="if(event.key==='Enter') searchJikan()"
+                        class="input-dark flex-grow" placeholder="Enter title (e.g. Solo Leveling)...">
+                    <button onclick="searchJikan()"
+                        class="bg-blue-600 hover:bg-blue-500 transition-colors px-10 rounded-xl font-black text-[10px] uppercase tracking-widest">Search
+                        Series</button>
+                </div>
+                <div id="search-results" class="grid grid-cols-2 gap-3 overflow-y-auto pr-2"></div>
+            </div>
 
-      console.log("Sending Payload:", payload); // Debug for you
+            <!-- STEP 2: SOURCE SELECTION -->
+            <div id="step-2" class="hidden p-8 flex flex-col h-full overflow-hidden">
+                <div id="torrent-results" class="space-y-3 overflow-y-auto pr-2"></div>
+            </div>
 
-      const res = await fetch(`${PROD}/job/${currentJob.id}/approve`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${ADMIN_KEY}`
-        },
-        body: JSON.stringify(payload)
-      });
+            <!-- STEP 3: EPISODE MATCHING (SKETCH IMPLEMENTATION) -->
+            <div id="step-3" class="hidden p-8 flex flex-col h-full overflow-hidden">
 
-      // 🛑 STOP: READ THE RESULT FIRST
-      const data = await res.json();
+                <!-- Header Actions (Moved from Footer) -->
+                <div class="flex justify-between items-center mb-6 pb-6 border-b border-white/5">
+                    <div class="flex items-center gap-4">
+                        <button onclick="setStep(2)"
+                            class="text-[10px] font-black text-slate-500 hover:text-white uppercase tracking-widest transition-colors flex items-center gap-2 mr-4">
+                            <span class="material-symbols-rounded">arrow_back</span> Source Settings
+                        </button>
+                        <button onclick="runAutoGuess()"
+                            class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 border border-blue-500/30 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all">
+                            <span class="material-symbols-rounded text-sm">magic_button</span> Auto-Match Files
+                        </button>
+                    </div>
 
-      if (!res.ok) {
-        throw new Error(data.message || data.error || "Server rejected request");
-      }
+                    <div class="flex items-center gap-6">
+                        <div
+                            class="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-2 flex items-center">
+                            Matched: <span id="match-count" class="text-blue-500 ml-2">0</span> <span
+                                class="mx-1">/</span> <span id="total-target">--</span>
+                        </div>
+                        <div class="h-6 w-px bg-white/10"></div>
+                        <button onclick="clearMappings()"
+                            class="px-4 py-2 rounded-xl font-black text-[10px] text-slate-500 uppercase hover:bg-white/5 transition-all">Clear
+                            All</button>
+                        <button onclick="confirmAndQueue()" id="btn-submit"
+                            class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition-all">
+                            Initialize Production
+                        </button>
+                    </div>
+                </div>
 
-      // ✅ SUCCESS ONLY
-      closeInspector();
-      fetchData();
+                <div class="flex gap-6 h-full overflow-hidden">
+                    <!-- LEFT: EPISODE SLOTS -->
+                    <div id="episode-slots" class="w-1/3 flex flex-col gap-2 overflow-y-auto pr-2 pb-4">
+                        <!-- Slots injected by JS -->
+                    </div>
 
-    } catch (e) {
-      alert("❌ Error: " + e.message);
-      console.error(e);
-      btn.textContent = originalText;
-      btn.disabled = false;
-    }
-  }
+                    <!-- RIGHT: FILE TREE -->
+                    <div class="w-2/3 bg-slate-950/50 rounded-2xl border border-white/5 flex flex-col overflow-hidden">
+                        <div class="p-3 border-b border-white/5 bg-slate-950/20 flex items-center justify-between">
+                            <span class="text-[9px] font-black uppercase text-slate-500 tracking-widest px-2">Torrent
+                                File Tree</span>
+                            <div class="flex items-center gap-4 text-[9px] text-slate-600 font-bold uppercase">
+                                <span><span class="text-blue-400">Hint:</span> Disable folders to limit auto-matcher
+                                    scope</span>
+                            </div>
+                        </div>
+                        <div id="file-tree"
+                            class="flex-grow overflow-y-auto p-4 font-mono text-[11px] leading-loose pb-8">
+                            <!-- Tree injected by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+        </div>
+    </div>
 
-  // --- REST (Helpers & Floor) ---
+    <!-- WORKER INFO MODAL -->
+    <div id="worker-modal" class="fixed inset-0 modal-overlay z-[60] hidden flex items-center justify-center p-4">
+        <div
+            class="bg-slate-900 border border-white/10 w-full max-w-md rounded-[24px] shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-slate-950/50">
+                <h2 class="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2"><span
+                        class="material-symbols-rounded text-blue-500">memory</span> Node Diagnostics</h2>
+                <button onclick="closeWorkerModal()"
+                    class="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all"><span
+                        class="material-symbols-rounded">close</span></button>
+            </div>
+            <div id="worker-modal-content" class="p-6 text-sm text-slate-300 space-y-4">
+                <!-- Data injected by JS -->
+            </div>
+        </div>
+    </div>
 
-function renderFloor(jobs) {
-    const box = document.getElementById('container-active');
-    box.innerHTML = '';
-    
-    if(!jobs || jobs.length === 0) { 
-        box.innerHTML = `<div class="h-full flex items-center justify-center text-[10px] font-bold text-slate-700 uppercase tracking-widest opacity-50">Floor Idle</div>`; 
-        return;
-    }
+    <!-- ANIME INFO MODAL -->
+    <div id="anime-info-modal" class="fixed inset-0 modal-overlay z-[60] hidden flex items-center justify-center p-4">
+        <div
+            class="bg-slate-900 border border-white/10 w-full max-w-2xl rounded-[24px] shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200 h-[80vh]">
+            <div class="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-slate-950/50">
+                <h2 class="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2"
+                    id="info-modal-title">Anime Data</h2>
+                <button onclick="closeAnimeInfoModal()"
+                    class="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all"><span
+                        class="material-symbols-rounded">close</span></button>
+            </div>
+            <div id="anime-info-content" class="p-6 text-sm text-slate-300 overflow-y-auto">
+                <!-- Data injected by JS -->
+            </div>
+        </div>
+    </div>
 
-    jobs.forEach(j => {
-        let tasks = j.task_map || [];
-        
-        // 🟢 FIX 1: Sort logic
-        tasks.sort((a,b) => a.id - b.id);
+    <!-- FULL SCREEN REVIEW INBOX -->
+    <div id="review-section"
+        class="fixed inset-0 bg-slate-950 z-[45] hidden flex-col animate-in slide-in-from-bottom duration-300 overflow-hidden">
+        <nav
+            class="border-b border-white/5 bg-slate-950/80 backdrop-blur-md h-14 flex items-center px-6 shrink-0 justify-between">
+            <div class="flex items-center gap-4">
+                <button onclick="closeReviewInbox()"
+                    class="text-slate-400 hover:text-white flex items-center justify-center transition-colors"><span
+                        class="material-symbols-rounded">arrow_back</span></button>
+                <div class="flex text-[10px] font-black uppercase tracking-widest text-slate-500">
+                    <span class="text-white">Admin Approval Inbox</span>
+                </div>
+            </div>
+            <button id="approve-btn" disabled onclick="approveCurrentSelection()"
+                class="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-6 py-2 rounded-lg font-black text-[10px] flex items-center gap-2 transition-all uppercase tracking-widest shadow-lg shadow-emerald-500/20">
+                <span class="material-symbols-rounded text-sm">publish</span> Approve & Publish
+            </button>
+        </nav>
+        <div class="flex-grow flex overflow-hidden">
+            <!-- Left Panel -->
+            <div class="w-[30%] border-r border-white/5 bg-slate-900/30 overflow-y-auto p-4 space-y-4"
+                id="review-list-container">
+            </div>
+            <!-- Right Panel - Library Preview -->
+            <div class="w-[70%] bg-[#020617] overflow-y-auto relative" id="review-preview-container">
+                <div
+                    class="h-full flex items-center justify-center text-slate-600 font-bold uppercase tracking-widest text-xs">
+                    Select an item to preview</div>
+            </div>
+        </div>
+    </div>
 
-        // 🟢 FIX 2: Filter Process Tasks explicitly (V3 Logic)
-        // We do NOT use .slice(1) anymore because backend deleted the Scout task.
-        let productionTasks = tasks.filter(t => t.type === 'PROCESS');
-        
-        // If api didn't send 'type', assume all remaining are process since we clean scout
-        if(productionTasks.length === 0 && tasks.length > 0) productionTasks = tasks;
+    <script>
+        // const API_URL = 'http://localhost:5000/api';
+        const API_URL = 'https://aniclip-backend.onrender.com/api';
 
-        const total = productionTasks.length;
-        const done = productionTasks.filter(t => t.status === 'COMPLETED').length;
-        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-        let color = pct === 100 ? 'text-emerald-500' : 'text-blue-500';
-        if (total === 0) { color = 'text-slate-600'; }
+        const ADMIN_KEY = localStorage.getItem('aniclip_admin_key');
 
-        let bars = '<div class="flex gap-[1px] h-2.5 items-center w-full mt-2 bg-slate-950 rounded overflow-hidden">';
-        
-        if (total === 0) {
-            bars += `<div class="h-full w-full bg-slate-900/50"></div>`;
-        } else {
-            productionTasks.forEach(t => {
-                let cls='pending'; 
-                if(t.status==='ASSIGNED') cls='assigned'; 
-                if(t.status==='COMPLETED') cls='completed'; 
-                if(t.status==='FAILED') cls='failed';
-                const action = t.status==='FAILED' ? `onclick="retryChunk(${t.id})"` : '';
-                bars += `<div class="chunk ${cls} flex-grow" title="#${t.id} (${t.status})" ${action}></div>`;
+        let selectedAnime = null;
+        let selectedMagnet = null;
+        let fileTreeData = {};
+        let currentMappings = {};
+        let focusedEpIndex = 0;
+        let collapsedFolders = new Set();
+        let expandedSlots = new Set();
+        let fileSizes = {};
+
+        async function safeFetch(endpoint, options = {}) {
+            const headers = { 'Authorization': `Bearer ${ADMIN_KEY}`, ...options.headers };
+            const res = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+                throw new Error(err.detail || err.error || 'Server Error');
+            }
+            return res.json();
+        }
+
+        // --- Core UI Functions ---
+
+        function openQueueModal() {
+            setStep(1);
+            document.getElementById('queue-modal').classList.remove('hidden');
+        }
+
+        function closeQueueModal() {
+            document.getElementById('queue-modal').classList.add('hidden');
+        }
+
+        function setStep(n) {
+            [1, 2, 3].forEach(i => {
+                document.getElementById(`step-${i}`).classList.toggle('hidden', i !== n);
+                const dot = document.getElementById(`dot-${i}`);
+                dot.className = `step-dot w-2 h-2 rounded-full ${i === n ? 'active' : (i < n ? 'bg-blue-900' : 'bg-slate-700')}`;
             });
+            const titles = ["Discover Series", "Source Discovery", "Selection Bridge"];
+            document.getElementById('modal-title').innerText = titles[n - 1];
         }
-        bars += '</div>';
 
-        // 🟢 FIX 3: Title Fallback (j.title vs j.anime_title)
-        // Backend 'production.js' sends 'j.anime_title as title', so 'title' should be there.
-        // But we add fallback just in case.
-        const safeTitle = j.title || j.anime_title || 'Undefined';
+        // --- Step 1: MAL Search ---
+        async function searchJikan() {
+            const q = document.getElementById('jikan-input').value;
+            const resEl = document.getElementById('search-results');
+            resEl.innerHTML = `<div class="col-span-2 p-20 text-center animate-pulse text-blue-500 font-black text-[10px] uppercase">Contacting MAL Database...</div>`;
 
-        box.innerHTML += `
-        <div class="grid grid-cols-12 px-6 py-4 border-b border-white/5 items-center hover:bg-slate-900/40 transition">
-             <div class="col-span-1 text-[9px] font-mono text-slate-600">#${j.id}</div>
-             <div class="col-span-10 px-2">
-                 <div class="flex justify-between mb-1">
-                    <span class="text-[11px] font-bold text-slate-300 truncate">${safeTitle}</span>
-                    <span class="text-[9px] font-black ${color}">${pct}%</span>
-                 </div>
-                 ${bars}
-                 <div class="flex justify-between mt-1">
-                     <span class="text-[8px] text-slate-600 uppercase font-bold tracking-wider">${j.total_episodes || '?'} EPS · S${j.season_number || 1}</span>
-                 </div>
-             </div>
-             <div class="col-span-1 text-right">
-                 <button onclick="delJob(${j.id})" class="text-slate-700 hover:text-red-500"><span class="material-symbols-rounded text-sm">cancel</span></button>
-             </div>
-        </div>`;
-    });
-  }
+            try {
+                const res = await fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(q)}&limit=10`);
+                const { data } = await res.json();
+                resEl.innerHTML = data.map(item => `
+                    <div onclick='selectAnime(${JSON.stringify(item).replace(/'/g, "&apos;")})' class="search-item group flex gap-4 p-4 border border-white/5 bg-slate-950/30 rounded-2xl cursor-pointer transition-all">
+                        <img src="${item.images.jpg.small_image_url}" class="w-16 h-20 object-cover rounded-xl shadow-lg">
+                        <div class="flex flex-col justify-center">
+                            <div class="text-sm font-black text-white group-hover:text-blue-400 transition-colors">${item.title}</div>
+                            <div class="text-[9px] text-slate-500 font-black uppercase mt-1 tracking-tighter">${item.episodes || '?'} EPISODES • ${item.year || 'N/A'}</div>
+                            <div class="mt-2 flex gap-1">
+                                <span class="bg-blue-500/10 text-blue-400 text-[8px] font-black px-2 py-0.5 rounded-full uppercase">${item.type}</span>
+                                <span class="bg-emerald-500/10 text-emerald-400 text-[8px] font-black px-2 py-0.5 rounded-full uppercase">MAL: ${item.score}</span>
+                            </div>
+                        </div>
+                    </div>`).join('');
+            } catch (e) {
+                resEl.innerHTML = `<div class="col-span-2 p-20 text-center text-red-500 font-black text-[10px] uppercase">API Limit or Network Failure</div>`;
+            }
+        }
 
-  function handleJikanSearch(q) {
-      if(q.length<3){document.getElementById('jikan-results').classList.add('hidden');return;}
-      clearTimeout(jikanTimeout);
-      jikanTimeout = setTimeout(async ()=>{
-          try {
-             const res = await fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(q)}&limit=8&sfw=true`);
-             const data = await res.json();
-             const list = document.getElementById('jikan-results');
-             list.innerHTML=''; list.classList.remove('hidden');
-             data.data.forEach(x => {
-                const en = x.title_english||x.title;
-                const el = document.createElement('div');
-                el.className = "flex gap-2 p-2 hover:bg-slate-800 cursor-pointer border-b border-white/5 last:border-0 items-center";
-                el.innerHTML = `<img src="${x.images.jpg.image_url}" class="w-6 h-8 bg-black rounded object-cover"><div class="overflow-hidden min-w-0"><div class="text-[10px] font-bold text-white truncate">${en}</div></div>`;
-                el.onclick=()=>{selectAnime(x, en);};
-                list.appendChild(el);
-             });
-          } catch(e){}
-      }, 500);
-  }
-  
-  function selectAnime(x, en) {
-      selectedAnime = { mal_id: x.mal_id, title: en, cover_image: x.images.jpg.image_url };
-      dispatchRequest();
-  }
-  
-  async function dispatchRequest() {
-      const inp = document.getElementById('jikan-input');
-      const box = document.getElementById('jikan-results');
-      box.classList.add('hidden'); inp.value = "Dispatching...";
-      try {
-        await fetch(`${PROD}/request`,{method:'POST',headers:auth(), body:JSON.stringify(selectedAnime)});
-        fetchData();
-      } catch(e) {} 
-      finally { inp.value=''; }
-  }
+        function selectAnime(item) {
+            selectedAnime = {
+                ...item,
+                title_english: item.title_english || item.title,
+                title_japanese: item.title_japanese || item.title
+            };
+            setStep(2);
+            fetchTorrents();
+        }
 
-  function auth() { return {'Content-Type':'application/json','Authorization':`Bearer ${ADMIN_KEY}`}; }
-  async function delJob(id){ if(confirm("Cancel Project?")) await fetch(`${PROD}/job/${id}`, {method:'DELETE',headers:auth()}); fetchData(); }
-  async function retryChunk(tid){ if(confirm("Retry failed chunk?")) await fetch(`${PROD}/job/task/${tid}/reset`, {method:'PUT',headers:auth()}); fetchData(); }
-  async function doImport(id) { 
-      const btn = event.target;
-      btn.innerHTML = "💾 Saving...";
-      btn.disabled = true;
+        // --- Step 2: Torrent Fetch ---
+        async function fetchTorrents() {
+            const torEl = document.getElementById('torrent-results');
+            torEl.innerHTML = `<div class="p-20 text-center animate-pulse text-blue-400 font-black text-[10px] uppercase tracking-widest">Scraping Nyaa Index...</div>`;
+            try {
+                const torrents = await safeFetch(`/production/search_torrents?q=${encodeURIComponent(selectedAnime.title)}`);
+                torEl.innerHTML = torrents.map(t => `
+                    <div onclick="selectTorrent('${t.id}', '${t.magnet.replace(/'/g, "\\'")}')" class="torrent-item p-6 border border-white/5 bg-slate-950/20 rounded-2xl cursor-pointer transition-all group">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="text-sm font-bold text-slate-200 group-hover:text-blue-400 transition-colors line-clamp-1">${t.title}</div>
+                        </div>
+                        <div class="flex gap-6 text-[10px] font-black uppercase tracking-widest">
+                            <span class="text-emerald-500 flex items-center gap-1"><span class="material-symbols-rounded text-xs">arrow_upward</span> ${t.seeders} Seeders</span>
+                            <span class="text-slate-500 flex items-center gap-1"><span class="material-symbols-rounded text-xs">database</span> ${t.size}</span>
+                            <span class="text-blue-500 ml-auto uppercase tracking-[0.2em] group-hover:underline">Select Pack</span>
+                        </div>
+                    </div>`).join('');
+            } catch (e) {
+                torEl.innerHTML = `<div class="p-20 text-center text-red-500 font-black text-[10px] uppercase">NYAA_DISCOVERY_FAILED: ${e.message}</div>`;
+            }
+        }
 
-      try {
-          const res = await fetch(`${PROD}/job/${id}/import`, { method: 'POST', headers: auth() });
-          const data = await res.json();
+        function selectTorrent(id, magnet) {
+            selectedMagnet = magnet;
+            window._selectedTorrentId = id;
+            setStep(3);
+            initMappingBridge();
+        }
 
-          if (data.status === 'success') {
-              btn.innerHTML = "Done";
-              
-              // 1. Show Gist Link
-              let msg = "Import Successful!";
-              if (data.gist_url) msg += "\n\n Backup Gist created: " + data.gist_url;
-              alert(msg);
-              
-              // 2. Correct Redirect Logic (Use 'redirect_id' and '?name=')
-              if(confirm("Open Edit Page?")) {
-                  // Fallback to anime_id if redirect_id is missing, handles both API versions
-                  const slug = data.redirect_id || data.anime_id;
-                  window.location.href = `edit.html?name=${slug}`;
-              }
-              
-              fetchData();
-          } else {
-              alert("Server Error: " + data.message);
-              btn.innerHTML = "Retry Import";
-              btn.disabled = false;
-          }
-      } catch (e) {
-          alert("Network Error during import");
-          console.error(e);
-          btn.innerHTML = "Import";
-          btn.disabled = false;
-      }
-  }
-  function logout(){ localStorage.removeItem('aniclip_admin_key'); window.location.href='auth.html'; }
+        // --- Step 3: The Bridge Logic ---
 
-</script>
+        async function initMappingBridge() {
+            const totalEps = selectedAnime.episodes || 12;
+            document.getElementById('total-target').innerText = totalEps;
+            currentMappings = {};
+            collapsedFolders.clear();
+            expandedSlots.clear();
+            fileSizes = {};
+            focusedEpIndex = 0;
+            const container = document.getElementById('file-tree');
+            container.innerHTML = `<div class="p-20 text-center animate-pulse text-slate-600 font-black text-[10px] uppercase tracking-widest">Inspecting File Tree...</div>`;
+
+            renderSlots();
+
+            try {
+                fileTreeData = await safeFetch(`/production/torrent_files?id=${window._selectedTorrentId}`);
+
+                const extractSizes = (node, path = "") => {
+                    let currentPath = path;
+                    if (node && node.name && node.name !== '/') {
+                        currentPath = path ? `${path}/${node.name}` : node.name;
+                    }
+                    if (node.type === 'file' && node.size) {
+                        fileSizes[currentPath] = node.size;
+                    } else if (node.children) {
+                        node.children.forEach(c => extractSizes(c, currentPath));
+                    }
+                };
+                extractSizes(fileTreeData);
+
+                renderTree();
+            } catch (e) {
+                container.innerHTML = `<div class="p-20 text-center text-red-500 font-black text-[10px] uppercase">Inspection Failed: ${e.message}</div>`;
+            }
+        }
+
+        function toggleSlotExpand(e, idx) {
+            e.stopPropagation();
+            if (expandedSlots.has(idx)) expandedSlots.delete(idx);
+            else expandedSlots.add(idx);
+            renderSlots();
+        }
+
+        function renderSlots() {
+            const container = document.getElementById('episode-slots');
+            const total = selectedAnime.episodes || 12;
+            container.innerHTML = '';
+
+            for (let i = 0; i < total; i++) {
+                const epNum = i + 1;
+                const path = currentMappings[i];
+                const isActive = focusedEpIndex === i;
+                const isExpanded = expandedSlots.has(i);
+
+                container.innerHTML += `
+                    <div onclick="focusSlot(${i})" class="mapping-slot p-4 rounded-2xl border ${isActive ? 'active' : 'border-white/5 bg-slate-950/20 hover:bg-white/5'} flex flex-col gap-1 transition-all">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-black ${isActive ? 'text-blue-400' : 'text-slate-500'} uppercase tracking-widest shrink-0">Episode ${epNum.toString().padStart(2, '0')}</span>
+                            <div class="flex items-center gap-2">
+                                ${path ? `<button onclick="toggleSlotExpand(event, ${i})" class="text-slate-500 hover:text-white transition-colors" title="Expand Details"><span class="material-symbols-rounded text-sm">${isExpanded ? 'unfold_less' : 'unfold_more'}</span></button><span class="material-symbols-rounded text-emerald-500 text-sm shrink-0">verified</span>` : (isActive ? '<span class="animate-pulse w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>' : '')}
+                            </div>
+                        </div>
+                        <div class="text-[11px] font-mono ${path ? 'text-slate-200' : 'text-slate-700 italic'} ${isExpanded ? 'break-words' : 'truncate'} mt-1 leading-snug">
+                            ${path ? path.split('/').pop() : (isActive ? 'Awaiting selection...' : 'Pending')}
+                        </div>
+                        ${path && fileSizes[path] ? `<div class="text-[9.5px] text-emerald-500 font-mono mt-1 opacity-80">${fileSizes[path]}</div>` : ''}
+                    </div>
+                `;
+            }
+            updateCount();
+        }
+
+        function getEpForPath(path) {
+            for (const [epIdx, p] of Object.entries(currentMappings)) {
+                if (p === path) return parseInt(epIdx) + 1;
+            }
+            return null;
+        }
+
+        function toggleFolder(path) {
+            if (collapsedFolders.has(path)) collapsedFolders.delete(path);
+            else collapsedFolders.add(path);
+            renderTree();
+        }
+
+        function renderNestedTree(node, currentPath = "") {
+            let html = "";
+            let folderPath = currentPath;
+
+            if (node.name !== '/') {
+                folderPath = currentPath ? `${currentPath}/${node.name}` : node.name;
+            }
+
+            if (node.type === 'file') {
+                const fullPath = folderPath;
+                const assignedEp = getEpForPath(fullPath);
+
+                html += `
+                    <div onclick="mapFile('${fullPath.replace(/'/g, "\\'")}')" class="file-node px-3 py-1.5 rounded-lg flex items-center gap-3" style="margin-left: 20px; ${assignedEp ? 'pointer-events: none;' : ''}">
+                        <span class="material-symbols-rounded ${assignedEp ? 'text-emerald-500/50' : 'text-slate-600'} text-sm shrink-0">movie</span>
+                        <span class="truncate ${assignedEp ? 'text-slate-500 line-through' : ''}">${node.name}</span>
+                        ${node.size ? `<span class="text-[9px] text-slate-500 font-mono shrink-0 ml-1">${node.size}</span>` : ''}
+                        ${assignedEp ? `<span class="ml-auto text-[9px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded-lg shrink-0">[EP: ${assignedEp}]</span>` : ''}
+                    </div>
+                `;
+            } else if (node.type === 'directory') {
+                const isCollapsed = collapsedFolders.has(folderPath);
+                if (node.name !== '/') {
+                    html += `
+                        <div class="folder-node px-3 py-1.5 rounded-lg flex items-center justify-between mt-1 cursor-pointer" onclick="toggleFolder('${folderPath.replace(/'/g, "\\'")}')" style="margin-left: 20px;">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-rounded ${isCollapsed ? 'text-slate-600' : 'text-blue-500'} text-sm">${isCollapsed ? 'folder' : 'folder_open'}</span>
+                                <span class="${isCollapsed ? 'text-slate-500' : 'text-blue-400'} font-bold uppercase tracking-widest text-[9px]">${node.name}</span>
+                            </div>
+                            <span class="material-symbols-rounded ${isCollapsed ? 'text-slate-600' : 'text-slate-400'} text-sm shrink-0">${isCollapsed ? 'chevron_right' : 'expand_more'}</span>
+                        </div>
+                    `;
+                }
+                if (node.children) {
+                    const childrenHtml = node.children.map(child => renderNestedTree(child, folderPath)).join('');
+                    const isRoot = node.name === '/';
+                    const wrapperClass = isRoot ? '' : (isCollapsed ? 'hidden' : 'border-l border-white/5 ml-[26px] pl-1');
+                    html += `<div class="${wrapperClass}">${childrenHtml}</div>`;
+                }
+            }
+            return html;
+        }
+
+        function renderTree() {
+            const container = document.getElementById('file-tree');
+            if (Object.keys(fileTreeData).length === 0) {
+                container.innerHTML = `<div class="p-4 text-[10px] text-slate-500">Tree Error/Empty</div>`;
+                return;
+            }
+            container.innerHTML = renderNestedTree(fileTreeData);
+        }
+
+        function focusSlot(idx) {
+            focusedEpIndex = idx;
+            renderSlots();
+        }
+
+        function mapFile(path) {
+            currentMappings[focusedEpIndex] = path;
+            const total = selectedAnime.episodes || 12;
+            if (focusedEpIndex < total - 1) {
+                focusedEpIndex++;
+            }
+            renderSlots();
+            renderTree();
+        }
+
+        function getFlatFiles(node, path = "") {
+            let result = [];
+            let currentPath = path;
+            if (node && node.name && node.name !== '/') {
+                currentPath = path ? `${path}/${node.name}` : node.name;
+                if (node.type === 'directory' && collapsedFolders.has(currentPath)) {
+                    return result;
+                }
+            }
+            if (node.type === 'file') {
+                result.push(currentPath);
+            } else if (node.children) {
+                node.children.forEach(c => result.push(...getFlatFiles(c, currentPath)));
+            }
+            return result;
+        }
+
+        function runAutoGuess() {
+            const flatFiles = getFlatFiles(fileTreeData);
+            flatFiles.forEach(path => {
+                const fileName = path.split('/').pop();
+                const match = fileName.match(/[ \-_E\[]([0-9]{2,3})[ \-\._\]]/i) || fileName.match(/([0-9]{2,3})\.(mkv|mp4)/i);
+                if (match) {
+                    const num = parseInt(match[1]);
+                    if (num > 0 && num <= (selectedAnime.episodes || 100)) {
+                        currentMappings[num - 1] = path;
+                    }
+                }
+            });
+            renderSlots();
+            renderTree();
+        }
+
+        function clearMappings() {
+            currentMappings = {};
+            focusedEpIndex = 0;
+            renderSlots();
+            renderTree();
+        }
+
+        function updateCount() {
+            const count = Object.keys(currentMappings).length;
+            document.getElementById('match-count').innerText = count;
+        }
+
+        async function confirmAndQueue() {
+            const btn = document.getElementById('btn-submit');
+            const mappings = [];
+
+            Object.entries(currentMappings).forEach(([epIdx, path]) => {
+                if (path) {
+                    mappings.push({ episode_num: parseInt(epIdx) + 1, file_path: path });
+                }
+            });
+
+            if (mappings.length === 0) return alert("Select at least one episode.");
+            btn.disabled = true;
+            btn.innerText = "Syncing with Titans...";
+
+            try {
+                await safeFetch('/production/queue', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        mal_id: selectedAnime.mal_id,
+                        title: selectedAnime.title,
+                        title_english: selectedAnime.title_english,
+                        title_japanese: selectedAnime.title_japanese,
+                        slug: selectedAnime.title.toLowerCase().replace(/[^a-z0-9]+/g, '_'),
+                        poster_url: selectedAnime.images.jpg.large_image_url,
+                        description: selectedAnime.synopsis,
+                        source_magnet: selectedMagnet,
+                        mappings: mappings
+                    }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                closeQueueModal();
+                btn.disabled = false;
+                btn.innerText = "Initialize Production";
+                refresh();
+            } catch (e) {
+                alert(e.message);
+                btn.disabled = false;
+                btn.innerText = "Initialize Production";
+            }
+        }
+
+        // --- Dashboard Sync ---
+
+        async function refresh() {
+            const dot = document.getElementById('sync-dot');
+            const syncText = document.getElementById('last-sync');
+            if (dot) dot.className = "w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse";
+
+            try {
+                const [tasks, fleet, review] = await Promise.all([
+                    safeFetch('/production/tasks'),
+                    safeFetch('/production/fleet'),
+                    safeFetch('/production/review/count').catch(() => ({ count: 0 }))
+                ]);
+
+                const badge = document.getElementById('inbox-badge');
+                if (review && review.count > 0) {
+                    badge.innerText = review.count;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+
+                if (!Array.isArray(fleet) || !Array.isArray(tasks)) throw new Error("INVALID_SERVER_RESPONSE");
+
+                document.getElementById('stat-workers').innerText = fleet.length;
+                renderWorkers(fleet);
+
+                const groups = {};
+                tasks.forEach(t => {
+                    if (!groups[t.anime_slug]) {
+                        groups[t.anime_slug] = {
+                            title: t.anime_title,
+                            title_english: t.title_english,
+                            title_japanese: t.title_japanese,
+                            mal_id: t.mal_id,
+                            status: t.anime_status,
+                            priority: t.anime_priority,
+                            tasks: []
+                        };
+                    }
+                    groups[t.anime_slug].tasks.push(t);
+                });
+
+                document.getElementById('stat-animes').innerText = Object.keys(groups).length;
+
+                const waitlist = tasks.filter(t => t.status === 'PENDING').length;
+                const statWaitlist = document.getElementById('stat-waitlist');
+                if (statWaitlist) statWaitlist.innerText = waitlist;
+
+                renderFloor(groups);
+
+                if (syncText) syncText.innerText = `System Sync: ${new Date().toLocaleTimeString()}`;
+                if (dot) dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500";
+            } catch (e) {
+                console.error("Refresh Error:", e);
+                if (syncText) syncText.innerText = "SYNC_ERROR: Check Database";
+                if (dot) dot.className = "w-1.5 h-1.5 rounded-full bg-red-500";
+            }
+        }
+
+        function renderFloor(groups) {
+            const pane = document.getElementById('content-pane');
+            const entries = Object.entries(groups);
+            if (entries.length === 0) {
+                pane.innerHTML = `<div class="p-20 text-center text-slate-700 uppercase font-black text-[10px] tracking-widest">Floor Idle</div>`;
+                return;
+            }
+            pane.innerHTML = entries.map(([slug, p]) => {
+                const done = p.tasks.filter(t => t.status === 'COMPLETED').length;
+                const total = p.tasks.length;
+                const pct = Math.round((done / total) * 100) || 0;
+                const animeId = p.tasks[0].anime_id;
+                const menuId = `menu-${animeId}`;
+
+                return `
+                <div class="px-6 py-6 group bg-blue-600/5 hover:bg-white/[0.02] border-b border-white/5 last:border-b-0 transition-colors relative">
+                    <div class="absolute right-6 top-6 flex gap-2">
+                        <button onclick="changePriority(${animeId}, ${p.priority + 1})" class="text-slate-500 hover:text-white"><span class="material-symbols-rounded">keyboard_arrow_up</span></button>
+                        <button onclick="changePriority(${animeId}, ${p.priority - 1})" class="text-slate-500 hover:text-white"><span class="material-symbols-rounded">keyboard_arrow_down</span></button>
+                        <div class="relative inline-block text-left" onmouseleave="document.getElementById('${menuId}').classList.add('hidden')">
+                            <button onclick="document.getElementById('${menuId}').classList.toggle('hidden')" class="text-slate-500 hover:text-white ml-2"><span class="material-symbols-rounded">more_vert</span></button>
+                            <!-- Context Menu Fix -->
+                            <div id="${menuId}" class="menu-content hidden absolute right-0 w-48 rounded-md shadow-lg bg-slate-900 border border-white/10 z-50">
+                                <div class="py-1">
+                                    <button onclick="showAnimeInfo(${p.mal_id})" class="menu-btn text-left w-full block px-4 py-2">Information</button>
+                                    <button onclick="setAnimeStatus(${animeId}, '${p.status === 'PAUSED' ? 'PROCESSING' : 'PAUSED'}')" class="menu-btn text-left w-full block px-4 py-2">${p.status === 'PAUSED' ? 'Resume' : 'Pause'}</button>
+                                    <button onclick="forceResetAnime(${animeId})" class="menu-btn text-left w-full block px-4 py-2 text-yellow-500">Force Reset</button>
+                                    <button onclick="deleteAnimeQueue(${animeId})" class="menu-btn text-left w-full block px-4 py-2 text-red-400">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mb-3 pr-24">
+                        <div class="pointer-events-none">
+                            <div class="text-xs font-black text-blue-400 uppercase tracking-widest flex items-center gap-2">
+                                ${p.title_english || p.title} 
+                                ${p.status === 'PAUSED' ? '<span class="bg-yellow-500/20 text-yellow-500 px-2 py-0.5 rounded text-[8px]">PAUSED</span>' : ''}
+                                ${p.priority !== 0 ? `<span class="text-slate-500 text-[8px]">P${p.priority}</span>` : ''}
+                            </div>
+                            <div class="text-[9px] text-slate-500 font-mono mt-1">${total} ACTIVE CHUNKS</div>
+                        </div>
+                        <div class="text-[11px] font-black text-blue-500 font-mono">${done}/${total} (${pct}%)</div>
+                    </div>
+                    <div class="chunk-container">${p.tasks.sort((a, b) => a.ep_num - b.ep_num).map(t => `<div class="chunk ${t.status.toLowerCase()}" title="Ep ${t.ep_num}"></div>`).join('')}</div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderWorkers(fleet) {
+            const list = document.getElementById('fleet-list');
+
+            // Calculate Stats for Summary
+            let working = 0, idle = 0, offline = 0;
+
+            if (fleet.length === 0) {
+                list.innerHTML = `<div class="text-center text-[10px] font-bold text-slate-700 mt-10 uppercase tracking-widest">NO TITANS ONLINE</div>`;
+            } else {
+                list.innerHTML = fleet.map(w => {
+                    const isOffline = new Date() - new Date(w.last_heartbeat) > 300000;
+                    if (isOffline) offline++;
+                    else if (w.status !== 'IDLE') working++;
+                    else idle++;
+
+                    const escapedData = JSON.stringify(w).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+                    return `<div onclick="openWorkerModal(${escapedData})" class="cursor-pointer p-4 bg-slate-950/50 border border-white/5 hover:border-blue-500/30 rounded-2xl transition-all ${isOffline ? 'opacity-40' : ''}">
+                        <div class="flex justify-between text-[10px] font-black uppercase"><span class="text-slate-300 font-mono text-[9px]">${w.id}</span><span class="${isOffline ? 'text-red-500' : (w.status !== 'IDLE' ? 'text-blue-500 animate-pulse' : 'text-slate-600')}">${isOffline ? 'OFFLINE' : w.status}</span></div>
+                        <div class="text-[9px] text-slate-500 mt-1 truncate italic">${w.status_message || 'Standby...'}</div>
+                        ${!isOffline && w.status !== 'IDLE' ? `<div class="w-full bg-slate-900 h-1 rounded-full mt-3 overflow-hidden"><div class="bg-blue-600 h-full transition-all" style="width: ${w.progress || 0}%"></div></div>` : ''}
+                    </div>`;
+                }).join('');
+            }
+
+            document.getElementById('summary-working').innerText = `${working}W`;
+            document.getElementById('summary-idle').innerText = `${idle}I`;
+            document.getElementById('summary-offline').innerText = `${offline}O`;
+        }
+
+        // --- Review & Admin Actions ---
+
+        function openWorkerModal(w) {
+            const content = document.getElementById('worker-modal-content');
+
+            const hasTask = w.anime_title || w.anime_title_romaji;
+            const posterHtml = hasTask && w.anime_poster ? `<img src="${w.anime_poster}" class="w-full h-full object-cover opacity-80" />` : '<div class="flex items-center justify-center h-full text-slate-700 text-[10px] font-black uppercase tracking-widest text-center px-4">No active task</div>';
+
+            content.innerHTML = `
+                <div class="flex flex-col md:flex-row gap-6">
+                    <!-- Left: Poster -->
+                    <div class="w-full md:w-1/3 shrink-0 rounded-xl overflow-hidden bg-slate-950/80 border border-white/5 relative shadow-inner flex flex-col">
+                        <div class="aspect-[2/3] w-full relative bg-slate-900 overflow-hidden">
+                            ${posterHtml}
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent opacity-80"></div>
+                            
+                            ${hasTask ? `
+                            <div class="absolute bottom-4 left-4 right-4 text-left">
+                                <div class="text-[10px] uppercase text-emerald-400 font-black tracking-widest mb-1 shadow-black drop-shadow-md">Currently Processing</div>
+                                <div class="text-xs text-white font-bold leading-tight drop-shadow-md line-clamp-2">${w.anime_title || w.anime_title_romaji}</div>
+                                <div class="text-[10px] text-blue-300 font-bold mt-1 uppercase tracking-widest">Episode ${w.episode_num}</div>
+                            </div>
+                            ` : ''}
+                        </div>
+                        
+                        ${hasTask ? `
+                        <div class="p-3 bg-slate-950/90 text-center border-t border-white/5">
+                            <div class="text-[9px] uppercase tracking-widest text-slate-500 font-bold mb-1">Target Sync Repo</div>
+                            <div class="text-[10px] font-mono text-emerald-400 truncate flex items-center justify-center gap-1"><span class="material-symbols-rounded text-[14px]">cloud_upload</span> ${w.assigned_repo || 'Pending Assignment'}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Right: Diagnostics -->
+                    <div class="w-full md:w-2/3 flex flex-col gap-4">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-slate-950/50 p-3 rounded-lg border border-white/5">
+                                <span class="block text-[9px] uppercase tracking-widest text-slate-500 font-bold mb-1">Worker ID</span>
+                                <span class="font-mono text-blue-400 text-xs">${w.id}</span>
+                            </div>
+                            <div class="bg-slate-950/50 p-3 rounded-lg border border-white/5">
+                                <span class="block text-[9px] uppercase tracking-widest text-slate-500 font-bold mb-1">Name</span>
+                                <span class="text-slate-200 text-xs italic">${w.name || 'Unknown'}</span>
+                            </div>
+                            <div class="bg-slate-950/50 p-3 rounded-lg border border-white/5 flex items-center justify-between">
+                                <div>
+                                    <span class="block text-[9px] uppercase tracking-widest text-slate-500 font-bold mb-1">Status</span>
+                                    <span class="font-black text-[11px] uppercase tracking-widest ${w.status === 'WORKING' ? 'text-blue-500 animate-pulse' : 'text-slate-400'}">${w.status}</span>
+                                </div>
+                            </div>
+                            <div class="bg-slate-950/50 p-3 rounded-lg border border-white/5">
+                                <span class="block text-[9px] uppercase tracking-widest text-slate-500 font-bold mb-1">Progress</span>
+                                <span class="text-emerald-400 font-mono text-xs">${w.progress || 0}%</span>
+                            </div>
+                        </div>
+
+                        <div class="flex-grow bg-slate-950/80 p-4 rounded-xl border border-white/5 flex flex-col gap-2 relative">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="material-symbols-rounded text-blue-500 text-sm">terminal</span>
+                                <span class="text-[10px] uppercase tracking-widest text-slate-400 font-black">Encoder Status / Output</span>
+                            </div>
+                            <div class="bg-slate-900/50 p-3 rounded border border-white/5 flex-grow font-mono text-[11px] text-emerald-300 leading-relaxed overflow-y-auto max-h-[120px]">
+                                ${w.status_message || '...'}
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950/50 px-4 py-3 rounded-lg border border-white/5 flex justify-between items-center mt-auto">
+                            <span class="text-[9px] uppercase tracking-widest text-slate-500 font-bold flex items-center gap-2"><span class="material-symbols-rounded text-sm">favorite</span> Last Heartbeat</span>
+                            <span class="text-slate-400 text-[11px] font-mono">${new Date(w.last_heartbeat).toLocaleString()}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Override max-w on the modal container when opened to allow the flex layout space
+            const modalContainer = document.querySelector('#worker-modal > div');
+            modalContainer.classList.remove('max-w-md', 'max-w-xl');
+            modalContainer.classList.add('max-w-3xl');
+
+            document.getElementById('worker-modal').classList.remove('hidden');
+        }
+
+        function closeWorkerModal() {
+            document.getElementById('worker-modal').classList.add('hidden');
+        }
+
+        async function showAnimeInfo(mal_id) {
+            if (!mal_id) return alert('No MAL ID linked to this task.');
+            const content = document.getElementById('anime-info-content');
+            content.innerHTML = `<div class="p-10 text-center text-blue-500 animate-pulse font-bold tracking-widest text-xs uppercase">Fetching Jikan Data...</div>`;
+            document.getElementById('anime-info-modal').classList.remove('hidden');
+            try {
+                const res = await fetch(`https://api.jikan.moe/v4/anime/${mal_id}`);
+                const { data } = await res.json();
+                document.getElementById('info-modal-title').innerText = data.title;
+                content.innerHTML = `
+                    <div class="flex gap-6">
+                        <img src="${data.images.jpg.large_image_url}" class="w-48 rounded-xl shadow-lg border border-white/10 self-start">
+                        <div class="flex flex-col gap-4">
+                            <div>
+                                <div class="text-lg font-black text-white">${data.title}</div>
+                                <div class="text-xs text-slate-400">${data.title_english || ''} • ${data.title_japanese || ''}</div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 text-xs">
+                                <div><span class="text-slate-500 font-bold block mb-1">Episodes:</span> <span class="bg-slate-800 px-2 py-1 rounded text-slate-200">${data.episodes || '?'}</span></div>
+                                <div><span class="text-slate-500 font-bold block mb-1">Score:</span> <span class="bg-slate-800 px-2 py-1 rounded text-emerald-400">${data.score || '?'}</span></div>
+                                <div><span class="text-slate-500 font-bold block mb-1">Aired:</span> <span class="text-slate-300">${data.aired.string}</span></div>
+                                <div><span class="text-slate-500 font-bold block mb-1">Rating:</span> <span class="text-slate-300">${data.rating}</span></div>
+                            </div>
+                            <div class="mt-2 text-slate-400 leading-relaxed text-xs p-4 bg-slate-950/50 rounded-xl border border-white/5 h-48 overflow-y-auto">
+                                ${data.synopsis || 'No description available.'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                content.innerHTML = `<div class="text-red-500 text-center">Failed to load from Jikan API.</div>`;
+            }
+        }
+
+        function closeAnimeInfoModal() {
+            document.getElementById('anime-info-modal').classList.add('hidden');
+        }
+
+        async function changePriority(animeId, priority) {
+            try {
+                await safeFetch(`/production/tasks/${animeId}/priority`, {
+                    method: 'POST',
+                    body: JSON.stringify({ priority }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                refresh();
+            } catch (err) { alert(err.message); }
+        }
+
+        async function setAnimeStatus(animeId, status) {
+            try {
+                await safeFetch(`/production/tasks/${animeId}/status`, {
+                    method: 'POST',
+                    body: JSON.stringify({ status }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                refresh();
+            } catch (err) { alert(err.message); }
+        }
+
+        async function deleteAnimeQueue(animeId) {
+            if (!confirm('Are you sure you want to stop and delete this from the queue? All pending tasks will be discarded.')) return;
+            try {
+                await safeFetch(`/production/tasks/${animeId}`, { method: 'DELETE' });
+                refresh();
+            } catch (err) { alert(err.message); }
+        }
+
+        async function forceResetAnime(animeId) {
+            if (!confirm('Force reset all pending/stuck tasks for this anime? This will clear active worker assignments.')) return;
+            try {
+                await safeFetch(`/production/tasks/${animeId}/reset`, { method: 'POST' });
+                refresh();
+            } catch (err) { alert(err.message); }
+        }
+
+        let selectedReviewId = null;
+
+        async function openReviewInbox() {
+            document.getElementById('review-section').classList.remove('hidden');
+            document.getElementById('review-section').classList.add('flex');
+            const container = document.getElementById('review-list-container');
+            container.innerHTML = `<div class="p-10 text-center text-blue-500 animate-pulse uppercase tracking-widest text-[10px] font-bold">Loading...</div>`;
+
+            try {
+                const list = await safeFetch('/production/review/list');
+                if (list.length === 0) {
+                    container.innerHTML = `<div class="p-10 text-center text-slate-500 uppercase tracking-widest text-[10px] font-bold">Inbox Empty</div>`;
+                    return;
+                }
+                container.innerHTML = list.map(item => `
+                    <div onclick="selectReviewItem(${item.id}, '${item.slug}')" class="p-4 bg-slate-950/50 border border-white/5 hover:border-blue-500/50 rounded-xl cursor-pointer transition-all flex gap-4">
+                        <img src="${item.poster_url}" class="w-12 h-16 object-cover rounded pointer-events-none">
+                        <div class="pointer-events-none w-full">
+                            <div class="font-bold text-slate-200 text-xs mb-1 line-clamp-1">${item.title_english || item.title}</div>
+                            <div class="text-[9px] uppercase tracking-widest text-slate-500">Waitlist Ready</div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                container.innerHTML = `<div class="text-red-500">Error: ${err.message}</div>`;
+            }
+        }
+
+        function closeReviewInbox() {
+            document.getElementById('review-section').classList.add('hidden');
+            document.getElementById('review-section').classList.remove('flex');
+            selectedReviewId = null;
+            document.getElementById('review-preview-container').innerHTML = `<div class="h-full flex items-center justify-center text-slate-600 font-bold uppercase tracking-widest text-xs">Select an item to preview</div>`;
+            document.getElementById('approve-btn').disabled = true;
+        }
+
+        function selectReviewItem(id, slug) {
+            selectedReviewId = id;
+            document.getElementById('approve-btn').disabled = false;
+            // Inject an iframe that loads anime.html logic just as a component, 
+            // since we have anime.html, we can render it either as an iframe pointing to it or render internally.
+            // For robustness, an iframe to the public anime page preview is easiest.
+            // Wait, we can't just iframe anime.html because it relies on URL slug. We can pass the slug.
+            document.getElementById('review-preview-container').innerHTML = `
+                <iframe src="./admin.edit.html" class="hidden"></iframe>
+                <iframe src="./anime.html?slug=${slug}" class="w-full h-full border-none bg-[#020617] zoom-75 transform origin-top-left" style="transform: scale(0.9); width: 111.11%; height: 111.11%;"></iframe>
+                <div class="absolute inset-0 pointer-events-none shadow-[inset_0_0_100px_rgba(0,0,0,0.8)] border border-blue-500/20"></div>
+            `;
+        }
+
+        async function approveCurrentSelection() {
+            if (!selectedReviewId) return;
+            const btn = document.getElementById('approve-btn');
+            btn.disabled = true;
+            btn.innerText = "Approving...";
+            try {
+                await safeFetch(`/production/review/${selectedReviewId}/approve`, { method: 'POST' });
+                selectedReviewId = null;
+                document.getElementById('review-preview-container').innerHTML = `<div class="p-10 text-emerald-500 text-center uppercase tracking-widest font-black text-xs">Successfully Published to Library!</div>`;
+                openReviewInbox(); // Refresh list
+                refresh(); // Refresh background floor
+                setTimeout(() => {
+                    btn.innerText = "Approve & Publish";
+                    btn.disabled = true;
+                    // Reset text properly handled by openReviewInbox selection
+                }, 2000);
+            } catch (err) {
+                alert("Failed to approve: " + err.message);
+                btn.innerText = "Approve & Publish";
+                btn.disabled = false;
+            }
+        }
+
+        // --- Init ---
+        window.onload = () => {
+            refresh();
+            setInterval(refresh, 5000);
+        };
+    </script>
 </body>
+
 </html>

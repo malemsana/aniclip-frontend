@@ -3,313 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | AniClips</title>
+    <title>v4 Command Center | AniClips</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" type="image/svg+xml" href="icon.svg">
-    <link rel="stylesheet" hreconst="https://constonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <script>
-        tailwind.config = {
-            theme: { extend: { colors: { gray: { 900: '#0f172a', 950: '#020617' } } } }
-        }
+        tailwind.config = { theme: { extend: { colors: { gray: { 900: '#0f172a', 950: '#020617' } } } } }
     </script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #020617; color: #f8fafc; }
-        .material-symbols-rounded { font-size: 20px; }
-        /* Smooth fade for number changes */
-        .fade-num { transition: opacity 0.2s ease-in-out; }
+        .material-symbols-rounded { font-size: 18px; }
+        .stat-tile { border-right: 1px solid rgba(255,255,255,0.03); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col bg-gradient-to-b from-gray-950 to-slate-950">
+<body class="min-h-screen flex flex-col bg-slate-950">
 
-    <!-- ==== NAVBAR ==== -->
-    <nav class="sticky top-0 z-50 border-b border-white/5 bg-slate-950/80 backdrop-blur-md">
-        <div class="container mx-auto px-6 h-16 flex justify-between items-center">
-            
-            <!-- LEFT SIDE: LOGO & NAVIGATION SWITCHER -->
-            <div class="flex items-center h-full">
-                <!-- 1. Logo -->
-                <div class="flex items-center gap-2 mr-6">
-                    <div class="w-7 h-7 bg-blue-600 rounded flex items-center justify-center text-white">
-                        <span class="material-symbols-rounded" style="font-size: 18px;">admin_panel_settings</span>
-                    </div>
-                    <span class="text-slate-200 font-black uppercase tracking-wide text-sm">
-                        Ani<span class="text-slate-500">Clips</span>
-                    </span>
+    <nav class="border-b border-white/5 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50 h-14 flex items-center">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-white"><span class="material-symbols-rounded text-sm">dashboard</span></div>
+                    <span class="text-slate-200 font-black uppercase tracking-wide text-xs">Ani<span class="text-slate-500">Clips</span> <span class="text-blue-500 font-mono text-[9px] ml-1">V4_STABLE</span></span>
                 </div>
-
-                <!-- 2. The Switcher (Divider + Links) -->
-                <div class="h-6 w-px bg-white/10 mr-6"></div>
-
-                <div class="flex items-center gap-6">
-                    <!-- Current Page (Panel) -->
-                    <div class="flex items-center gap-2 text-blue-400 text-[10px] font-black uppercase tracking-widest cursor-default select-none">
-                        <span class="material-symbols-rounded text-sm">dashboard</span> Panel
-                    </div>
-                    
-                    <!-- Link to Production -->
-                    <a href="production.html" class="flex items-center gap-2 text-slate-500 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest group">
-                        <span class="material-symbols-rounded text-sm group-hover:text-blue-400 transition-colors">factory</span> Production
-                    </a>
+                <div class="h-6 w-px bg-white/10"></div>
+                <div class="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest">
+                    <a href="admin.html" class="text-blue-400 flex items-center gap-2"><span class="material-symbols-rounded text-sm">dashboard</span> Main Panel</a>
+                    <a href="production_preview.html" class="text-slate-500 hover:text-white transition-colors flex items-center gap-2"><span class="material-symbols-rounded text-sm">precision_manufacturing</span> Production</a>
                 </div>
             </div>
-
-            <!-- RIGHT SIDE -->
-            <div class="flex items-center gap-4">
-                <button onclick="logout()" class="bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500 hover:text-white px-3 py-1.5 rounded text-xs font-bold uppercase tracking-wide transition-all">
-                    Logout
-                </button>
-            </div>
+            <button onclick="logout()" class="text-[10px] font-bold text-red-500 hover:text-red-400 uppercase tracking-widest">Logout</button>
         </div>
     </nav>
 
-    <!-- ==== MAIN CONTENT (ORIGINAL LAYOUT) ==== -->
-    <main class="container mx-auto px-6 py-8 flex-grow">
-        
-        <!-- 1. ANALYTICS CARDS -->
-        <h2 class="text-white font-bold text-xs uppercase tracking-widest mb-4 flex items-center gap-2 text-slate-500">
-            <span class="material-symbols-rounded text-blue-500">monitoring</span> Analytics
-        </h2>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <!-- CARD 1: LIBRARY SIZE -->
-            <div class="bg-slate-900 border border-white/5 p-6 rounded-xl shadow-lg relative">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-2 bg-blue-500/10 text-blue-400 rounded-lg"><span class="material-symbols-rounded">video_library</span></div>
-                </div>
-                <div class="flex items-baseline gap-2">
-                    <span class="text-4xl font-black text-white" id="stat-series">--</span>
-                    <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Series</span>
-                </div>
-                <div class="text-[10px] text-slate-600 mt-2 font-medium">Total active items in library</div>
+    <div class="bg-slate-900/40 border-b border-white/5 h-14 flex items-stretch">
+        <div class="container mx-auto px-6 flex items-stretch">
+            <div class="stat-tile flex items-center gap-3 px-6 min-w-[160px]">
+                <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500"><span class="material-symbols-rounded">movie</span></div>
+                <div class="flex items-baseline gap-2"><span id="stat-series" class="text-xl font-black text-white">0</span><span class="text-[9px] font-black text-blue-500 uppercase tracking-tighter">Series</span></div>
             </div>
-
-            <!-- CARD 2: DOWNLOADS -->
-            <div class="bg-slate-900 border border-white/5 p-6 rounded-xl shadow-lg relative group" id="card-dl">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg"><span class="material-symbols-rounded">download</span></div>
-                    
-                    <div class="relative">
-                        <button onclick="toggleDropdown('menu-dl')" class="text-slate-500 hover:text-white p-1 rounded hover:bg-slate-800 transition-colors"><span class="material-symbols-rounded">more_vert</span></button>
-                        <div id="menu-dl" class="hidden absolute right-0 mt-2 w-32 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-20 py-1 text-xs font-bold text-slate-400 uppercase tracking-wider origin-top-right">
-                            <button onclick="setMetric('dl', 'day', 'Today')" class="block w-full text-left px-4 py-2 hover:bg-slate-700 hover:text-white">Today</button>
-                            <button onclick="setMetric('dl', 'week', 'This Week')" class="block w-full text-left px-4 py-2 hover:bg-slate-700 hover:text-white">This Week</button>
-                            <button onclick="setMetric('dl', 'month', 'This Month')" class="block w-full text-left px-4 py-2 hover:bg-slate-700 hover:text-white">This Month</button>
-                            <div class="h-px bg-slate-700 my-1"></div>
-                            <button onclick="setMetric('dl', 'all', 'All Time')" class="block w-full text-left px-4 py-2 hover:bg-slate-700 hover:text-emerald-400">All Time</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex items-baseline gap-2">
-                    <span class="text-4xl font-black text-white fade-num" id="val-dl">--</span>
-                    <span class="text-[10px] text-emerald-500 font-bold uppercase tracking-wider">Downloads</span>
-                </div>
-                <div class="text-[10px] text-slate-500 mt-2 font-mono uppercase bg-slate-950/50 inline-block px-2 py-1 rounded border border-slate-800" id="label-dl">All Time</div>
+            <div class="stat-tile flex items-center gap-3 px-6 min-w-[160px]">
+                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400"><span class="material-symbols-rounded">download</span></div>
+                <div class="flex items-baseline gap-2"><span id="stat-downloads" class="text-xl font-black text-white">0</span><span class="text-[9px] font-black text-emerald-500 uppercase tracking-tighter">Downloads</span></div>
             </div>
-
-            <!-- CARD 3: VISITS -->
-            <div class="bg-slate-900 border border-white/5 p-6 rounded-xl shadow-lg relative group" id="card-viz">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-2 bg-purple-500/10 text-purple-400 rounded-lg"><span class="material-symbols-rounded">visibility</span></div>
-                    
-                    <div class="relative">
-                        <button onclick="toggleDropdown('menu-viz')" class="text-slate-500 hover:text-white p-1 rounded hover:bg-slate-800 transition-colors"><span class="material-symbols-rounded">more_vert</span></button>
-                        <div id="menu-viz" class="hidden absolute right-0 mt-2 w-32 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-20 py-1 text-xs font-bold text-slate-400 uppercase tracking-wider origin-top-right">
-                            <button onclick="setMetric('viz', 'day', 'Today')" class="block w-full text-left px-4 py-2 hover:bg-slate-700 hover:text-white">Today</button>
-                            <button onclick="setMetric('viz', 'week', 'This Week')" class="block w-full text-left px-4 py-2 hover:bg-slate-700 hover:text-white">This Week</button>
-                            <button onclick="setMetric('viz', 'month', 'This Month')" class="block w-full text-left px-4 py-2 hover:bg-slate-700 hover:text-white">This Month</button>
-                            <div class="h-px bg-slate-700 my-1"></div>
-                            <button onclick="setMetric('viz', 'all', 'All Time')" class="block w-full text-left px-4 py-2 hover:bg-slate-700 hover:text-purple-400">All Time</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex items-baseline gap-2">
-                    <span class="text-4xl font-black text-white fade-num" id="val-viz">--</span>
-                    <span class="text-[10px] text-purple-500 font-bold uppercase tracking-wider">Visits</span>
-                </div>
-                <div class="text-[10px] text-slate-500 mt-2 font-mono uppercase bg-slate-950/50 inline-block px-2 py-1 rounded border border-slate-800" id="label-viz">All Time</div>
+            <div class="stat-tile flex items-center gap-3 px-6 min-w-[160px]">
+                <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400"><span class="material-symbols-rounded">visibility</span></div>
+                <div class="flex items-baseline gap-2"><span id="stat-visits" class="text-xl font-black text-white">0</span><span class="text-[9px] font-black text-purple-500 uppercase tracking-tighter">Visits</span></div>
+            </div>
+            <div class="flex-grow flex items-center px-6 justify-end">
+                <input type="text" id="lib-search" onkeyup="filterLibrary()" placeholder="Filter library..." class="w-64 bg-slate-900 border border-slate-800 text-slate-200 pl-4 pr-4 py-1.5 rounded-lg focus:border-blue-500 outline-none text-xs font-medium">
             </div>
         </div>
+    </div>
 
-        <!-- 2. TABLE HEADER -->
-        <div class="flex flex-col sm:flex-row justify-between items-end sm:items-center mb-6 gap-4">
-            <div>
-                <h1 class="text-xl font-bold text-white">Library Management</h1>
-                <p class="text-slate-500 text-xs">Manage your content database.</p>
-            </div>
-            <div class="flex gap-3 w-full sm:w-auto">
-                <div class="relative flex-grow sm:flex-grow-0">
-                    <span class="material-symbols-rounded absolute left-3 top-2.5 text-slate-500">search</span>
-                    <input type="text" id="admin-search" onkeyup="handleAdminSearch()" placeholder="Filter series..." class="w-full sm:w-64 bg-slate-900 border border-slate-700 text-slate-200 pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:border-blue-500 transition-colors text-sm font-medium">
+    <main class="container mx-auto px-6 py-6 flex-grow">
+        <div id="api-error-banner" class="hidden mb-6 bg-red-500/10 border border-red-500/20 p-4 rounded-xl flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-rounded text-red-500">error</span>
+                <div class="text-[10px] text-red-400 font-bold uppercase tracking-widest">
+                    Server Error: <span id="error-message" class="font-mono ml-2">Unknown</span>
                 </div>
-                <a href="edit.html" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors shadow-lg shadow-blue-600/20 whitespace-nowrap">
-                    <span class="material-symbols-rounded text-lg">add</span> Add New
-                </a>
             </div>
+            <button onclick="init()" class="text-[9px] font-black text-red-500 uppercase border border-red-500/20 px-3 py-1 rounded hover:bg-red-500 hover:text-white transition-all">Retry Link</button>
         </div>
 
-        <!-- 3. DATA TABLE -->
-        <div class="bg-slate-900 border border-white/5 rounded-xl overflow-hidden shadow-xl">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-slate-400">
-                    <thead class="bg-slate-950 text-xs uppercase font-bold text-slate-500 border-b border-white/5 tracking-wider">
-                        <tr>
-                            <th class="px-6 py-4 w-16">ID</th>
-                            <th class="px-6 py-4">Series Info</th>
-                            <th class="px-6 py-4">Engagement</th>
-                            <th class="px-6 py-4">Status</th>
-                            <th class="px-6 py-4 text-right">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-white/5" id="admin-table-body">
-                        <tr><td colspan="5" class="text-center py-12 text-slate-600 italic animate-pulse">Fetching library...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+        <div class="flex justify-between items-center mb-4">
+            <!-- Removed the Legacy "ADD NEW" button -->
+            <h1 class="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2">Master Library</h1>
+        </div>
+        
+        <div class="bg-slate-900 border border-white/5 rounded-xl overflow-hidden shadow-2xl">
+            <table class="w-full text-left">
+                <thead class="bg-slate-950/80 text-[9px] font-black text-slate-500 uppercase border-b border-white/5">
+                    <tr><th class="px-6 py-3">Series Identity</th><th class="px-6 py-3">Redundancy</th><th class="px-6 py-3 text-right">Actions</th></tr>
+                </thead>
+                <tbody id="lib-body" class="divide-y divide-white/5">
+                    <tr><td colspan="3" class="p-20 text-center text-slate-600 text-[10px] font-black uppercase tracking-widest italic animate-pulse">Establishing secure link...</td></tr>
+                </tbody>
+            </table>
         </div>
     </main>
 
-    <!-- ======================== LOGIC (ORIGINAL + CORRECT API) ======================== -->
     <script>
-        // ⚠️ REMINDER: USE 'https://aniclip-backend.onrender.com/apiapi' FOR TESTING
-        // SET TO 'https://aniclip-backend.onrender.com/api' FOR PRODUCTION
-        // http ://localhost:3000/auth.html 
         const API_URL = 'https://aniclip-backend.onrender.com/api'; 
-        
         const ADMIN_KEY = localStorage.getItem('aniclip_admin_key');
-        if(!ADMIN_KEY) window.location.href = 'auth.html';
-
-        // State Variables
         let tableCache = [];
-        let statsData = {};
 
-        // --- INITIALIZATION ---
-        window.onload = async () => {
-            await Promise.all([ loadStats(), loadTableData() ]);
-        };
-
-        // --- 1. STATS FETCHING ---
-        async function loadStats() {
+        // Safe fetch wrapper to catch nasty HTML 404 responses
+        async function safeFetch(endpoint) {
+            const res = await fetch(`${API_URL}${endpoint}`, { headers: { 'Authorization': `Bearer ${ADMIN_KEY}` } });
+            const text = await res.text();
             try {
-                const res = await fetch(`${API_URL}/admin/stats`, { headers: { 'Authorization': `Bearer ${ADMIN_KEY}` } });
-                if(res.ok) {
-                    statsData = await res.json();
-                    document.getElementById('stat-series').innerText = statsData.total_series || 0;
-                    
-                    // Init Metrics (Important for dropdowns to work)
-                    setMetric('dl', 'all', 'All Time');
-                    setMetric('viz', 'all', 'All Time');
-                }
-            } catch(e) { console.error("Stats Error:", e); }
-        }
-
-        // --- 2. TABLE FETCHING ---
-        async function loadTableData() {
-            const tbody = document.getElementById('admin-table-body');
-            try {
-                const res = await fetch(`${API_URL}/admin/animes?limit=500`, { 
-                    headers: { 'Authorization': `Bearer ${ADMIN_KEY}` } 
-                });
-                const data = await res.json();
-                tableCache = data;
-                renderTable(data);
-            } catch(e) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-red-400 text-xs font-mono">Connection Error.</td></tr>`;
+                const data = JSON.parse(text);
+                if (!res.ok) throw new Error(data.detail || data.error || `HTTP ${res.status}`);
+                return data;
+            } catch (e) {
+                if (e.name === 'SyntaxError') throw new Error(`API Endpoint Not Found or Crashed (HTTP ${res.status})`);
+                throw e;
             }
         }
 
-        // --- 3. RENDER LOGIC ---
-        function renderTable(data) {
-            const tbody = document.getElementById('admin-table-body');
-            tbody.innerHTML = '';
+        async function init() {
+            if (!ADMIN_KEY) { window.location.href = 'auth.html'; return; }
+            document.getElementById('api-error-banner').classList.add('hidden');
+            document.getElementById('lib-body').innerHTML = `<tr><td colspan="3" class="p-20 text-center text-slate-600 text-[10px] font-black uppercase tracking-widest italic animate-pulse">Establishing secure link...</td></tr>`;
             
+            try {
+                // We await stats first, if it fails, execution drops to catch block immediately
+                const s = await safeFetch('/admin/stats');
+                document.getElementById('stat-series').innerText = s.total_series || 0;
+                document.getElementById('stat-downloads').innerText = s.total_downloads || 0;
+                document.getElementById('stat-visits').innerText = s.total_visits || 0;
+
+                tableCache = await safeFetch('/admin/animes');
+                renderTable(tableCache);
+            } catch (e) {
+                showError(e.message);
+                document.getElementById('lib-body').innerHTML = `<tr><td colspan="3" class="p-20 text-center text-red-500 text-[10px] font-bold">CONNECTION FAILED: Check API Server</td></tr>`;
+            }
+        }
+
+        function showError(msg) {
+            const banner = document.getElementById('api-error-banner');
+            banner.classList.remove('hidden');
+            document.getElementById('error-message').innerText = msg;
+        }
+
+        function renderTable(data) {
+            const body = document.getElementById('lib-body');
             if(data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-12 text-slate-600 text-sm italic">No series found.</td></tr>`;
+                body.innerHTML = `<tr><td colspan="3" class="p-20 text-center text-slate-600 text-[10px] uppercase font-black tracking-widest">Library is empty. Queue series from production.</td></tr>`;
                 return;
             }
-
-            data.forEach(anime => {
-                const editUrl = `edit.html?name=${encodeURIComponent(anime.name)}`;
-                const badge = anime.is_featured 
-                    ? `<span class="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 text-[9px] font-bold px-2 py-1 rounded border border-emerald-500/20">FEATURED</span>`
-                    : `<span class="text-slate-700 text-[10px] font-bold uppercase tracking-wider bg-slate-950/50 border border-slate-800 px-2 py-1 rounded">Standard</span>`;
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-800/40 transition-colors group">
-                        <td class="px-6 py-4 text-[10px] font-mono opacity-30">#${anime.id}</td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded bg-slate-800 border border-slate-700 overflow-hidden flex-shrink-0 shadow-sm">
-                                    <img src="${anime.poster_url}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all" onerror="this.src='https://via.placeholder.com/50'">
-                                </div>
-                                <div>
-                                    <div class="font-bold text-slate-200 text-sm group-hover:text-blue-400 transition-colors line-clamp-1">${anime.title || anime.name}</div>
-                                    <div class="text-[10px] text-slate-500 font-mono truncate max-w-[150px] opacity-60">${anime.name}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-xs">
-                            <div class="flex gap-4 items-center">
-                                <div title="Downloads" class="flex items-center gap-1"><span class="material-symbols-rounded text-[14px] text-slate-600">download</span> <span class="text-emerald-400 font-bold">${anime.download_count}</span></div>
-                                <div title="Visits" class="flex items-center gap-1"><span class="material-symbols-rounded text-[14px] text-slate-600">visibility</span> <span class="text-purple-400 font-bold">${anime.visit_count}</span></div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">${badge}</td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex justify-end gap-2 opacity-40 group-hover:opacity-100 transition-opacity">
-                                <a href="${editUrl}" class="w-8 h-8 flex items-center justify-center bg-slate-800 hover:bg-blue-600 text-slate-300 hover:text-white rounded border border-slate-700 hover:border-blue-500 transition-all"><span class="material-symbols-rounded text-[16px]">edit</span></a>
-                                <button onclick="deleteAnime(${anime.id})" class="w-8 h-8 flex items-center justify-center bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white rounded border border-slate-700 hover:border-red-500 transition-all"><span class="material-symbols-rounded text-[16px]">delete</span></button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
+            body.innerHTML = data.map(a => `
+            <tr class="group hover:bg-white/[0.02] transition-colors">
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-4">
+                        <img src="${a.poster_url || 'https://placehold.co/40x50'}" class="w-8 h-10 object-cover rounded bg-slate-800 border border-white/5">
+                        <div>
+                            <div class="text-xs font-bold text-white group-hover:text-blue-400 transition-colors">${a.title || a.name || a.slug}</div>
+                            <div class="text-[9px] text-slate-500 font-mono mt-0.5">${a.slug || a.name}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4"><span class="text-[10px] font-black text-emerald-400 uppercase">Secure</span></td>
+                <td class="px-6 py-4 text-right">
+                    <a href="edit.html?name=${a.slug || a.name}" class="bg-slate-800 hover:bg-blue-600 text-white px-3 py-1 rounded text-[9px] font-black uppercase transition-all">Edit Metadata</a>
+                </td>
+            </tr>
+            `).join('');
         }
 
-        // --- 4. ACTION FUNCTIONS ---
-        async function deleteAnime(id) {
-            if(!confirm("🔴 DANGER ZONE\n\nDelete this series?")) return;
-            await fetch(`${API_URL}/admin/animes/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${ADMIN_KEY}` } });
-            loadStats(); loadTableData();
+        function filterLibrary() {
+            const q = document.getElementById('lib-search').value.toLowerCase();
+            renderTable(tableCache.filter(a => (a.title||'').toLowerCase().includes(q) || (a.slug||a.name||'').toLowerCase().includes(q)));
         }
 
-        function handleAdminSearch() {
-            const q = document.getElementById('admin-search').value.toLowerCase();
-            renderTable(tableCache.filter(a => (a.title||'').toLowerCase().includes(q) || a.name.includes(q)));
-        }
-
-        function logout() { localStorage.removeItem('aniclip_admin_key'); window.location.href='auth.html'; }
-
-        // --- 5. ANALYTICS DROPDOWNS (Restored Original Logic) ---
-        window.toggleDropdown = function(id) {
-            const menu = document.getElementById(id);
-            const isOpen = !menu.classList.contains('hidden');
-            document.querySelectorAll('[id^="menu-"]').forEach(el => el.classList.add('hidden'));
-            if(!isOpen) menu.classList.remove('hidden');
-        };
-
-        window.setMetric = function(type, period, label) {
-            const dataKey = type === 'dl' 
-                ? (period==='all'?'total_downloads':`dl_${period}`) 
-                : (period==='all'?'total_visits':`visits_${period}`);
-
-            document.getElementById(`label-${type}`).innerText = label;
-            document.getElementById(`menu-${type}`).classList.add('hidden');
-            const el = document.getElementById(`val-${type}`);
-            el.classList.add('opacity-0');
-            setTimeout(() => {
-                el.innerText = statsData[dataKey] || 0;
-                el.classList.remove('opacity-0');
-            }, 200);
-        };
-
-        document.addEventListener('click', e => {
-            if (!e.target.closest('button[onclick^="toggleDropdown"]')) {
-                document.querySelectorAll('[id^="menu-"]').forEach(el => el.classList.add('hidden'));
-            }
-        });
-
+        function logout() { localStorage.removeItem('aniclip_admin_key'); window.location.href = 'auth.html'; }
+        
+        window.onload = init;
     </script>
 </body>
-
 </html>

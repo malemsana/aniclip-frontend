@@ -199,7 +199,7 @@
                 if(episodes.length > 0) {
                     document.getElementById('empty-msg').style.display='none';
                     const fullEps = await Promise.all(episodes.map(async ep => {
-                        ep.clips = await (await fetch(`${API_URL}/animes/${slug}/episodes/${ep.number}/clips`)).json();
+                        ep.clips = await (await fetch(`${API_URL}/admin/animes/${slug}/episodes/${ep.number}/clips`, { headers: { 'Authorization': `Bearer ${ADMIN_KEY}` } })).json();
                         return ep;
                     }));
                     fullEps.sort((a,b)=>a.number-b.number).forEach(renderEpisode);
