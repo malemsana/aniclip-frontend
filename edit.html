@@ -370,10 +370,11 @@
         async function loadClipsGrid(epNum) {
             const grid = document.getElementById(`grid-ep-${epNum}`);
             try {
-                // Use existing Public v4 Endpoint for full source manifest
-                const res = await fetch(`/api/animes/${slug}/episodes/${epNum}/clips`);
-                const data = await res.json();
-                const clips = data.clips || [];
+                // Use secure Admin Endpoint with Authorization
+                const res = await fetch(`${API_URL}/admin/animes/${slug}/episodes/${epNum}/clips`, {
+                    headers: { 'Authorization': `Bearer ${ADMIN_KEY}` }
+                });
+                const clips = await res.json(); // Admin returns raw array []
                 
                 if (clips.length === 0) {
                     grid.innerHTML = `<div class="col-span-full py-2 text-[9px] text-slate-600 uppercase font-black italic">No clips registered for this segment</div>`;
