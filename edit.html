@@ -197,6 +197,7 @@
                     <span class="material-symbols-rounded animate-spin text-blue-500">sync</span>
                 </div>
                 <video id="drawer-player" controls class="w-full h-full object-contain"></video>
+                <img id="drawer-image" class="w-full h-full object-contain hidden" src="">
             </div>
 
             <!-- METADATA GRID -->
@@ -369,24 +370,26 @@
         async function loadClipsGrid(epNum) {
             const grid = document.getElementById(`grid-ep-${epNum}`);
             try {
-                const res = await fetch(`${API_URL}/admin/animes/${slug}/episodes/${epNum}/clips`, {
-                    headers: { 'Authorization': `Bearer ${ADMIN_KEY}` }
-                });
-                const clips = await res.json();
-
+                // Use existing Public v4 Endpoint for full source manifest
+                const res = await fetch(`/api/animes/${slug}/episodes/${epNum}/clips`);
+                const data = await res.json();
+                const clips = data.clips || [];
+                
                 if (clips.length === 0) {
                     grid.innerHTML = `<div class="col-span-full py-2 text-[9px] text-slate-600 uppercase font-black italic">No clips registered for this segment</div>`;
                     return;
                 }
 
-                grid.innerHTML = clips.map(c => `
-                    <div onclick='inspectClip(${JSON.stringify(c)})' class="relative aspect-video bg-slate-950 rounded border border-white/10 overflow-hidden cursor-pointer group hover:border-blue-500/50 transition-all shadow-lg" data-thumb="${c.full_thumb_url || ''}" data-clip-id="${c.id}">
+                grid.innerHTML = clips.map(c => {
+                    const thumbUrl = c.sources?.thumbnail || "";
+                    return `
+                    <div onclick='inspectClip(${JSON.stringify(c)})' class="relative aspect-video bg-slate-950 rounded border border-white/10 overflow-hidden cursor-pointer group hover:border-blue-500/50 transition-all shadow-lg" data-thumb="${thumbUrl}" data-clip-id="${c.id}">
                         <img src="" class="grid-thumb absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity hidden">
                         <div class="absolute inset-0 flex items-center justify-center bg-slate-950/20 group-hover:bg-transparent transition-all">
                              <div class="text-[8px] font-mono text-white bg-black/50 px-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">#${c.id.split('-').pop()}</div>
                         </div>
-                    </div>
-                `).join('');
+                    </div>`;
+                }).join('');
 
                 // Decrypt thumbnails for this grid
                 grid.querySelectorAll('[data-thumb]').forEach(async (el) => {
@@ -406,48 +409,73 @@
 
         async function inspectClip(clip) {
             const drawer = document.getElementById('clip-drawer');
-            const player = document.getElementById('drawer-player');
-            const loading = document.getElementById('player-loading');
-
+            
             document.getElementById('drawer-subtitle').innerText = `CLIP ${clip.id.split('-').pop()} • INSPECTION`;
             document.getElementById('insp-id').innerText = clip.id;
-            document.getElementById('insp-duration').innerText = `${clip.duration_ms}ms`;
-            document.getElementById('insp-bounds').innerText = `${clip.start_ms} - ${clip.end_ms} MS`;
-
+            document.getElementById('insp-duration').innerText = `${clip.duration_ms || clip.duration}ms`;
+            document.getElementById('insp-bounds').innerText = `${clip.start_ms || clip.start} - ${clip.end_ms || clip.end} MS`;
+            
             // Render Manifest
             const matrix = document.getElementById('source-matrix');
-            const sources = [
-                { type: 'Master (HQ)', url: clip.videohq_url, icon: 'high_quality' },
-                { type: 'Preview', url: clip.video_url, icon: 'streaming' },
-                { type: 'Thumbnail', url: clip.thumb_url, icon: 'image' }
+            const manifest = clip.sources || {};
+            const availableSources = [
+                { id: 'hq', type: 'Master (HQ)', url: manifest.hq, icon: 'high_quality' },
+                { id: 'preview', type: 'Preview', url: manifest.preview, icon: 'streaming' },
+                { id: 'hover', type: 'Hover Overlay', url: manifest.hover, icon: 'motion_photos_on' },
+                { id: 'thumbnail', type: 'Thumbnail', url: manifest.thumbnail, icon: 'image' }
             ];
-
-            matrix.innerHTML = sources.map(s => `
-                <div class="bg-slate-900/50 p-3 rounded border border-white/5 flex items-center justify-between group">
+            
+            matrix.innerHTML = availableSources.map(s => `
+                <div id="src-btn-${s.id}" onclick="switchSource('${s.id}', '${s.url}', '${clip.id}')" 
+                     class="bg-slate-900/50 p-3 rounded border ${s.url ? 'border-white/5 cursor-pointer hover:border-blue-500/30' : 'border-white/5 opacity-40 cursor-not-allowed'} flex items-center justify-between group transition-all">
                     <div class="flex items-center gap-3">
                         <span class="material-symbols-rounded text-slate-500 text-sm group-hover:text-blue-400">${s.icon}</span>
                         <div>
                             <div class="text-[9px] font-black text-slate-500 uppercase tracking-widest">${s.type}</div>
-                            <div class="text-[10px] text-slate-300 truncate w-64 font-mono">${s.url || 'Not provisioned'}</div>
+                            <div class="text-[10px] text-slate-300 truncate w-64 font-mono">${s.url ? s.url.split('/').pop() : 'Not provisioned'}</div>
                         </div>
                     </div>
                 </div>
             `).join('');
 
             drawer.classList.add('open');
+            
+            // Default to preview or first available
+            const defaultSrc = manifest.preview || manifest.hq || manifest.hover || manifest.thumbnail;
+            const defaultType = manifest.preview ? 'preview' : (manifest.hq ? 'hq' : (manifest.hover ? 'hover' : 'thumbnail'));
+            if (defaultSrc) switchSource(defaultType, defaultSrc, clip.id);
+        }
 
-            // Prepare Player
+        async function switchSource(type, url, clipId) {
+            if (!url || url === 'undefined') return;
+            
+            const player = document.getElementById('drawer-player');
+            const imgInspector = document.getElementById('drawer-image');
+            const loading = document.getElementById('player-loading');
+            
+            // UI Feedback
+            document.querySelectorAll('[id^="src-btn-"]').forEach(el => el.classList.remove('border-blue-500', 'bg-blue-500/10'));
+            document.getElementById(`src-btn-${type}`).classList.add('border-blue-500', 'bg-blue-500/10');
+
             player.pause();
             player.src = "";
+            player.classList.add('hidden');
+            imgInspector.classList.add('hidden');
             loading.classList.remove('hidden');
 
             try {
-                const decryptedUrl = await secureObjectUrl(clip.full_video_url, clip.id, 'video');
+                const decryptedUrl = await secureObjectUrl(url, clipId, type === 'thumbnail' ? 'image' : 'video');
                 if (decryptedUrl) {
-                    player.src = decryptedUrl;
-                    player.load();
+                    if (type === 'thumbnail') {
+                        imgInspector.src = decryptedUrl;
+                        imgInspector.classList.remove('hidden');
+                    } else {
+                        player.src = decryptedUrl;
+                        player.classList.remove('hidden');
+                        player.load();
+                    }
                 }
-            } catch (e) { console.error("Player Load Failed", e); }
+            } catch (e) { console.error("Switch Source Failed", e); }
             finally { loading.classList.add('hidden'); }
         }
 
