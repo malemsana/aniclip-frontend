@@ -45,9 +45,17 @@
         }
 
         @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.6; }
-            100% { opacity: 1; }
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+
+            100% {
+                opacity: 1;
+            }
         }
 
         .input-dark {
@@ -184,11 +192,14 @@
 <body class="flex flex-col">
 
     <!-- NAVBAR -->
-    <nav class="border-b border-white/5 bg-slate-950/80 backdrop-blur-md h-14 flex items-center px-6 shrink-0 z-40 justify-between">
+    <nav
+        class="border-b border-white/5 bg-slate-950/80 backdrop-blur-md h-14 flex items-center px-6 shrink-0 z-40 justify-between">
         <div class="flex items-center gap-6">
             <div class="flex items-center gap-2">
-                <div class="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-white"><span class="material-symbols-rounded text-sm">factory</span></div>
-                <span class="text-slate-200 font-black uppercase text-xs tracking-tighter">AniClips <span class="text-blue-500 font-mono text-[9px] ml-1">V4_STABLE</span></span>
+                <div class="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-white"><span
+                        class="material-symbols-rounded text-sm">factory</span></div>
+                <span class="text-slate-200 font-black uppercase text-xs tracking-tighter">AniClips <span
+                        class="text-blue-500 font-mono text-[9px] ml-1">V4_STABLE</span></span>
             </div>
             <div class="h-4 w-px bg-white/10"></div>
             <div class="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-slate-500">
@@ -232,16 +243,20 @@
     <!-- MAIN DASHBOARD -->
     <main class="flex-grow grid grid-cols-12 gap-6 p-6 overflow-hidden min-h-0">
         <!-- Floor Pane -->
-        <div class="col-span-8 flex flex-col bg-slate-900/50 border border-white/5 rounded-2xl shadow-2xl overflow-hidden">
+        <div
+            class="col-span-8 flex flex-col bg-slate-900/50 border border-white/5 rounded-2xl shadow-2xl overflow-hidden">
             <div id="content-pane" class="flex-grow overflow-y-auto divide-y divide-white/5">
-                <div class="p-20 text-center text-slate-700 uppercase font-black text-[10px] tracking-widest italic animate-pulse">
+                <div
+                    class="p-20 text-center text-slate-700 uppercase font-black text-[10px] tracking-widest italic animate-pulse">
                     Scanning production floor...</div>
             </div>
         </div>
 
         <!-- Node List -->
-        <div class="col-span-4 flex flex-col bg-slate-900/50 border border-white/5 rounded-2xl shadow-xl overflow-hidden h-full">
-            <div class="bg-slate-950/20 px-6 py-3 border-b border-white/5 flex justify-between items-center shrink-0 text-[10px] font-black uppercase tracking-widest text-slate-500">
+        <div
+            class="col-span-4 flex flex-col bg-slate-900/50 border border-white/5 rounded-2xl shadow-xl overflow-hidden h-full">
+            <div
+                class="bg-slate-950/20 px-6 py-3 border-b border-white/5 flex justify-between items-center shrink-0 text-[10px] font-black uppercase tracking-widest text-slate-500">
                 <div class="flex items-center gap-2">
                     <span class="material-symbols-rounded text-blue-500 text-sm">sensors</span>
                     <span>Active Nodes</span>
@@ -253,14 +268,16 @@
                 </div>
             </div>
             <div id="fleet-list" class="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 custom-scrollbar">
-                <div class="text-center text-[10px] font-bold text-slate-700 mt-10 uppercase tracking-widest">No active Titans</div>
+                <div class="text-center text-[10px] font-bold text-slate-700 mt-10 uppercase tracking-widest">No active
+                    Titans</div>
             </div>
         </div>
     </main>
 
     <!-- QUEUE MODAL -->
     <div id="queue-modal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-white/10 w-full max-w-5xl h-[85vh] rounded-[32px] shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div
+            class="bg-slate-900 border border-white/10 w-full max-w-5xl h-[85vh] rounded-[32px] shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
 
             <!-- Header -->
             <div class="px-8 py-5 border-b border-white/5 flex justify-between items-center bg-slate-950/50">
@@ -270,7 +287,8 @@
                         <div id="dot-2" class="step-dot w-2 h-2 rounded-full"></div>
                         <div id="dot-3" class="step-dot w-2 h-2 rounded-full"></div>
                     </div>
-                    <h2 id="modal-title" class="text-xs font-black text-white uppercase tracking-widest">Search Anime</h2>
+                    <h2 id="modal-title" class="text-xs font-black text-white uppercase tracking-widest">Search Anime
+                    </h2>
                 </div>
                 <button onclick="closeQueueModal()"
                     class="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all">
@@ -291,6 +309,12 @@
             </div>
 
             <div id="step-2" class="hidden p-8 flex flex-col h-full overflow-hidden">
+                <div class="flex gap-3 mb-6 shrink-0">
+                    <input type="text" id="torrent-search-input" onkeydown="if(event.key==='Enter') fetchTorrents()"
+                        class="input-dark flex-grow" placeholder="Search for magnets (e.g. Solo Leveling S01)...">
+                    <button onclick="fetchTorrents()"
+                        class="bg-blue-600 hover:bg-blue-500 transition-colors px-10 rounded-xl font-black text-[10px] uppercase tracking-widest">Re-Scrape</button>
+                </div>
                 <div id="torrent-results" class="space-y-3 overflow-y-auto pr-2"></div>
             </div>
 
@@ -308,12 +332,15 @@
                     </div>
 
                     <div class="flex items-center gap-6">
-                        <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-2 flex items-center">
-                            Matched: <span id="match-count" class="text-blue-500 ml-2">0</span> <span class="mx-1">/</span> <span id="total-target">--</span>
+                        <div
+                            class="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-2 flex items-center">
+                            Matched: <span id="match-count" class="text-blue-500 ml-2">0</span> <span
+                                class="mx-1">/</span> <span id="total-target">--</span>
                         </div>
                         <div class="h-6 w-px bg-white/10"></div>
                         <button onclick="clearMappings()"
-                            class="px-4 py-2 rounded-xl font-black text-[10px] text-slate-500 uppercase hover:bg-white/5 transition-all">Clear All</button>
+                            class="px-4 py-2 rounded-xl font-black text-[10px] text-slate-500 uppercase hover:bg-white/5 transition-all">Clear
+                            All</button>
                         <button onclick="confirmAndQueue()" id="btn-submit"
                             class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition-all">
                             Initialize Production
@@ -325,9 +352,11 @@
                     <div id="episode-slots" class="w-1/3 flex flex-col gap-2 overflow-y-auto pr-2 pb-4"></div>
                     <div class="w-2/3 bg-slate-950/50 rounded-2xl border border-white/5 flex flex-col overflow-hidden">
                         <div class="p-3 border-b border-white/5 bg-slate-950/20 flex items-center justify-between">
-                            <span class="text-[9px] font-black uppercase text-slate-500 tracking-widest px-2">Torrent File Tree</span>
+                            <span class="text-[9px] font-black uppercase text-slate-500 tracking-widest px-2">Torrent
+                                File Tree</span>
                         </div>
-                        <div id="file-tree" class="flex-grow overflow-y-auto p-4 font-mono text-[11px] leading-loose pb-8"></div>
+                        <div id="file-tree"
+                            class="flex-grow overflow-y-auto p-4 font-mono text-[11px] leading-loose pb-8"></div>
                     </div>
                 </div>
             </div>
@@ -336,10 +365,14 @@
 
     <!-- WORKER MODAL -->
     <div id="worker-modal" class="fixed inset-0 modal-overlay z-[60] hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-white/10 w-full max-w-3xl rounded-[24px] shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div
+            class="bg-slate-900 border border-white/10 w-full max-w-3xl rounded-[24px] shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
             <div class="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-slate-950/50">
-                <h2 class="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2"><span class="material-symbols-rounded text-blue-500">memory</span> Node Diagnostics</h2>
-                <button onclick="closeWorkerModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all"><span class="material-symbols-rounded">close</span></button>
+                <h2 class="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2"><span
+                        class="material-symbols-rounded text-blue-500">memory</span> Node Diagnostics</h2>
+                <button onclick="closeWorkerModal()"
+                    class="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all"><span
+                        class="material-symbols-rounded">close</span></button>
             </div>
             <div id="worker-modal-content" class="p-6 text-sm text-slate-300 space-y-4"></div>
         </div>
@@ -347,20 +380,28 @@
 
     <!-- ANIME INFO MODAL -->
     <div id="anime-info-modal" class="fixed inset-0 modal-overlay z-[60] hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-white/10 w-full max-w-2xl rounded-[24px] shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200 h-[80vh]">
+        <div
+            class="bg-slate-900 border border-white/10 w-full max-w-2xl rounded-[24px] shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200 h-[80vh]">
             <div class="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-slate-950/50">
-                <h2 class="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2" id="info-modal-title">Anime Data</h2>
-                <button onclick="closeAnimeInfoModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all"><span class="material-symbols-rounded">close</span></button>
+                <h2 class="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2"
+                    id="info-modal-title">Anime Data</h2>
+                <button onclick="closeAnimeInfoModal()"
+                    class="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all"><span
+                        class="material-symbols-rounded">close</span></button>
             </div>
             <div id="anime-info-content" class="p-6 text-sm text-slate-300 overflow-y-auto"></div>
         </div>
     </div>
 
     <!-- REVIEW SECTION -->
-    <div id="review-section" class="fixed inset-0 bg-slate-950 z-[45] hidden flex-col animate-in slide-in-from-bottom duration-300 overflow-hidden">
-        <nav class="border-b border-white/5 bg-slate-950/80 backdrop-blur-md h-14 flex items-center px-6 shrink-0 justify-between">
+    <div id="review-section"
+        class="fixed inset-0 bg-slate-950 z-[45] hidden flex-col animate-in slide-in-from-bottom duration-300 overflow-hidden">
+        <nav
+            class="border-b border-white/5 bg-slate-950/80 backdrop-blur-md h-14 flex items-center px-6 shrink-0 justify-between">
             <div class="flex items-center gap-4">
-                <button onclick="closeReviewInbox()" class="text-slate-400 hover:text-white flex items-center justify-center transition-colors"><span class="material-symbols-rounded">arrow_back</span></button>
+                <button onclick="closeReviewInbox()"
+                    class="text-slate-400 hover:text-white flex items-center justify-center transition-colors"><span
+                        class="material-symbols-rounded">arrow_back</span></button>
                 <div class="flex text-[10px] font-black uppercase tracking-widest text-slate-500">
                     <span class="text-white">Admin Approval Inbox</span>
                 </div>
@@ -371,7 +412,8 @@
             </button>
         </nav>
         <div class="flex-grow flex overflow-hidden">
-            <div class="w-[30%] border-r border-white/5 bg-slate-900/30 overflow-y-auto p-4 space-y-4" id="review-list-container"></div>
+            <div class="w-[30%] border-r border-white/5 bg-slate-900/30 overflow-y-auto p-4 space-y-4"
+                id="review-list-container"></div>
             <div class="w-[70%] bg-[#020617] overflow-y-auto relative" id="review-preview-container"></div>
         </div>
     </div>
@@ -493,15 +535,19 @@
                 title_japanese: item.title_japanese || item.title,
                 synopsis: item.synopsis || ""
             };
+            document.getElementById('torrent-search-input').value = selectedAnime.title;
             setStep(2);
             fetchTorrents();
         }
 
         async function fetchTorrents() {
             const torEl = document.getElementById('torrent-results');
-            torEl.innerHTML = `<div class="p-20 text-center animate-pulse text-blue-400 font-black text-[10px] uppercase tracking-widest">Scraping Nyaa Index...</div>`;
+            const searchVal = document.getElementById('torrent-search-input').value.trim();
+            const query = searchVal || selectedAnime.title;
+            
+            torEl.innerHTML = `<div class="p-20 text-center animate-pulse text-blue-400 font-black text-[10px] uppercase tracking-widest">Scraping Nyaa Index: ${query}...</div>`;
             try {
-                const torrents = await safeFetch(`/production/search_torrents?q=${encodeURIComponent(selectedAnime.title)}`);
+                const torrents = await safeFetch(`/production/search_torrents?q=${encodeURIComponent(query)}`);
                 torEl.innerHTML = torrents.map(t => `
                     <div onclick="selectTorrent('${t.id}', '${t.magnet.replace(/'/g, "\\'")}')" class="torrent-item p-6 border border-white/5 bg-slate-950/20 rounded-2xl cursor-pointer transition-all group">
                         <div class="flex justify-between items-start mb-3">
