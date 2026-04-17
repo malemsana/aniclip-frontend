@@ -41,14 +41,19 @@ self.addEventListener("message", async (event) => {
     if (event.data.type === "REGISTER_KEY") {
         const { clipId, keyBytes, ivBytes, realUrl } = event.data;
         try {
-            const key = await crypto.subtle.importKey("raw", keyBytes, { name: "AES-CTR" }, false, ["decrypt", "encrypt"]);
-            const memoryVal = { key, iv: new Uint8Array(ivBytes), realUrl };
+            // FIX 1: Store pure bytes, NOT the un-serializable CryptoKey
+            const memoryVal = { keyBytes, iv: new Uint8Array(ivBytes), realUrl };
             
-            // 1. Save to ultra-fast RAM immediately
+            // Save to ultra-fast RAM immediately
             keysStore.set(clipId, memoryVal); 
             
-            // 2. Persist to Hard Drive in the background (prevents micro-sleep data loss)
+            // Persist to Hard Drive in the background
             IDB.set(clipId, memoryVal).catch(e => console.warn("IDB sync delayed", e));
+            
+            // FIX 6: Send Acknowledgement back synchronously
+            if (event.source) {
+                event.source.postMessage({ type: 'KEY_READY', clipId });
+            }
         } catch (e) {
             console.error("SW Key Import Error:", e);
         }
@@ -92,61 +97,145 @@ async function handleStream(request, url) {
         });
     }
 
+    // Natively import the key just-in-time from raw bytes
+    let importedKey;
+    try {
+        importedKey = await crypto.subtle.importKey(
+            "raw",
+            meta.keyBytes,
+            { name: "AES-CTR" },
+            false,
+            ["decrypt"]
+        );
+    } catch (e) {
+        return new Response("Key import failed", { status: 500 });
+    }
+
+    // FIX 3: Parse and forward Range request
     const rangeHeader = request.headers.get("Range");
+    let reqStart = 0;
+    let reqEnd = '';
     
-    // Fetch the ENTIRE encrypted string for mathematical stability
+    if (rangeHeader) {
+        const parts = rangeHeader.replace(/bytes=/, "").split("-");
+        reqStart = parseInt(parts[0], 10);
+        reqEnd = parts[1] ? parseInt(parts[1], 10) : '';
+    }
+    
+    // FIX 2: Align start to 16-byte boundary for AES-CTR Counter Math
+    const alignedStart = Math.floor(reqStart / 16) * 16;
+    const fetchHeaders = new Headers();
+    if (rangeHeader) {
+        fetchHeaders.set("Range", `bytes=${alignedStart}-${reqEnd}`);
+    }
+    
+    // Fetch specifically requested range
     let res;
     try {
-        res = await fetch(meta.realUrl);
+        res = await fetch(meta.realUrl, { headers: fetchHeaders });
     } catch (e) {
         return new Response("Storage error", { status: 502 });
     }
 
-    if (!res.ok) return res;
+    if (!res.ok && res.status !== 206) return res;
 
-    let encryptedBuffer;
-    let decryptedBuffer;
+    const contentRange = res.headers.get("Content-Range");
+    const totalSize = contentRange ? contentRange.split('/')[1] : res.headers.get("Content-Length");
+    const actualResEnd = contentRange ? contentRange.split('/')[0].split('-')[1] : (parseInt(totalSize) - 1);
+
+    // Initial IV for the exact chunk offset we are downloading
+    const blockOffset = Math.floor(alignedStart / 16);
+    let currentIv = incrementIv(meta.iv, blockOffset);
+    let skipBytes = reqStart - alignedStart; // Bytes to drop to return exact requested start
     
-    try {
-        encryptedBuffer = await res.arrayBuffer();
-        // Run a single, unified decryption pass exactly like the original code did
-        decryptedBuffer = await crypto.subtle.decrypt(
-            { name: "AES-CTR", counter: meta.iv, length: 128 },
-            meta.key,
-            encryptedBuffer
-        );
-    } catch (e) {
-        console.error("SW Decryption completely failed:", e);
-        return new Response("Decryption fault", { status: 500 });
-    }
+    let remainder = new Uint8Array(0);
+    
+    // FIX 4: True Streaming Transform
+    const { readable, writable } = new TransformStream({
+        async transform(chunk, controller) {
+            const data = new Uint8Array(remainder.length + chunk.length);
+            data.set(remainder);
+            data.set(chunk, remainder.length);
+            
+            const completeBlocks = Math.floor(data.length / 16);
+            const bytesToProcess = completeBlocks * 16;
+            
+            if (bytesToProcess === 0) {
+                remainder = data;
+                return;
+            }
+            
+            const processChunk = data.slice(0, bytesToProcess);
+            remainder = data.slice(bytesToProcess);
+            
+            try {
+                const decrypted = await crypto.subtle.decrypt(
+                    { name: "AES-CTR", counter: currentIv, length: 128 },
+                    importedKey,
+                    processChunk
+                );
+                
+                let toSend = new Uint8Array(decrypted);
+                
+                if (skipBytes > 0) {
+                    toSend = toSend.slice(skipBytes);
+                    skipBytes = 0;
+                }
+                
+                if (toSend.length > 0) {
+                    controller.enqueue(toSend);
+                }
+                
+                currentIv = incrementIv(currentIv, completeBlocks);
+            } catch (e) {
+                console.error("SW Decryption transform error:", e);
+                controller.error(e);
+            }
+        },
+        async flush(controller) {
+            if (remainder.length > 0) {
+                try {
+                    const decrypted = await crypto.subtle.decrypt(
+                        { name: "AES-CTR", counter: currentIv, length: 128 },
+                        importedKey,
+                        remainder
+                    );
+                    let toSend = new Uint8Array(decrypted);
+                    if (skipBytes > 0) {
+                        toSend = toSend.slice(skipBytes);
+                    }
+                    if (toSend.length > 0) {
+                        controller.enqueue(toSend);
+                    }
+                } catch (e) {
+                    console.error("SW Decryption flush error:", e);
+                }
+            }
+        }
+    });
 
-    const finalBytes = new Uint8Array(decryptedBuffer);
-    const totalSize = finalBytes.length;
+    res.body.pipeTo(writable).catch(e => {
+        // Silently ignore drop/abort
+    });
 
+    // FIX 5: Streaming Headers
     const isDownload = url.searchParams.get('download') === '1';
     const responseHeaders = new Headers();
     responseHeaders.set("Content-Type", url.pathname.endsWith('.webp') ? "image/webp" : "video/mp4");
     responseHeaders.set("Accept-Ranges", "bytes");
     responseHeaders.set("Access-Control-Allow-Origin", "*");
+    responseHeaders.set("Cache-Control", "no-store");
+    responseHeaders.set("Connection", "keep-alive");
 
     if (isDownload) {
         const filename = url.searchParams.get('filename') || `${clipId}.mp4`;
         responseHeaders.set("Content-Disposition", `attachment; filename="${filename}"`);
     }
 
-    // Serve Range requests directly out of the perfectly decrypted buffer
-    if (rangeHeader) {
-        const parts = rangeHeader.replace(/bytes=/, "").split("-");
-        const reqStart = parseInt(parts[0], 10);
-        const reqEnd = parts[1] ? parseInt(parts[1], 10) : totalSize - 1;
-        
-        const chunk = finalBytes.slice(reqStart, reqEnd + 1);
-        
-        responseHeaders.set("Content-Range", `bytes=${reqStart}-${reqEnd}/${totalSize}`);
-        responseHeaders.set("Content-Length", chunk.byteLength);
-        return new Response(chunk, { status: 206, headers: responseHeaders });
+    if (rangeHeader || res.status === 206) {
+        responseHeaders.set("Content-Range", `bytes=${reqStart}-${actualResEnd}/${totalSize}`);
+        return new Response(readable, { status: 206, headers: responseHeaders });
     } else {
-        responseHeaders.set("Content-Length", totalSize);
-        return new Response(finalBytes, { status: 200, headers: responseHeaders });
+        return new Response(readable, { status: 200, headers: responseHeaders });
     }
 }

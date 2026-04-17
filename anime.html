@@ -440,8 +440,23 @@
                     const parts = clipId.split('-');
                     const epCrypto = await getEpisodeCrypto(parts[0], parts[1]);
                     const clipIv = await deriveClipIV(epCrypto.ivSeed, clipId);
-
+                    
                     const rawKey = await crypto.subtle.exportKey("raw", epCrypto.key);
+                    
+                    const keyReadyPromise = new Promise(resolve => {
+                        const handler = (e) => {
+                            if (e.data && e.data.type === 'KEY_READY' && e.data.clipId === clipId) {
+                                navigator.serviceWorker.removeEventListener('message', handler);
+                                resolve();
+                            }
+                        };
+                        navigator.serviceWorker.addEventListener('message', handler);
+                        // Failsafe timeout
+                        setTimeout(() => {
+                            navigator.serviceWorker.removeEventListener('message', handler);
+                            resolve();
+                        }, 1500);
+                    });
 
                     sw.postMessage({
                         type: 'REGISTER_KEY',
@@ -450,7 +465,8 @@
                         ivBytes: Array.from(clipIv),
                         realUrl: url
                     });
-
+                    
+                    await keyReadyPromise;
                     this.registeredKeys.add(clipId);
                 }
 
