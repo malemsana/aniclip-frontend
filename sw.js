@@ -1,4 +1,5 @@
 const CACHE_NAME = 'aniclip-stream-cache-v1';
+const keysStore = new Map(); // FAST TRACK RAM LAYER
 
 // Minimal IndexedDB Wrapper for long-term key persistence
 const IDB = {
@@ -41,8 +42,13 @@ self.addEventListener("message", async (event) => {
         const { clipId, keyBytes, ivBytes, realUrl } = event.data;
         try {
             const key = await crypto.subtle.importKey("raw", keyBytes, { name: "AES-CTR" }, false, ["decrypt", "encrypt"]);
-            // Persist the key cleanly to disk so SW micro-sleeps don't cause 404s
-            await IDB.set(clipId, { key, iv: new Uint8Array(ivBytes), realUrl });
+            const memoryVal = { key, iv: new Uint8Array(ivBytes), realUrl };
+            
+            // 1. Save to ultra-fast RAM immediately
+            keysStore.set(clipId, memoryVal); 
+            
+            // 2. Persist to Hard Drive in the background (prevents micro-sleep data loss)
+            IDB.set(clipId, memoryVal).catch(e => console.warn("IDB sync delayed", e));
         } catch (e) {
             console.error("SW Key Import Error:", e);
         }
@@ -69,7 +75,15 @@ function incrementIv(baseIv, blockOffset) {
 
 async function handleStream(request, url) {
     const clipId = url.pathname.split('/').pop().split('.')[0];
-    const meta = await IDB.get(clipId);
+    
+    // INSTANT LOOKUP
+    let meta = keysStore.get(clipId);
+    
+    // BACKGROUND RECOVERY (If SW went to sleep)
+    if (!meta) {
+        meta = await IDB.get(clipId);
+        if (meta) keysStore.set(clipId, meta); // Restore to fast track
+    }
     
     if (!meta) {
         return new Response("Key not found. Refresh the page.", {
