@@ -42,31 +42,31 @@ function incrementIv(baseIv, blockOffset) {
 async function handleStream(request, url) {
     const clipId = url.pathname.split('/').pop().split('.')[0];
     const meta = keysStore.get(clipId);
-    
+
     if (!meta) {
-        return new Response("Key not found. Refresh the page.", { 
-            status: 404, 
-            headers: { "Content-Type": "text/plain", "Access-Control-Allow-Origin": "*" } 
+        return new Response("Key not found. Refresh the page.", {
+            status: 404,
+            headers: { "Content-Type": "text/plain", "Access-Control-Allow-Origin": "*" }
         });
     }
-    
+
     const rangeHeader = request.headers.get("Range");
     let reqStart = 0;
     let reqEnd = '';
-    
+
     if (rangeHeader) {
         const parts = rangeHeader.replace(/bytes=/, "").split("-");
         reqStart = parseInt(parts[0], 10);
         reqEnd = parts[1] ? parseInt(parts[1], 10) : '';
     }
-    
+
     // Align start to 16-byte boundary for AES-CTR
     const alignedStart = Math.floor(reqStart / 16) * 16;
     const headers = new Headers();
     if (rangeHeader) {
         headers.set("Range", `bytes=${alignedStart}-${reqEnd}`);
     }
-    
+
     let res;
     try {
         res = await fetch(meta.realUrl, { headers });
@@ -84,25 +84,37 @@ async function handleStream(request, url) {
     let currentIv = incrementIv(meta.iv, Math.floor(alignedStart / 16));
     let skipBytes = reqStart - alignedStart;
     
+    let remainder = new Uint8Array(0);
+    
     const { readable, writable } = new TransformStream({
         async transform(chunk, controller) {
-            // Decrypt the chunk
-            // AES-CTR allows us to decrypt a chunk and get back exactly the same size
-            // provided we handle the IV increment correctly.
-            // Note: SubtleCrypto.decrypt expects a full block or the end of the data.
-            // BUT, AES-CTR is essentially a key-stream XORed with data.
-            // We can decrypt any chunk size if we provide the correct IV offset.
+            // Combine previous remainder with new network chunk
+            const data = new Uint8Array(remainder.length + chunk.length);
+            data.set(remainder);
+            data.set(chunk, remainder.length);
+            
+            // For AES-CTR with SubtleCrypto, we must process exact 16-byte multiples
+            const completeBlocks = Math.floor(data.length / 16);
+            const bytesToProcess = completeBlocks * 16;
+            
+            if (bytesToProcess === 0) {
+                remainder = data; // Wait for more data
+                return;
+            }
+            
+            const processChunk = data.slice(0, bytesToProcess);
+            remainder = data.slice(bytesToProcess);
             
             try {
                 const decrypted = await crypto.subtle.decrypt(
                     { name: "AES-CTR", counter: currentIv, length: 128 },
                     meta.key,
-                    chunk
+                    processChunk
                 );
                 
                 let toSend = new Uint8Array(decrypted);
                 
-                // If this is the very first chunk of a misaligned range, slice off the prefix
+                // If this is the very first chunk of a misaligned range request, slice off the padding prefix
                 if (skipBytes > 0) {
                     toSend = toSend.slice(skipBytes);
                     skipBytes = 0;
@@ -110,17 +122,37 @@ async function handleStream(request, url) {
                 
                 controller.enqueue(toSend);
                 
-                // Update IV for the next chunk
-                const blocksProcessed = Math.ceil(chunk.byteLength / 16);
-                currentIv = incrementIv(currentIv, blocksProcessed);
+                // Update IV for the next chunk precisely by the number of complete blocks
+                currentIv = incrementIv(currentIv, completeBlocks);
             } catch (e) {
                 console.error("Decryption transform error:", e);
                 controller.error(e);
             }
+        },
+        async flush(controller) {
+            if (remainder.length > 0) {
+                try {
+                    const decrypted = await crypto.subtle.decrypt(
+                        { name: "AES-CTR", counter: currentIv, length: 128 },
+                        meta.key,
+                        remainder
+                    );
+                    let toSend = new Uint8Array(decrypted);
+                    if (skipBytes > 0) {
+                        toSend = toSend.slice(skipBytes);
+                    }
+                    controller.enqueue(toSend);
+                } catch (e) {
+                    console.error("Decryption flush error:", e);
+                    // Don't error the controller here, just drop the trailing bytes to prevent pipeline crash
+                }
+            }
         }
     });
 
-    res.body.pipeTo(writable).catch(e => console.error("Pipe error:", e));
+    res.body.pipeTo(writable).catch(e => {
+        // Silently ignore standard aborts from the player dropping the stream (e.g. user unhovers)
+    });
 
     const isDownload = url.searchParams.get('download') === '1';
     const responseHeaders = new Headers();
