@@ -400,81 +400,59 @@
             return ivCache[clipId];
         }
 
-        const DecryptionManager = {
-            queue: [], // { url, clipId, type, priority, listeners: [], abortSignal }
-            activeCount: 0,
-            MAX_CONCURRENT: 5,
-            running: {}, // url -> Promise
+        // --- SERVICE WORKER REGISTRATION (TRUE STREAMING) ---
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').then((reg) => {
+                console.log('SW Registered for Stream Decryption');
+            }).catch(console.error);
+        }
 
-            async getBlobUrl(url, clipId, priority = 3, abortSignal = null) {
+        const DecryptionManager = {
+            registeredKeys: new Set(),
+
+            async getBlobUrl(url, clipId, priority = 3, abortSignal = null, isDownload = false, filename = '') {
+                // Method kept as 'getBlobUrl' for compatibility, but returns a streamable SW URL
                 if (!url) return "";
                 if (!url.endsWith('.bin') && !url.endsWith('.ebp')) return url;
-                if (blobCache[url]) return blobCache[url];
 
-                // Lock logic for exact duplicates
-                if (this.running[url]) return this.running[url];
-
-                let existingTask = this.queue.find(t => t.url === url);
-                if (existingTask) {
-                    if (priority < existingTask.priority) {
-                        existingTask.priority = priority;
-                        this.queue.sort((a, b) => a.priority - b.priority);
+                let sw = navigator.serviceWorker.controller;
+                if (!sw) {
+                    if (navigator.serviceWorker.ready) {
+                        const reg = await navigator.serviceWorker.ready;
+                        sw = reg.active;
                     }
-                    return new Promise((resolve, reject) => existingTask.listeners.push({ resolve, reject }));
                 }
 
-                return new Promise((resolve, reject) => {
-                    this.queue.push({ 
-                        url, clipId, type: url.endsWith('.ebp') ? 'image' : 'video', 
-                        priority, abortSignal, 
-                        listeners: [{ resolve, reject }] 
+                if (!sw) {
+                    console.error("Critical stream error: Service Worker not running in this browser window.");
+                    return url;
+                }
+
+                if (!this.registeredKeys.has(clipId)) {
+                    const parts = clipId.split('-');
+                    const epCrypto = await getEpisodeCrypto(parts[0], parts[1]);
+                    const clipIv = await deriveClipIV(epCrypto.ivSeed, clipId);
+
+                    // Export key to transfer to Service Worker memory securely
+                    const rawKey = await crypto.subtle.exportKey("raw", epCrypto.key);
+
+                    sw.postMessage({
+                        type: 'REGISTER_KEY',
+                        clipId: clipId,
+                        keyBytes: rawKey,
+                        ivBytes: clipIv,
+                        realUrl: url
                     });
-                    this.queue.sort((a, b) => a.priority - b.priority);
-                    this._process();
-                });
-            },
 
-            async _process() {
-                if (this.activeCount >= this.MAX_CONCURRENT || this.queue.length === 0) return;
-                
-                const task = this.queue.shift();
-                
-                if (task.abortSignal && task.abortSignal.aborted) {
-                    task.listeners.forEach(l => l.reject(new DOMException("Aborted", "AbortError")));
-                    return this._process();
+                    this.registeredKeys.add(clipId);
                 }
 
-                this.activeCount++;
-                this.running[task.url] = this._decrypt(task.url, task.clipId, task.type, task.abortSignal);
-                
-                try {
-                    const result = await this.running[task.url];
-                    task.listeners.forEach(l => l.resolve(result));
-                } catch (e) {
-                    task.listeners.forEach(l => l.reject(e));
-                } finally {
-                    delete this.running[task.url];
-                    this.activeCount--;
-                    this._process();
+                const ext = url.endsWith('.ebp') ? 'webp' : 'mp4';
+                let swUrl = `/stream-decrypt/${clipId}.${ext}`;
+                if (isDownload) {
+                    swUrl += `?download=1&filename=${encodeURIComponent(filename || clipId + '.' + ext)}`;
                 }
-            },
-
-            async _decrypt(url, clipId, type, abortSignal) {
-                const parts = clipId.split('-');
-                const epCrypto = await getEpisodeCrypto(parts[0], parts[1]);
-                const clipIv = await deriveClipIV(epCrypto.ivSeed, clipId);
-
-                const fetchOpts = abortSignal ? { signal: abortSignal } : {};
-                const res = await fetch(url, fetchOpts);
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-                const ciphertext = await res.arrayBuffer();
-                const decryptedBuffer = await crypto.subtle.decrypt({ name: "AES-CTR", counter: clipIv, length: 128 }, epCrypto.key, ciphertext);
-
-                const mimeType = type === 'image' ? 'image/webp' : 'video/mp4';
-                const blob = new Blob([decryptedBuffer], { type: mimeType });
-                blobCache[url] = URL.createObjectURL(blob);
-                return blobCache[url];
+                return swUrl;
             }
         };
 
@@ -484,24 +462,24 @@
             let v = el.querySelector('video');
             if (!v) {
                 el.innerHTML += `<div class="absolute inset-0 flex items-center justify-center bg-black/80 z-10"><span class="material-symbols-rounded animate-spin text-white">progress_activity</span></div>`;
-                
+
                 hoverControllers[clipId] = new AbortController();
                 try {
                     const decryptedUrl = await DecryptionManager.getBlobUrl(hoverUrl, clipId, 2, hoverControllers[clipId].signal);
                     el.querySelector('.absolute.inset-0.bg-black\\/80')?.remove();
                     el.insertAdjacentHTML('beforeend', `<video src="${decryptedUrl}" loop muted playsinline class="absolute inset-0 w-full h-full object-cover z-0"></video>`);
                     v = el.querySelector('video');
-                } catch(e) { /* Suppress abort/fetch errors if user unhovered fast */ }
+                } catch (e) { /* Suppress abort/fetch errors if user unhovered fast */ }
             }
             if (v) { v.currentTime = 0; v.play().catch(() => { }); }
         }
 
-        function stopPreview(el, clipId) { 
+        function stopPreview(el, clipId) {
             if (hoverControllers[clipId]) {
                 hoverControllers[clipId].abort();
                 delete hoverControllers[clipId];
             }
-            const v = el.querySelector('video'); if (v) v.pause(); 
+            const v = el.querySelector('video'); if (v) v.pause();
             el.querySelector('.absolute.inset-0.bg-black\\/80')?.remove();
         }
 
@@ -546,7 +524,7 @@
                                 img.classList.remove('hidden');
                                 card.querySelector('.animate-pulse')?.remove();
                             }
-                        }).catch(()=>{});
+                        }).catch(() => { });
                     }
                 }
             }, 50);
@@ -593,7 +571,7 @@
                     img.src = dec;
                     img.classList.remove('hidden');
                     img.nextElementSibling?.remove();
-                }).catch(()=>{});
+                }).catch(() => { });
             });
         }
 
@@ -613,9 +591,9 @@
             btn.innerHTML = `<span class="material-symbols-rounded animate-spin text-lg">progress_activity</span> Decrypting Base...`;
 
             try {
-                // Priority 0: Absolute highest, skips everything. Download to memory.
-                const decryptedUrl = await DecryptionManager.getBlobUrl(rawUrl, clipId, 0);
-                const a = document.createElement('a'); a.style.display = 'none'; a.href = decryptedUrl; a.download = `${filename}.mp4`;
+                // Return immediate streaming URL from SW with download flag and filename
+                const decryptedUrl = await DecryptionManager.getBlobUrl(rawUrl, clipId, 0, null, true, filename + '.mp4');
+                const a = document.createElement('a'); a.style.display = 'none'; a.href = decryptedUrl;
                 document.body.appendChild(a); a.click();
                 a.remove();
             } catch { window.open(rawUrl, '_blank'); }
@@ -632,18 +610,11 @@
 
             const previewRaw = clip.sources?.preview || clip.video_url || "";
             const hqRaw = clip.sources?.hq || clip.videohq_url || "";
-            const clipName = clip.id || clip.clip_name;
+            const clipId = clip.id || clip.clip_id;
+            const episodeNum = state.episodesList.find(e => e.id === activeCtx.epId)?.number || "?";
 
-            let dur = clip.duration || ((clip.end || clip.end_time || clip.end_ms || 0) - (clip.start || clip.start_time || clip.start_ms || 0));
-            if (dur > 2000) dur = dur / 1000;
-
-            // Final fallback if parsing failed
-            const durText = (!dur || isNaN(dur)) ? "??" : dur.toFixed(1) + 's';
-
-            els.player.src = "";
-            els.player.poster = "";
-            document.getElementById('preview-filename').textContent = "Decrypting Stream...";
-            document.getElementById('preview-duration').textContent = durText;
+            // Clean filename: anime-slug_EPXX_ClipID_Type.mp4
+            const baseFileName = `${state.animeSlug}_EP${episodeNum}_${clipId}`;
 
             // --- EAGER RENDERING: Create buttons immediately ---
             const container = els.dlContainer;
@@ -653,24 +624,24 @@
             const btnFast = document.createElement('button');
             btnFast.className = `${cls} bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200`;
             btnFast.innerHTML = `<span class="material-symbols-rounded group-hover:-translate-y-0.5 transition-transform">download</span> Fast Clip`;
-            btnFast.onclick = () => forceDownload(previewRaw, clip.id, `${clipName}_Fast`);
+            btnFast.onclick = () => forceDownload(previewRaw, clipId, `${baseFileName}_Fast`);
             container.appendChild(btnFast);
 
             if (hqRaw) {
                 const btnHQ = document.createElement('button');
                 btnHQ.className = `${cls} bg-blue-600 hover:bg-blue-500 border border-transparent mt-2`;
                 btnHQ.innerHTML = `<span class="material-symbols-rounded group-hover:-translate-y-0.5 transition-transform">download</span> High Quality Clip`;
-                btnHQ.onclick = () => forceDownload(hqRaw, clip.id, `${clipName}_HQ`);
+                btnHQ.onclick = () => forceDownload(hqRaw, clipId, `${baseFileName}_HQ`);
                 container.appendChild(btnHQ);
             }
 
             // Async Decrypt Main Player (Connection-optimized Priority 1)
             try {
-                const decryptedUrl = await DecryptionManager.getBlobUrl(previewRaw, clip.id, 1);
+                const decryptedUrl = await DecryptionManager.getBlobUrl(previewRaw, clipId, 1);
                 if (!decryptedUrl) throw new Error("Decryption returned empty");
 
                 els.player.src = decryptedUrl;
-                document.getElementById('preview-filename').textContent = clipName;
+                document.getElementById('preview-filename').textContent = clipId;
                 if (shouldPlay) els.player.play().catch(() => { });
             } catch (e) {
                 document.getElementById('preview-filename').textContent = "Decryption Failed";
