@@ -411,20 +411,28 @@
             registeredKeys: new Set(),
 
             async getBlobUrl(url, clipId, priority = 3, abortSignal = null, isDownload = false, filename = '') {
-                // Method kept as 'getBlobUrl' for compatibility, but returns a streamable SW URL
                 if (!url) return "";
                 if (!url.endsWith('.bin') && !url.endsWith('.ebp')) return url;
 
+                // Ensure SW is ready and controlling the page
                 let sw = navigator.serviceWorker.controller;
                 if (!sw) {
-                    if (navigator.serviceWorker.ready) {
-                        const reg = await navigator.serviceWorker.ready;
-                        sw = reg.active;
+                    const reg = await navigator.serviceWorker.ready;
+                    // If active but not controlling, wait for it to take over
+                    if (!navigator.serviceWorker.controller) {
+                        await new Promise(resolve => {
+                            navigator.serviceWorker.addEventListener('controllerchange', resolve, { once: true });
+                            // In case it already happened or takes too long, we'll pulse the registration
+                            setTimeout(resolve, 1000);
+                        });
+                        sw = navigator.serviceWorker.controller || reg.active;
+                    } else {
+                        sw = navigator.serviceWorker.controller;
                     }
                 }
 
                 if (!sw) {
-                    console.error("Critical stream error: Service Worker not running in this browser window.");
+                    console.warn("SW not in control yet. Falling back to direct URL (might 404).");
                     return url;
                 }
 
@@ -433,14 +441,13 @@
                     const epCrypto = await getEpisodeCrypto(parts[0], parts[1]);
                     const clipIv = await deriveClipIV(epCrypto.ivSeed, clipId);
 
-                    // Export key to transfer to Service Worker memory securely
                     const rawKey = await crypto.subtle.exportKey("raw", epCrypto.key);
 
                     sw.postMessage({
                         type: 'REGISTER_KEY',
                         clipId: clipId,
                         keyBytes: rawKey,
-                        ivBytes: clipIv,
+                        ivBytes: Array.from(clipIv),
                         realUrl: url
                     });
 
