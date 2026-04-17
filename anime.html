@@ -379,7 +379,7 @@
                     const keyBytes = new Uint8Array(data.key.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
                     const ivSeedBytes = new Uint8Array(data.iv_seed.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
 
-                    const cryptoKey = await crypto.subtle.importKey("raw", keyBytes, { name: "AES-CTR" }, false, ["decrypt"]);
+                    const cryptoKey = await crypto.subtle.importKey("raw", keyBytes, { name: "AES-CTR" }, true, ["decrypt"]);
                     cryptoCache[token] = { key: cryptoKey, ivSeed: ivSeedBytes };
                     return cryptoCache[token];
                 } finally {
