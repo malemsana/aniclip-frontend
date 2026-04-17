@@ -1,5 +1,32 @@
 const CACHE_NAME = 'aniclip-stream-cache-v1';
-const keysStore = new Map();
+
+// Minimal IndexedDB Wrapper for long-term key persistence
+const IDB = {
+    async get(id) {
+        return new Promise((resolve) => {
+            const req = indexedDB.open('streamKeys', 1);
+            req.onupgradeneeded = (e) => e.target.result.createObjectStore('keys');
+            req.onsuccess = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains('keys')) return resolve(null);
+                const getReq = db.transaction('keys').objectStore('keys').get(id);
+                getReq.onsuccess = () => resolve(getReq.result);
+                getReq.onerror = () => resolve(null);
+            };
+            req.onerror = () => resolve(null);
+        });
+    },
+    async set(id, val) {
+        return new Promise((resolve) => {
+            const req = indexedDB.open('streamKeys', 1);
+            req.onupgradeneeded = (e) => e.target.result.createObjectStore('keys');
+            req.onsuccess = (e) => {
+                const putReq = e.target.result.transaction('keys', 'readwrite').objectStore('keys').put(val, id);
+                putReq.onsuccess = () => resolve();
+            };
+        });
+    }
+};
 
 self.addEventListener("install", (event) => {
     self.skipWaiting();
@@ -14,7 +41,8 @@ self.addEventListener("message", async (event) => {
         const { clipId, keyBytes, ivBytes, realUrl } = event.data;
         try {
             const key = await crypto.subtle.importKey("raw", keyBytes, { name: "AES-CTR" }, false, ["decrypt", "encrypt"]);
-            keysStore.set(clipId, { key, iv: new Uint8Array(ivBytes), realUrl });
+            // Persist the key cleanly to disk so SW micro-sleeps don't cause 404s
+            await IDB.set(clipId, { key, iv: new Uint8Array(ivBytes), realUrl });
         } catch (e) {
             console.error("SW Key Import Error:", e);
         }
@@ -41,8 +69,8 @@ function incrementIv(baseIv, blockOffset) {
 
 async function handleStream(request, url) {
     const clipId = url.pathname.split('/').pop().split('.')[0];
-    const meta = keysStore.get(clipId);
-
+    const meta = await IDB.get(clipId);
+    
     if (!meta) {
         return new Response("Key not found. Refresh the page.", {
             status: 404,
