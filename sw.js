@@ -137,28 +137,39 @@ async function handleStream(request, url) {
         return new Response("Storage error", { status: 502 });
     }
 
-    if (!res.ok && res.status !== 206) return res;
+    // FIX 5: Safer status check
+    if (!(res.status === 200 || res.status === 206)) {
+        return res;
+    }
 
     const contentRange = res.headers.get("Content-Range");
-    const totalSize = contentRange ? contentRange.split('/')[1] : res.headers.get("Content-Length");
-    const actualResEnd = contentRange ? contentRange.split('/')[0].split('-')[1] : (parseInt(totalSize) - 1);
+    const totalSize = contentRange ? parseInt(contentRange.split('/')[1], 10) : parseInt(res.headers.get("Content-Length") || "0", 10);
+    const actualResEnd = contentRange ? parseInt(contentRange.split('/')[0].split('-')[1], 10) : (totalSize > 0 ? totalSize - 1 : 0);
 
     // Initial IV for the exact chunk offset we are downloading
     const blockOffset = Math.floor(alignedStart / 16);
     let currentIv = incrementIv(meta.iv, blockOffset);
-    let skipBytes = reqStart - alignedStart; // Bytes to drop to return exact requested start
+    
+    // FIX 6: Safety bounding for slice math
+    let skipBytes = Math.max(0, reqStart - alignedStart); 
     
     let remainder = new Uint8Array(0);
     
-    // FIX 4: True Streaming Transform
+    // FIX 4: True Streaming Transform with Anti-Fragmentation buffering
     const { readable, writable } = new TransformStream({
         async transform(chunk, controller) {
             const data = new Uint8Array(remainder.length + chunk.length);
             data.set(remainder);
             data.set(chunk, remainder.length);
             
-            const completeBlocks = Math.floor(data.length / 16);
-            const bytesToProcess = completeBlocks * 16;
+            // Wait for at least ~64KB of buffer to avoid overwhelming SubtleCrypto async
+            const aesBlocks = Math.floor(data.length / 16);
+            if (aesBlocks < 4096 && data.length < 65536) { 
+                remainder = data;
+                return;
+            }
+            
+            const bytesToProcess = aesBlocks * 16;
             
             if (bytesToProcess === 0) {
                 remainder = data;
@@ -186,7 +197,7 @@ async function handleStream(request, url) {
                     controller.enqueue(toSend);
                 }
                 
-                currentIv = incrementIv(currentIv, completeBlocks);
+                currentIv = incrementIv(currentIv, aesBlocks);
             } catch (e) {
                 console.error("SW Decryption transform error:", e);
                 controller.error(e);
@@ -226,6 +237,8 @@ async function handleStream(request, url) {
     responseHeaders.set("Access-Control-Allow-Origin", "*");
     responseHeaders.set("Cache-Control", "no-store");
     responseHeaders.set("Connection", "keep-alive");
+    // FIX 4: Identity encoding to stop Chrome mangling the byte stream
+    responseHeaders.set("Content-Encoding", "identity");
 
     if (isDownload) {
         const filename = url.searchParams.get('filename') || `${clipId}.mp4`;
@@ -233,9 +246,14 @@ async function handleStream(request, url) {
     }
 
     if (rangeHeader || res.status === 206) {
+        // FIX 1 & 2: Correct Range end and Content-Length math
+        const contentLength = Math.max(0, actualResEnd - reqStart + 1);
         responseHeaders.set("Content-Range", `bytes=${reqStart}-${actualResEnd}/${totalSize}`);
+        responseHeaders.set("Content-Length", contentLength.toString());
         return new Response(readable, { status: 206, headers: responseHeaders });
     } else {
+        const contentLength = totalSize;
+        responseHeaders.set("Content-Length", contentLength.toString());
         return new Response(readable, { status: 200, headers: responseHeaders });
     }
 }
