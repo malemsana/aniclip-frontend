@@ -426,9 +426,10 @@
         let selectedMagnet = null;
         let fileTreeData = {};
         let currentMappings = {};
+        let focusedEpIndex = 0;
+        let collapsedFolders = new Set();
         let expandedSlots = new Set();
         let fileSizes = {};
-        window.lastFleetData = [];
 
         async function safeFetch(endpoint, options = {}) {
             const headers = { 'Authorization': `Bearer ${ADMIN_KEY}`, ...options.headers };
@@ -447,13 +448,6 @@
 
         function closeQueueModal() {
             document.getElementById('queue-modal').classList.add('hidden');
-        }
-
-        function openWorkerById(id) {
-            if (!id) return;
-            const worker = window.lastFleetData.find(w => w.id === id);
-            if (worker) openWorkerModal(worker);
-            else alert("Target Titan details not found or Node is currently offline.");
         }
 
         function setStep(n) {
@@ -486,9 +480,8 @@
                 const json = await aniRes.json();
                 const aniData = json.data.Page.media;
 
-                // PATCH: If AniList returns an empty list, treat it as a failure to trigger Jikan fallback
                 if (!aniData || aniData.length === 0) {
-                    throw new Error("AniList returned empty results");
+                    throw new Error("No results in AniList, falling back...");
                 }
 
                 const normalized = aniData.map(item => ({
@@ -496,7 +489,7 @@
                     title: item.title.english || item.title.romaji,
                     title_english: item.title.english,
                     title_japanese: item.title.romaji,
-                    synopsis: "",
+                    synopsis: "", // AniList query doesn't include it here, we'll fetch details later if needed or Jikan fallback
                     images: { jpg: { small_image_url: item.coverImage.large, large_image_url: item.coverImage.large } },
                     episodes: item.episodes,
                     year: item.seasonYear,
@@ -505,7 +498,6 @@
                 }));
                 renderAnimeList(normalized, resEl);
             } catch (e) {
-                // FALLBACK: Attempt Jikan if AniList fails OR returns zero results
                 try {
                     const res = await fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(q)}&limit=10`);
                     const { data } = await res.json();
@@ -812,7 +804,6 @@
                 }
 
                 document.getElementById('stat-workers').innerText = fleet.length;
-                window.lastFleetData = fleet;
                 renderWorkers(fleet);
 
                 const groups = {};
@@ -883,12 +874,7 @@
                         </div>
                         <div class="text-[11px] font-black text-blue-500 font-mono">${done}/${total} (${pct}%)</div>
                     </div>
-                    <div class="chunk-container">${p.tasks.sort((a, b) => a.ep_num - b.ep_num).map(t => {
-                    const isAssigned = t.status === 'ASSIGNED';
-                    const title = `Ep ${t.ep_num}${t.total_segments > 0 ? `: ${t.clip_count}/${t.total_segments} clips` : ''}`;
-                    const clickHandler = isAssigned ? `onclick="openWorkerById('${t.worker_id}')"` : '';
-                    return `<div class="chunk ${t.status.toLowerCase()} ${isAssigned ? 'cursor-pointer hover:scale-110 active:scale-95' : ''}" title="${title}" ${clickHandler}></div>`;
-                }).join('')}</div>
+                    <div class="chunk-container">${p.tasks.sort((a, b) => a.ep_num - b.ep_num).map(t => `<div class="chunk ${t.status.toLowerCase()}" title="Ep ${t.ep_num}"></div>`).join('')}</div>
                 </div>`;
             }).join('');
         }
@@ -910,13 +896,7 @@
                     return `<div onclick="openWorkerModal(${escapedData})" class="cursor-pointer p-4 bg-slate-950/50 border border-white/5 hover:border-blue-500/30 rounded-2xl transition-all ${isOffline ? 'opacity-40' : ''}">
                         <div class="flex justify-between text-[10px] font-black uppercase"><span class="text-slate-300 font-mono text-[9px]">${w.id}</span><span class="${isOffline ? 'text-red-500' : (w.status !== 'IDLE' ? 'text-blue-500 animate-pulse' : 'text-slate-600')}">${isOffline ? 'OFFLINE' : w.status}</span></div>
                         <div class="text-[9px] text-slate-500 mt-1 truncate italic">${w.status_message || 'Standby...'}</div>
-                        ${!isOffline && w.status !== 'IDLE' ? `
-                            <div class="flex justify-between items-center text-[7px] font-black tracking-tighter text-slate-600 mt-2 uppercase">
-                                <span>DB: ${w.clip_count || 0} / ${w.total_segments || '?'}</span>
-                                <span>${w.progress || 0}%</span>
-                            </div>
-                            <div class="w-full bg-slate-900 h-1 rounded-full mt-1 overflow-hidden"><div class="bg-blue-600 h-full transition-all" style="width: ${w.progress || 0}%"></div></div>
-                        ` : ''}
+                        ${!isOffline && w.status !== 'IDLE' ? `<div class="w-full bg-slate-900 h-1 rounded-full mt-3 overflow-hidden"><div class="bg-blue-600 h-full transition-all" style="width: ${w.progress || 0}%"></div></div>` : ''}
                     </div>`;
                 }).join('');
             }
@@ -945,10 +925,9 @@
                     </div>
 
                     <div class="flex-grow flex flex-col gap-4">
-                        <div class="grid grid-cols-3 gap-3">
+                        <div class="grid grid-cols-2 gap-3">
                             <div class="bg-slate-950/50 p-3 rounded-lg border border-white/5"><span class="block text-[8px] uppercase text-slate-500 font-bold mb-1">ID</span><span class="font-mono text-blue-400 text-xs">${w.id}</span></div>
-                            <div class="bg-slate-950/50 p-3 rounded-lg border border-white/5"><span class="block text-[8px] uppercase text-slate-500 font-bold mb-1">Worker Progress</span><span class="text-white font-mono text-xs">${w.progress || 0}%</span></div>
-                            <div class="bg-slate-950/50 p-3 rounded-lg border border-white/5"><span class="block text-[8px] uppercase text-slate-500 font-bold mb-1">DB Ingest</span><span class="text-emerald-400 font-mono text-xs">${w.clip_count || 0}/${w.total_segments || '?'}</span></div>
+                            <div class="bg-slate-950/50 p-3 rounded-lg border border-white/5"><span class="block text-[8px] uppercase text-slate-500 font-bold mb-1">Progress</span><span class="text-emerald-400 font-mono text-xs">${w.progress || 0}%</span></div>
                         </div>
                         <div class="flex-grow bg-slate-950/80 p-4 rounded-xl border border-white/5 flex flex-col gap-2 relative">
                             <div class="flex items-center gap-2 mb-1"><span class="material-symbols-rounded text-blue-500 text-sm">terminal</span><span class="text-[9px] uppercase text-slate-400 font-black">Encoder Status</span></div>
