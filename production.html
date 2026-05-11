@@ -468,7 +468,7 @@
             resEl.innerHTML = `<div class="col-span-2 p-20 text-center animate-pulse text-blue-500 font-black text-[10px] uppercase">Contacting Databases...</div>`;
 
             try {
-                const query = `query ($search: String) { Page(perPage: 10) { media(search: $search, type: ANIME) { idMal title { romaji english } coverImage { large } episodes averageScore type seasonYear } } }`;
+                const query = `query ($search: String) { Page(perPage: 10) { media(search: $search, type: ANIME) { idMal title { userPreferred romaji english } coverImage { large } episodes averageScore type seasonYear } } }`;
                 const aniRes = await fetch('https://graphql.anilist.co', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -486,8 +486,8 @@
 
                 const normalized = aniData.map(item => ({
                     mal_id: item.idMal,
-                    title: item.title.english || item.title.romaji,
-                    title_english: item.title.english,
+                    title: item.title.english || item.title.userPreferred || item.title.romaji,
+                    title_english: item.title.english || item.title.userPreferred || item.title.romaji,
                     title_japanese: item.title.romaji,
                     synopsis: "", // AniList query doesn't include it here, we'll fetch details later if needed or Jikan fallback
                     images: { jpg: { small_image_url: item.coverImage.large, large_image_url: item.coverImage.large } },
