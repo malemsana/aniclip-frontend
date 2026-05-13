@@ -1,89 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>v4 Command Center | AniClips</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <script>
         tailwind.config = { theme: { extend: { colors: { gray: { 900: '#0f172a', 950: '#020617' } } } } }
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #020617; color: #f8fafc; }
-        .material-symbols-rounded { font-size: 18px; }
-        .stat-tile { border-right: 1px solid rgba(255,255,255,0.03); }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+        }
+
+        .material-symbols-rounded {
+            font-size: 18px;
+        }
+
+        .stat-tile {
+            border-right: 1px solid rgba(255, 255, 255, 0.03);
+        }
     </style>
 </head>
+
 <body class="min-h-screen flex flex-col bg-slate-950">
 
     <nav class="border-b border-white/5 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50 h-14 flex items-center">
         <div class="container mx-auto px-6 flex justify-between items-center">
             <div class="flex items-center gap-6">
                 <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-white"><span class="material-symbols-rounded text-sm">dashboard</span></div>
-                    <span class="text-slate-200 font-black uppercase tracking-wide text-xs">Ani<span class="text-slate-500">Clips</span> <span class="text-blue-500 font-mono text-[9px] ml-1">V4_STABLE</span></span>
+                    <div class="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-white"><span
+                            class="material-symbols-rounded text-sm">dashboard</span></div>
+                    <span class="text-slate-200 font-black uppercase tracking-wide text-xs">Ani<span
+                            class="text-slate-500">Clips</span> <span
+                            class="text-blue-500 font-mono text-[9px] ml-1">V4_STABLE</span></span>
                 </div>
                 <div class="h-6 w-px bg-white/10"></div>
                 <div class="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest">
-                    <a href="admin.html" class="text-blue-400 flex items-center gap-2"><span class="material-symbols-rounded text-sm">dashboard</span> Main Panel</a>
-                    <a href="production.html" class="text-slate-500 hover:text-white transition-colors flex items-center gap-2"><span class="material-symbols-rounded text-sm">precision_manufacturing</span> Production</a>
+                    <a href="admin.html" class="text-blue-400 flex items-center gap-2"><span
+                            class="material-symbols-rounded text-sm">dashboard</span> Main Panel</a>
+                    <a href="production.html"
+                        class="text-slate-500 hover:text-white transition-colors flex items-center gap-2"><span
+                            class="material-symbols-rounded text-sm">precision_manufacturing</span> Production</a>
+                    <a href="storage.html"
+                        class="text-slate-500 hover:text-white transition-colors flex items-center gap-2"><span
+                            class="material-symbols-rounded text-sm">database</span> Storage</a>
                 </div>
             </div>
-            <button onclick="logout()" class="text-[10px] font-bold text-red-500 hover:text-red-400 uppercase tracking-widest">Logout</button>
+            <button onclick="logout()"
+                class="text-[10px] font-bold text-red-500 hover:text-red-400 uppercase tracking-widest">Logout</button>
         </div>
     </nav>
 
     <div class="bg-slate-900/40 border-b border-white/5 h-14 flex items-stretch">
         <div class="container mx-auto px-6 flex items-stretch">
             <div class="stat-tile flex items-center gap-3 px-6 min-w-[160px]">
-                <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500"><span class="material-symbols-rounded">movie</span></div>
-                <div class="flex items-baseline gap-2"><span id="stat-series" class="text-xl font-black text-white">0</span><span class="text-[9px] font-black text-blue-500 uppercase tracking-tighter">Series</span></div>
+                <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500"><span
+                        class="material-symbols-rounded">movie</span></div>
+                <div class="flex items-baseline gap-2"><span id="stat-series"
+                        class="text-xl font-black text-white">0</span><span
+                        class="text-[9px] font-black text-blue-500 uppercase tracking-tighter">Series</span></div>
             </div>
             <div class="stat-tile flex items-center gap-3 px-6 min-w-[160px]">
-                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400"><span class="material-symbols-rounded">download</span></div>
-                <div class="flex items-baseline gap-2"><span id="stat-downloads" class="text-xl font-black text-white">0</span><span class="text-[9px] font-black text-emerald-500 uppercase tracking-tighter">Downloads</span></div>
+                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                    <span class="material-symbols-rounded">download</span></div>
+                <div class="flex items-baseline gap-2"><span id="stat-downloads"
+                        class="text-xl font-black text-white">0</span><span
+                        class="text-[9px] font-black text-emerald-500 uppercase tracking-tighter">Downloads</span></div>
             </div>
             <div class="stat-tile flex items-center gap-3 px-6 min-w-[160px]">
-                <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400"><span class="material-symbols-rounded">visibility</span></div>
-                <div class="flex items-baseline gap-2"><span id="stat-visits" class="text-xl font-black text-white">0</span><span class="text-[9px] font-black text-purple-500 uppercase tracking-tighter">Visits</span></div>
+                <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400"><span
+                        class="material-symbols-rounded">visibility</span></div>
+                <div class="flex items-baseline gap-2"><span id="stat-visits"
+                        class="text-xl font-black text-white">0</span><span
+                        class="text-[9px] font-black text-purple-500 uppercase tracking-tighter">Visits</span></div>
             </div>
             <div class="flex-grow flex items-center px-6 justify-end">
-                <input type="text" id="lib-search" onkeyup="filterLibrary()" placeholder="Filter library..." class="w-64 bg-slate-900 border border-slate-800 text-slate-200 pl-4 pr-4 py-1.5 rounded-lg focus:border-blue-500 outline-none text-xs font-medium">
+                <input type="text" id="lib-search" onkeyup="filterLibrary()" placeholder="Filter library..."
+                    class="w-64 bg-slate-900 border border-slate-800 text-slate-200 pl-4 pr-4 py-1.5 rounded-lg focus:border-blue-500 outline-none text-xs font-medium">
             </div>
         </div>
     </div>
 
     <main class="container mx-auto px-6 py-6 flex-grow">
-        <div id="api-error-banner" class="hidden mb-6 bg-red-500/10 border border-red-500/20 p-4 rounded-xl flex items-center justify-between">
+        <div id="api-error-banner"
+            class="hidden mb-6 bg-red-500/10 border border-red-500/20 p-4 rounded-xl flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <span class="material-symbols-rounded text-red-500">error</span>
                 <div class="text-[10px] text-red-400 font-bold uppercase tracking-widest">
                     Server Error: <span id="error-message" class="font-mono ml-2">Unknown</span>
                 </div>
             </div>
-            <button onclick="init()" class="text-[9px] font-black text-red-500 uppercase border border-red-500/20 px-3 py-1 rounded hover:bg-red-500 hover:text-white transition-all">Retry Link</button>
+            <button onclick="init()"
+                class="text-[9px] font-black text-red-500 uppercase border border-red-500/20 px-3 py-1 rounded hover:bg-red-500 hover:text-white transition-all">Retry
+                Link</button>
         </div>
 
         <div class="flex justify-between items-center mb-4">
             <!-- Removed the Legacy "ADD NEW" button -->
-            <h1 class="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2">Master Library</h1>
+            <h1 class="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2">Master Library
+            </h1>
         </div>
-        
+
         <div class="bg-slate-900 border border-white/5 rounded-xl overflow-hidden shadow-2xl">
             <table class="w-full text-left">
                 <thead class="bg-slate-950/80 text-[9px] font-black text-slate-500 uppercase border-b border-white/5">
-                    <tr><th class="px-6 py-3">Series Identity</th><th class="px-6 py-3">Redundancy</th><th class="px-6 py-3 text-right">Actions</th></tr>
+                    <tr>
+                        <th class="px-6 py-3">Series Identity</th>
+                        <th class="px-6 py-3">Redundancy</th>
+                        <th class="px-6 py-3 text-right">Actions</th>
+                    </tr>
                 </thead>
                 <tbody id="lib-body" class="divide-y divide-white/5">
-                    <tr><td colspan="3" class="p-20 text-center text-slate-600 text-[10px] font-black uppercase tracking-widest italic animate-pulse">Establishing secure link...</td></tr>
+                    <tr>
+                        <td colspan="3"
+                            class="p-20 text-center text-slate-600 text-[10px] font-black uppercase tracking-widest italic animate-pulse">
+                            Establishing secure link...</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </main>
 
     <script>
-        const API_URL = 'https://aniclip-backend.onrender.com/api'; 
+        const API_URL = 'https://aniclip-backend.onrender.com/api';
         const ADMIN_KEY = localStorage.getItem('aniclip_admin_key');
         let tableCache = [];
 
@@ -105,7 +150,7 @@
             if (!ADMIN_KEY) { window.location.href = 'auth.html'; return; }
             document.getElementById('api-error-banner').classList.add('hidden');
             document.getElementById('lib-body').innerHTML = `<tr><td colspan="3" class="p-20 text-center text-slate-600 text-[10px] font-black uppercase tracking-widest italic animate-pulse">Establishing secure link...</td></tr>`;
-            
+
             try {
                 // We await stats first, if it fails, execution drops to catch block immediately
                 const s = await safeFetch('/admin/stats');
@@ -129,7 +174,7 @@
 
         function renderTable(data) {
             const body = document.getElementById('lib-body');
-            if(data.length === 0) {
+            if (data.length === 0) {
                 body.innerHTML = `<tr><td colspan="3" class="p-20 text-center text-slate-600 text-[10px] uppercase font-black tracking-widest">Library is empty. Queue series from production.</td></tr>`;
                 return;
             }
@@ -154,12 +199,13 @@
 
         function filterLibrary() {
             const q = document.getElementById('lib-search').value.toLowerCase();
-            renderTable(tableCache.filter(a => (a.title||'').toLowerCase().includes(q) || (a.slug||a.name||'').toLowerCase().includes(q)));
+            renderTable(tableCache.filter(a => (a.title || '').toLowerCase().includes(q) || (a.slug || a.name || '').toLowerCase().includes(q)));
         }
 
         function logout() { localStorage.removeItem('aniclip_admin_key'); window.location.href = 'auth.html'; }
-        
+
         window.onload = init;
     </script>
 </body>
+
 </html>
