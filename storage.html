@@ -196,7 +196,7 @@
     </div>
 
     <script>
-        const API_BASE = window.location.origin + '/api/admin';
+        const API_BASE = 'https://aniclip-backend.onrender.com/api/admin';
         const ADMIN_KEY = localStorage.getItem('aniclip_admin_key');
         let currentMode = null;
         let pendingTarget = null;
@@ -267,6 +267,9 @@
 
             } catch (err) {
                 console.error('Status refresh failed:', err);
+                const logEl = document.getElementById('history-log');
+                logEl.innerHTML = `<div class="text-red-500 font-bold">⚠️ CONNECTION ERROR: ${err.message}</div>
+                                   <div class="text-[9px] text-slate-600 mt-1">Check if ADMIN_KEY matches your local storage and if the server is responsive.</div>`;
             }
         }
 
