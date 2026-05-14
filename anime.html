@@ -776,10 +776,19 @@
         }
 
         function closePreview() {
+            // Hide modal immediately
             els.modal.classList.add('invisible', 'opacity-0');
             els.modal.classList.remove('active');
             document.body.style.overflow = '';
-            setTimeout(() => { els.player.pause(); els.player.removeAttribute('src'); activeCtx.idx = -1; }, 200);
+            
+            // STOP VIDEO INSTANTLY to prevent ghost audio
+            els.player.pause();
+            els.player.src = "";
+            els.player.load(); // Force reset the buffer
+            
+            setTimeout(() => { 
+                activeCtx.idx = -1; 
+            }, 200);
         }
 
         function renderSliderBase(epId) {
@@ -902,6 +911,19 @@
                 els.player.src = decryptedUrl;
                 document.getElementById('preview-filename').textContent = baseFileName + '.mp4';
                 if (shouldPlay) els.player.play().catch(() => { });
+
+                // --- SHADOW LOADER: Pre-fetch next clip at background priority ---
+                // Only fires after current clip is ready, and only if autoplay is on.
+                // Priority 5 = lowest, so HQ downloads (P0) and current clip (P1) always win.
+                if (state.autoplay && activeCtx.idx < total - 1) {
+                    const nextClip = clips[activeCtx.idx + 1];
+                    const nextPreviewRaw = nextClip?.sources?.preview || nextClip?.video_url || "";
+                    if (nextPreviewRaw) {
+                        // Fire and forget — the result lands in blobCache automatically
+                        DecryptionManager.getBlobUrl(nextPreviewRaw, nextClip.id, 5, null, null, epIdx)
+                            .catch(() => { /* Silently ignore if next clip pre-fetch fails */ });
+                    }
+                }
             } catch (e) {
                 document.getElementById('preview-filename').textContent = "Decryption Failed";
                 console.error(e);
@@ -925,7 +947,9 @@
         }
 
         els.player.addEventListener('ended', () => {
-            if (!state.autoplay) return;
+            // Safety check: Don't autoplay if the user closed the modal
+            if (!state.autoplay || !els.modal.classList.contains('active')) return;
+            
             const clipsData = state.clipsCache[activeCtx.epId];
             const clips = clipsData.clips || clipsData;
             if (activeCtx.idx < clips.length - 1) userSwitchClip(activeCtx.idx + 1);
