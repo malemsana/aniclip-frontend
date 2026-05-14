@@ -73,16 +73,53 @@
                         class="text-xl font-black text-white">0</span><span
                         class="text-[9px] font-black text-emerald-500 uppercase tracking-tighter">Downloads</span></div>
             </div>
-            <div class="stat-tile flex items-center gap-3 px-6 min-w-[160px]">
+            <div class="stat-tile flex items-center gap-3 px-6 min-w-[160px] relative group">
                 <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400"><span
                         class="material-symbols-rounded">visibility</span></div>
                 <div class="flex items-baseline gap-2"><span id="stat-visits"
                         class="text-xl font-black text-white">0</span><span
                         class="text-[9px] font-black text-purple-500 uppercase tracking-tighter">Visits</span></div>
+                
+                <!-- History Trigger -->
+                <button onclick="toggleHistoryModal()" class="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all bg-slate-800 hover:bg-slate-700 p-1.5 rounded-md text-slate-400 hover:text-white" title="View Detailed History">
+                    <span class="material-symbols-rounded text-[16px]">history</span>
+                </button>
             </div>
             <div class="flex-grow flex items-center px-6 justify-end">
                 <input type="text" id="lib-search" onkeyup="filterLibrary()" placeholder="Filter library..."
                     class="w-64 bg-slate-900 border border-slate-800 text-slate-200 pl-4 pr-4 py-1.5 rounded-lg focus:border-blue-500 outline-none text-xs font-medium">
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="history-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-slate-900 border border-white/10 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden scale-95 transition-transform duration-300" id="history-modal-content">
+            <div class="p-4 border-b border-white/5 flex items-center justify-between bg-slate-950/50">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-rounded text-blue-500">analytics</span>
+                    <h2 class="text-[10px] font-black uppercase tracking-widest text-white">System Analytics History</h2>
+                </div>
+                <button onclick="toggleHistoryModal()" class="text-slate-500 hover:text-white transition-colors">
+                    <span class="material-symbols-rounded">close</span>
+                </button>
+            </div>
+            <div class="max-h-[400px] overflow-y-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-950/80 text-[8px] font-black text-slate-500 uppercase sticky top-0 border-b border-white/5">
+                        <tr>
+                            <th class="px-6 py-3">Date</th>
+                            <th class="px-6 py-3 text-right">Visits</th>
+                            <th class="px-6 py-3 text-right">Downloads</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body" class="divide-y divide-white/5">
+                        <!-- History rows -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="p-3 bg-slate-950/50 border-t border-white/5 text-center">
+                <p class="text-[8px] font-bold text-slate-600 uppercase tracking-widest">Full Activity History Log</p>
             </div>
         </div>
     </div>
@@ -160,6 +197,11 @@
 
                 tableCache = await safeFetch('/admin/animes');
                 renderTable(tableCache);
+
+                // Fetch history in the background so it doesn't block the main render
+                safeFetch('/admin/history').then(history => renderHistory(history)).catch(e => {
+                    document.getElementById('history-body').innerHTML = `<tr><td colspan="3" class="p-6 text-center text-red-500 text-[10px] uppercase font-black">Failed to load history</td></tr>`;
+                });
             } catch (e) {
                 showError(e.message);
                 document.getElementById('lib-body').innerHTML = `<tr><td colspan="3" class="p-20 text-center text-red-500 text-[10px] font-bold">CONNECTION FAILED: Check API Server</td></tr>`;
@@ -195,6 +237,35 @@
                 </td>
             </tr>
             `).join('');
+        }
+
+        function renderHistory(data) {
+            const body = document.getElementById('history-body');
+            if (!data || data.length === 0) {
+                body.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-600 text-[10px] uppercase font-black tracking-widest">No history data</td></tr>`;
+                return;
+            }
+            body.innerHTML = data.map(row => `
+            <tr class="hover:bg-white/[0.02] transition-colors">
+                <td class="px-6 py-3 text-[10px] font-mono text-slate-300">${row.date}</td>
+                <td class="px-6 py-3 text-right text-[10px] font-bold text-purple-400">${row.visits.toLocaleString()}</td>
+                <td class="px-6 py-3 text-right text-[10px] font-bold text-emerald-400">${row.downloads.toLocaleString()}</td>
+            </tr>
+            `).join('');
+        }
+
+        function toggleHistoryModal() {
+            const modal = document.getElementById('history-modal');
+            const content = document.getElementById('history-modal-content');
+            const isVisible = !modal.classList.contains('opacity-0');
+
+            if (isVisible) {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                content.classList.add('scale-95');
+            } else {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.remove('scale-95');
+            }
         }
 
         function filterLibrary() {

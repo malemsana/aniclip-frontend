@@ -85,16 +85,20 @@
         </div>
         <div class="ml-auto flex items-center gap-3">
             <button id="btn-reprocess" onclick="toggleReprocessMode()"
-                class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-md transition-all flex items-center justify-center gap-2" title="Select Clips to Reprocess">
+                class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-md transition-all flex items-center justify-center gap-2"
+                title="Select Clips to Reprocess">
                 <span class="material-symbols-rounded text-[18px]">autorenew</span>
             </button>
-            <button id="btn-select-all" onclick="toggleSelectAll()" class="hidden bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-md font-bold text-[10px] uppercase tracking-widest transition-all items-center gap-2">
+            <button id="btn-select-all" onclick="toggleSelectAll()"
+                class="hidden bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-md font-bold text-[10px] uppercase tracking-widest transition-all items-center gap-2">
                 <span class="material-symbols-rounded text-[14px]">select_all</span> Select All
             </button>
-            <button id="btn-confirm-reprocess" onclick="confirmReprocess()" class="hidden bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-md font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-blue-900/20 transition-all flex items-center gap-2 opacity-50 cursor-not-allowed">
+            <button id="btn-confirm-reprocess" onclick="confirmReprocess()"
+                class="hidden bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-md font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-blue-900/20 transition-all flex items-center gap-2 opacity-50 cursor-not-allowed">
                 Confirm Reprocess (<span id="reprocess-count">0</span>)
             </button>
-            <button id="btn-cancel-reprocess" onclick="cancelReprocessMode()" class="hidden bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-md font-bold text-[10px] uppercase tracking-widest transition-all">
+            <button id="btn-cancel-reprocess" onclick="cancelReprocessMode()"
+                class="hidden bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-md font-bold text-[10px] uppercase tracking-widest transition-all">
                 Cancel
             </button>
             <span id="save-status"
@@ -120,6 +124,19 @@
                         class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                         <input type="text" id="anime-poster" onchange="updatePreview()" placeholder="Poster URL"
                             class="w-full bg-black/50 backdrop-blur-md border border-white/10 text-[10px] p-2 rounded text-white outline-none">
+                    </div>
+                </div>
+                <!-- Lifetime Stats -->
+                <div class="mt-4 grid grid-cols-2 gap-2">
+                    <div class="bg-slate-950/50 p-3 rounded-lg border border-white/5 flex flex-col items-center justify-center text-center">
+                        <span class="material-symbols-rounded text-purple-500 mb-1 text-xl">visibility</span>
+                        <span id="lifetime-visits" class="text-sm font-black text-white">0</span>
+                        <span class="text-[8px] uppercase tracking-widest text-slate-500 font-bold mt-1">Lifetime Visits</span>
+                    </div>
+                    <div class="bg-slate-950/50 p-3 rounded-lg border border-white/5 flex flex-col items-center justify-center text-center">
+                        <span class="material-symbols-rounded text-emerald-500 mb-1 text-xl">download</span>
+                        <span id="lifetime-downloads" class="text-sm font-black text-white">0</span>
+                        <span class="text-[8px] uppercase tracking-widest text-slate-500 font-bold mt-1">Lifetime Downloads</span>
                     </div>
                 </div>
             </div>
@@ -352,6 +369,14 @@
                 document.getElementById('anime-featured').checked = anime.is_featured || false;
                 document.getElementById('poster-preview').src = anime.poster_url || 'https://placehold.co/300x400?text=No+Poster';
                 document.getElementById('page-title').innerText = `Editing: ${anime.title || anime.name}`;
+                
+                // Populate Hot-Merged Stats
+                if (document.getElementById('lifetime-visits')) {
+                    document.getElementById('lifetime-visits').innerText = (anime.visit_count || 0).toLocaleString();
+                }
+                if (document.getElementById('lifetime-downloads')) {
+                    document.getElementById('lifetime-downloads').innerText = (anime.download_count || 0).toLocaleString();
+                }
             } catch (e) { console.error("Metadata Load Failed", e); }
         }
 
@@ -400,7 +425,7 @@
                     headers: { 'Authorization': `Bearer ${ADMIN_KEY}` }
                 });
                 const clips = await res.json(); // Admin returns raw array []
-                
+
                 if (clips.length === 0) {
                     grid.innerHTML = `<div class="col-span-full py-2 text-[9px] text-slate-600 uppercase font-black italic">No clips registered for this segment</div>`;
                     return;
@@ -452,12 +477,12 @@
 
         async function inspectClip(clip) {
             const drawer = document.getElementById('clip-drawer');
-            
+
             document.getElementById('drawer-subtitle').innerText = `CLIP ${clip.id.split('-').pop()} • INSPECTION`;
             document.getElementById('insp-id').innerText = clip.id;
             document.getElementById('insp-duration').innerText = `${clip.duration_ms || clip.duration}ms`;
             document.getElementById('insp-bounds').innerText = `${clip.start_ms || clip.start} - ${clip.end_ms || clip.end} MS`;
-            
+
             // Render Manifest
             const matrix = document.getElementById('source-matrix');
             const manifest = clip.sources || {};
@@ -467,7 +492,7 @@
                 { id: 'hover', type: 'Hover Overlay', url: manifest.hover, icon: 'motion_photos_on' },
                 { id: 'thumbnail', type: 'Thumbnail', url: manifest.thumbnail, icon: 'image' }
             ];
-            
+
             matrix.innerHTML = availableSources.map(s => `
                 <div id="src-btn-${s.id}" onclick="switchSource('${s.id}', '${s.url}', '${clip.id}')" 
                      class="bg-slate-900/50 p-3 rounded border ${s.url ? 'border-white/5 cursor-pointer hover:border-blue-500/30' : 'border-white/5 opacity-40 cursor-not-allowed'} flex items-center justify-between group transition-all">
@@ -482,7 +507,7 @@
             `).join('');
 
             drawer.classList.add('open');
-            
+
             // Default to preview or first available
             const defaultSrc = manifest.preview || manifest.hq || manifest.hover || manifest.thumbnail;
             const defaultType = manifest.preview ? 'preview' : (manifest.hq ? 'hq' : (manifest.hover ? 'hover' : 'thumbnail'));
@@ -491,11 +516,11 @@
 
         async function switchSource(type, url, clipId) {
             if (!url || url === 'undefined') return;
-            
+
             const player = document.getElementById('drawer-player');
             const imgInspector = document.getElementById('drawer-image');
             const loading = document.getElementById('player-loading');
-            
+
             // UI Feedback
             document.querySelectorAll('[id^="src-btn-"]').forEach(el => el.classList.remove('border-blue-500', 'bg-blue-500/10'));
             document.getElementById(`src-btn-${type}`).classList.add('border-blue-500', 'bg-blue-500/10');
@@ -636,7 +661,7 @@
             document.getElementById('btn-reprocess').classList.add('hidden');
             document.getElementById('btn-confirm-reprocess').classList.remove('hidden');
             document.getElementById('btn-cancel-reprocess').classList.remove('hidden');
-            
+
             const selectAllBtn = document.getElementById('btn-select-all');
             selectAllBtn.classList.remove('hidden');
             selectAllBtn.classList.add('flex');
@@ -651,7 +676,7 @@
             document.getElementById('btn-reprocess').classList.remove('hidden');
             document.getElementById('btn-confirm-reprocess').classList.add('hidden');
             document.getElementById('btn-cancel-reprocess').classList.add('hidden');
-            
+
             const selectAllBtn = document.getElementById('btn-select-all');
             selectAllBtn.classList.add('hidden');
             selectAllBtn.classList.remove('flex');
@@ -733,12 +758,12 @@
 
         document.addEventListener('mousedown', (e) => {
             if (!isReprocessMode) return;
-            if (e.target.tagName === 'BUTTON' || e.target.closest('button') || 
-                e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || 
+            if (e.target.tagName === 'BUTTON' || e.target.closest('button') ||
+                e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' ||
                 e.target.closest('.drawer')) {
                 return;
             }
-            
+
             isDragging = true;
             startX = e.pageX;
             startY = e.pageY;
@@ -772,7 +797,7 @@
 
             const currentX = e.pageX;
             const currentY = e.pageY;
-            
+
             const width = Math.abs(currentX - startX);
             const height = Math.abs(currentY - startY);
             const left = Math.min(currentX, startX) - window.scrollX;
@@ -784,18 +809,18 @@
             marqueeBox.style.height = `${height}px`;
 
             const marqueeRect = marqueeBox.getBoundingClientRect();
-            
+
             clipRectsCache.forEach(item => {
                 const rect = item.rect;
-                const isIntersecting = !(rect.right < marqueeRect.left || 
-                                         rect.left > marqueeRect.right || 
-                                         rect.bottom < marqueeRect.top || 
-                                         rect.top > marqueeRect.bottom);
-                
+                const isIntersecting = !(rect.right < marqueeRect.left ||
+                    rect.left > marqueeRect.right ||
+                    rect.bottom < marqueeRect.top ||
+                    rect.top > marqueeRect.bottom);
+
                 const clipId = item.id;
                 const el = item.el;
                 const initiallySelected = initialSelectionState.get(clipId);
-                
+
                 if (isIntersecting) {
                     if (initiallySelected) {
                         // About to DESELECT: Show Red
@@ -821,15 +846,15 @@
                 isDragging = false;
                 return;
             }
-            
+
             isDragging = false;
             document.body.classList.remove('no-select');
-            
+
             const currentX = e.pageX;
             const currentY = e.pageY;
             const width = Math.abs(currentX - startX);
             const height = Math.abs(currentY - startY);
-            
+
             if (width < 5 && height < 5) {
                 marqueeBox.remove();
                 marqueeBox = null;
@@ -846,18 +871,18 @@
             setTimeout(() => suppressNextClick = false, 50);
 
             const marqueeRect = marqueeBox.getBoundingClientRect();
-            
+
             clipRectsCache.forEach(item => {
                 const rect = item.rect;
-                const isIntersecting = !(rect.right < marqueeRect.left || 
-                                         rect.left > marqueeRect.right || 
-                                         rect.bottom < marqueeRect.top || 
-                                         rect.top > marqueeRect.bottom);
-                
+                const isIntersecting = !(rect.right < marqueeRect.left ||
+                    rect.left > marqueeRect.right ||
+                    rect.bottom < marqueeRect.top ||
+                    rect.top > marqueeRect.bottom);
+
                 const clipId = item.id;
                 const initiallySelected = initialSelectionState.get(clipId);
                 const el = item.el;
-                
+
                 if (isIntersecting) {
                     if (initiallySelected) {
                         selectedClipsToReprocess.delete(clipId);
@@ -901,7 +926,7 @@
                 } else {
                     alert("Failed to initiate reprocess");
                 }
-            } catch(e) {
+            } catch (e) {
                 console.error(e);
                 alert("Error during reprocess");
             }
