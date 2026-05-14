@@ -501,6 +501,14 @@
                 }
             }
         };
+        const getFallbackUrl = (cdnUrl) => {
+            if (cdnUrl && cdnUrl.includes('cdn.jsdelivr.net/gh/')) {
+                return cdnUrl
+                    .replace('cdn.jsdelivr.net/gh/', 'raw.githubusercontent.com/')
+                    .replace('@', '/'); // jsDelivr uses @ for versions/branches, GitHub uses /
+            }
+            return cdnUrl;
+        };
 
         const DecryptionManager = {
             queue: [], // { url, clipId, type, priority, listeners: [], abortSignal, onProgress }
@@ -575,17 +583,65 @@
                 }
             },
 
+
             async _decrypt(url, clipId, type, abortSignal, onProgress, episodeIdx) {
                 const parts = clipId.split('-');
                 const epCrypto = await getEpisodeCrypto(parts[0], parts[1]);
                 const clipIv = await deriveClipIV(epCrypto.ivSeed, clipId);
 
-                const fetchOpts = abortSignal ? { signal: abortSignal } : {};
-                const res = await fetch(url, fetchOpts);
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                let currentUrl = url;
+                let response;
+                let attempt = 0;
 
-                const contentLength = +res.headers.get('Content-Length');
-                const reader = res.body.getReader();
+                // Thumbnails: 1 attempt jsDelivr -> GitHub
+                // Clips: 1 attempt jsDelivr -> 1 retry jsDelivr -> GitHub
+                const maxAttempts = type === 'image' ? 2 : 3;
+
+                while (attempt < maxAttempts) {
+                    // 1.5s for thumbnails, 10s for video clips
+                    const timeoutMs = type === 'image' ? 1500 : 10000;
+
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+                    // Link external user hover abort to our local timeout controller
+                    const abortHandler = () => controller.abort();
+                    if (abortSignal) abortSignal.addEventListener('abort', abortHandler);
+
+                    try {
+                        response = await fetch(currentUrl, { signal: controller.signal });
+                        clearTimeout(timeoutId);
+                        if (abortSignal) abortSignal.removeEventListener('abort', abortHandler);
+
+                        if (response.ok) break; // Success!
+                    } catch (e) {
+                        clearTimeout(timeoutId);
+                        if (abortSignal) abortSignal.removeEventListener('abort', abortHandler);
+
+                        // If the user unhovered, completely stop retrying to save bandwidth
+                        if (abortSignal && abortSignal.aborted) {
+                            throw new DOMException("Aborted by user", "AbortError");
+                        }
+                        console.warn(`Fetch attempt ${attempt + 1} failed for ${currentUrl}`, e.message);
+                    }
+
+                    attempt++;
+
+                    // Switch to fallback URLs based on the current attempt
+                    if (type === 'image') {
+                        // Thumbnail: Immediately fallback to GitHub Raw if the 1.5s timeout fails
+                        if (attempt === 1) currentUrl = getFallbackUrl(url);
+                    } else {
+                        // Clip: Retry jsDelivr once, then fallback to GitHub Raw
+                        if (attempt === 2) currentUrl = getFallbackUrl(url);
+                    }
+                }
+
+                if (!response || !response.ok) throw new Error(`HTTP fetch failed after ${maxAttempts} attempts`);
+
+                // --- EXISTING DECRYPTION & BLOB CREATION LOGIC ---
+                const contentLength = +response.headers.get('Content-Length');
+                const reader = response.body.getReader();
                 let receivedLength = 0;
                 let chunks = [];
 
@@ -606,12 +662,16 @@
                     position += chunk.length;
                 }
 
-                const decryptedBuffer = await crypto.subtle.decrypt({ name: "AES-CTR", counter: clipIv, length: 128 }, epCrypto.key, ciphertext);
+                const decryptedBuffer = await crypto.subtle.decrypt(
+                    { name: "AES-CTR", counter: clipIv, length: 128 },
+                    epCrypto.key,
+                    ciphertext
+                );
 
                 const mimeType = type === 'image' ? 'image/webp' : 'video/mp4';
                 const blob = new Blob([decryptedBuffer], { type: mimeType });
                 const blobUrl = URL.createObjectURL(blob);
-                blobCache[url] = blobUrl;
+                blobCache[url] = blobUrl; // Map back to original URL
 
                 if (episodeIdx !== null && episodeIdx !== undefined) {
                     if (!state.blobRegistry.has(episodeIdx)) state.blobRegistry.set(episodeIdx, []);
