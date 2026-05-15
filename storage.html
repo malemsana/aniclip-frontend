@@ -18,7 +18,7 @@
             min-height: 100vh;
         }
 
-        .material-symbols-rounded { font-size: 16px; }
+        .material-symbols-rounded { font-size: 18px; }
 
         .admin-card {
             background: #0f172a;
@@ -26,15 +26,24 @@
             border-radius: 12px;
         }
 
-        .db-option {
-            transition: all 0.15s ease;
-            cursor: pointer;
-            border: 1px solid transparent;
+        .stat-tile {
+            border-right: 1px solid rgba(255, 255, 255, 0.03);
         }
 
-        .db-option:not(.disabled):hover {
-            background: rgba(255, 255, 255, 0.03);
+        .db-option {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .db-option:hover {
+            background: rgba(255, 255, 255, 0.05);
             border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .db-option.active {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.5);
         }
 
         .tick-box {
@@ -45,49 +54,44 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
         }
 
-        .db-option.active .tick-box {
+        .active .tick-box {
             background: #3b82f6;
             border-color: #3b82f6;
         }
 
-        .db-option.active .tick-box span {
-            color: white;
-            font-size: 14px;
-            display: block !important;
-        }
-
         .status-badge {
-            padding: 1px 4px;
-            border-radius: 3px;
-            font-size: 8px;
-            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 800;
             text-transform: uppercase;
         }
 
-        .log-entry {
-            border-left: 2px solid #1e293b;
-            padding-left: 8px;
-            margin-bottom: 4px;
+        .progress-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #3b82f6;
+            transition: width 0.3s ease;
         }
 
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #334155; }
 
-        #confirmation-modal {
-            background: rgba(2, 6, 23, 0.9);
-            backdrop-filter: blur(4px);
+        #teleport-modal {
+            background: rgba(2, 6, 23, 0.95);
+            backdrop-filter: blur(8px);
         }
 
-        .modal-content {
-            background: #0f172a;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            max-width: 400px;
-        }
+        .stat-val { font-family: 'Inter', sans-serif; }
     </style>
 </head>
 
@@ -98,7 +102,7 @@
             <div class="flex items-center gap-6">
                 <div class="flex items-center gap-2">
                     <div class="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-white"><span
-                            class="material-symbols-rounded text-sm">database</span></div>
+                            class="material-symbols-rounded text-[14px]">database</span></div>
                     <span class="text-slate-200 font-black uppercase tracking-wide text-xs">Ani<span
                             class="text-slate-500">Clips</span> <span
                             class="text-blue-500 font-mono text-[9px] ml-1">STORAGE_CONSOLE</span></span>
@@ -117,94 +121,169 @@
             </div>
             <div class="flex items-center gap-4">
                 <div id="system-badge" class="status-badge bg-emerald-500/20 text-emerald-400">READY</div>
+                <button onclick="openTeleport()" class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-500 rounded text-[9px] font-black uppercase tracking-widest transition-all">
+                    <span class="material-symbols-rounded text-[14px]">rocket_launch</span> Teleport
+                </button>
+                <div class="h-4 w-px bg-white/5"></div>
                 <button onclick="logout()"
                     class="text-[10px] font-bold text-red-500 hover:text-red-400 uppercase tracking-widest">Logout</button>
             </div>
         </div>
     </nav>
 
+    <!-- Slim Stats Bar -->
+    <div class="bg-slate-900/40 border-b border-white/5 h-14 flex items-stretch shrink-0">
+        <div class="container mx-auto px-6 flex items-stretch">
+            <div class="stat-tile flex items-center gap-3 px-6 min-w-[140px]">
+                <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500"><span
+                        class="material-symbols-rounded text-sm">movie</span></div>
+                <div class="flex items-baseline gap-2"><span id="stat-clips"
+                        class="text-lg font-black text-white">0</span><span
+                        class="text-[8px] font-black text-blue-500 uppercase tracking-tighter">Clips</span></div>
+            </div>
+            <div class="stat-tile flex items-center gap-3 px-6 min-w-[140px]">
+                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                    <span class="material-symbols-rounded text-sm">verified_user</span></div>
+                <div class="flex items-baseline gap-2"><span id="stat-redundancy"
+                        class="text-lg font-black text-white">0.0x</span><span
+                        class="text-[8px] font-black text-emerald-500 uppercase tracking-tighter">Factor</span></div>
+            </div>
+            <div class="stat-tile flex items-center gap-3 px-6 min-w-[140px]">
+                <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400"><span
+                        class="material-symbols-rounded text-sm">shield</span></div>
+                <div class="flex items-baseline gap-2"><span id="stat-workers"
+                        class="text-lg font-black text-white">0</span><span
+                        class="text-[8px] font-black text-purple-500 uppercase tracking-tighter">Guardians</span></div>
+            </div>
+            <div class="stat-tile flex items-center gap-3 px-6 min-w-[140px]">
+                <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400"><span
+                        class="material-symbols-rounded text-sm">dns</span></div>
+                <div class="flex items-baseline gap-2"><span id="stat-shards"
+                        class="text-lg font-black text-white">0</span><span
+                        class="text-[8px] font-black text-amber-500 uppercase tracking-tighter">Shards</span></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Content -->
-    <main class="container mx-auto px-6 py-8 flex-grow">
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 max-w-6xl">
+    <main class="container mx-auto px-6 py-10 flex-grow max-w-7xl">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
             
-            <!-- Database Selection (Left) -->
-            <div class="md:col-span-4 admin-card p-6 flex flex-col gap-4 h-fit">
-                <h2 class="text-[10px] font-black tracking-widest text-slate-500 uppercase">Database Selection</h2>
+            <!-- Redundancy Queue Placeholder (Left) -->
+            <div class="lg:col-span-8 flex flex-col gap-6">
+                <h2 class="text-xs font-black tracking-widest text-slate-500 uppercase flex items-center gap-2">
+                    <span class="material-symbols-rounded text-sm">queue</span>
+                    Redundancy Queue
+                </h2>
                 
-                <div class="flex flex-col gap-2">
-                    <div onclick="requestSwitch('PRIMARY')" id="opt-primary" class="db-option flex items-center justify-between p-3 rounded-lg bg-white/[0.02]">
-                        <span class="text-sm font-semibold text-slate-300">Primary</span>
-                        <div class="tick-box">
-                            <span class="material-symbols-rounded hidden">check</span>
-                        </div>
+                <div id="queue-placeholder" class="admin-card p-12 flex flex-col items-center justify-center text-center gap-4 bg-slate-900/30 border-dashed border border-white/5">
+                    <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-600">
+                        <span class="material-symbols-rounded">pending_actions</span>
                     </div>
-
-                    <div onclick="requestSwitch('SECONDARY')" id="opt-secondary" class="db-option flex items-center justify-between p-3 rounded-lg bg-white/[0.02]">
-                        <span class="text-sm font-semibold text-slate-300">Secondary</span>
-                        <div class="tick-box">
-                            <span class="material-symbols-rounded hidden">check</span>
-                        </div>
-                    </div>
-
-                    <div onclick="requestSwitch('THIRD')" id="opt-third" class="db-option flex items-center justify-between p-3 rounded-lg bg-white/[0.02]">
-                        <span class="text-sm font-semibold text-slate-300">Third Database</span>
-                        <div class="tick-box">
-                            <span class="material-symbols-rounded hidden">check</span>
-                        </div>
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-500">Queue Engine Offline</h3>
+                        <p class="text-[9px] text-slate-600 uppercase tracking-widest mt-1">Pending Architecture Refinement</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Operation History (Right) -->
-            <div class="md:col-span-8 admin-card p-6 flex flex-col gap-4 overflow-hidden h-[400px]">
-                <h2 class="text-[10px] font-black tracking-widest text-slate-500 uppercase flex justify-between items-center">
-                    <span>Operation Log Archive</span>
-                    <span class="text-[8px] opacity-30 font-mono">Scroll to view history</span>
+            <!-- Sync Guardian Fleet (Right) -->
+            <div class="lg:col-span-4 flex flex-col gap-6">
+                <h2 class="text-xs font-black tracking-widest text-slate-500 uppercase flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
+                    Sync Guardians
                 </h2>
-                
-                <div id="history-log" class="flex-grow overflow-y-auto font-mono text-[11px] space-y-3 pr-2 custom-scrollbar">
-                    <div class="text-slate-600 italic">Connecting to history stream...</div>
+
+                <div id="worker-grid" class="flex flex-col gap-3">
+                    <div class="admin-card p-8 flex flex-col items-center justify-center text-slate-700 italic text-[10px] text-center">
+                        No active Guardians found.
+                    </div>
                 </div>
             </div>
 
         </div>
     </main>
 
-    <!-- Confirmation Modal -->
-    <div id="confirmation-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
-        <div class="modal-content w-full p-6 rounded-xl flex flex-col gap-6 shadow-2xl">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center text-red-500">
-                    <span class="material-symbols-rounded">warning</span>
+    <!-- Teleportation Modal (DB Switcher + Logs) -->
+    <div id="teleport-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-white/10 w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row h-[500px]">
+            
+            <!-- Left: DB Controls -->
+            <div class="w-full md:w-1/2 p-8 border-r border-white/5 bg-slate-950/50 flex flex-col">
+                <div class="flex justify-between items-start mb-6 shrink-0">
+                    <div>
+                        <h3 class="text-xl font-black text-white tracking-tight">Teleport Shards</h3>
+                        <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest">Database Hot-Swap Engine</p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="text-sm font-black text-white uppercase tracking-tight">Critical Hot-Swap</h3>
-                    <p class="text-[8px] font-black text-red-500 uppercase tracking-widest">Database System Update</p>
+
+                <div class="grid grid-cols-1 gap-3 overflow-y-auto pr-2 custom-scrollbar flex-grow">
+                    <div onclick="requestSwitch('PRIMARY')" id="opt-primary" class="db-option p-4 rounded-xl flex items-center justify-between">
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold text-white">Primary Cluster</span>
+                            <span class="text-[9px] text-slate-500 uppercase tracking-widest">Main Production</span>
+                        </div>
+                        <div class="tick-box"><span class="material-symbols-rounded text-sm text-white hidden">check</span></div>
+                    </div>
+                    <div onclick="requestSwitch('SECONDARY')" id="opt-secondary" class="db-option p-4 rounded-xl flex items-center justify-between">
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold text-white">Secondary Cluster</span>
+                            <span class="text-[9px] text-slate-500 uppercase tracking-widest">Hot Backup</span>
+                        </div>
+                        <div class="tick-box"><span class="material-symbols-rounded text-sm text-white hidden">check</span></div>
+                    </div>
+                    <div onclick="requestSwitch('THIRD')" id="opt-third" class="db-option p-4 rounded-xl flex items-center justify-between">
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold text-white">Third Cluster</span>
+                            <span class="text-[9px] text-slate-500 uppercase tracking-widest">Archival Shard</span>
+                        </div>
+                        <div class="tick-box"><span class="material-symbols-rounded text-sm text-white hidden">check</span></div>
+                    </div>
+                    
+                    <!-- Confirmation Action Area -->
+                    <div id="teleport-confirm" class="p-4 rounded-xl bg-slate-950 border border-white/5 mt-4 hidden">
+                        <p id="modal-text" class="text-[11px] text-slate-400 mb-4"></p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button id="sync-btn" class="py-2.5 rounded-lg bg-blue-600 text-[9px] font-black uppercase tracking-widest text-white hover:bg-blue-500 transition-all">Sync & Switch</button>
+                            <button id="fast-btn" class="py-2.5 rounded-lg bg-slate-800 text-[9px] font-black uppercase tracking-widest text-white hover:bg-slate-700 transition-all">Fast Switch</button>
+                        </div>
+                    </div>
+
+                    <div id="migration-status" class="mt-4 p-4 rounded-xl bg-slate-950 border border-white/5 hidden">
+                        <div class="flex flex-col gap-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[9px] font-black text-amber-500 uppercase tracking-widest">MIGRATION IN PROGRESS</span>
+                                <span id="migration-progress" class="text-[10px] font-mono text-white">0%</span>
+                            </div>
+                            <div class="progress-bar"><div id="migration-fill" class="progress-fill bg-amber-500" style="width: 0%"></div></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <p id="modal-text" class="text-xs text-slate-400 leading-relaxed">
-                Warning text goes here.
-            </p>
-
-            <div class="flex flex-col gap-2 mt-2">
-                <button id="sync-btn" class="w-full py-3 rounded-lg bg-blue-600 text-[10px] font-black uppercase tracking-widest text-white hover:bg-blue-500 transition-all">Sync & Switch (Teleport)</button>
-                <button id="fast-btn" class="w-full py-3 rounded-lg bg-slate-800 text-[10px] font-black uppercase tracking-widest text-white hover:bg-slate-700 transition-all">Fast Hot-Swap (No Sync)</button>
-                <button onclick="closeModal()" class="w-full py-2 rounded-lg bg-transparent text-[9px] font-bold uppercase tracking-widest text-slate-500 hover:text-white transition-all mt-2">Abort</button>
+            <!-- Right: Activity Logs -->
+            <div class="w-full md:w-1/2 bg-slate-900/50 flex flex-col">
+                <div class="p-6 border-b border-white/5 flex justify-between items-center bg-slate-900 shrink-0">
+                    <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Teleport Activity Log</span>
+                    <button onclick="closeTeleport()" class="text-slate-500 hover:text-white transition-colors">
+                        <span class="material-symbols-rounded">close</span>
+                    </button>
+                </div>
+                <div id="log-stream" class="p-6 overflow-y-auto flex-grow custom-scrollbar font-mono text-[10px] space-y-4">
+                    <div class="text-slate-600 italic">Connecting to activity stream...</div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         const API_BASE = 'https://aniclip-backend.onrender.com/api/admin';
+        const PROD_BASE = 'https://aniclip-backend.onrender.com/api/production';
         const ADMIN_KEY = localStorage.getItem('aniclip_admin_key');
         let currentMode = null;
-        let pendingTarget = null;
 
-        function logout() { localStorage.removeItem('aniclip_admin_key'); window.location.href = 'auth.html'; }
-
-        async function safeFetch(path, opts = {}) {
-            const res = await fetch(API_BASE + path, {
+        async function safeFetch(url, opts = {}) {
+            const res = await fetch(url, {
                 ...opts,
                 headers: {
                     'Authorization': `Bearer ${ADMIN_KEY}`,
@@ -212,130 +291,129 @@
                     ...(opts.headers || {})
                 }
             });
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error(`${res.status}: ${text}`);
-            }
+            if (!res.ok) throw new Error(await res.text());
             return res.json();
         }
 
-        async function refreshStatus() {
+        async function updateDashboard() {
             try {
-                const data = await safeFetch('/migration/status');
-
-                // System Badge
+                // 1. Get DB Status
+                const status = await safeFetch(`${API_BASE}/migration/status`);
+                currentMode = status.activeMode;
+                
+                // Update System Badge
                 const badge = document.getElementById('system-badge');
-                if (data.isMigrating) {
+                if (status.isMigrating) {
                     badge.className = 'status-badge bg-amber-500/20 text-amber-400';
                     badge.textContent = 'MIGRATING';
+                    document.getElementById('migration-status').classList.remove('hidden');
+                    document.getElementById('migration-progress').textContent = `${status.migrationProgress}%`;
+                    document.getElementById('migration-fill').style.width = `${status.migrationProgress}%`;
                 } else {
-                    badge.className = data.dbHealth === 'ONLINE' ? 'status-badge bg-emerald-500/20 text-emerald-400' : 'status-badge bg-red-500/20 text-red-400';
-                    badge.textContent = data.dbHealth;
+                    badge.className = status.dbHealth === 'ONLINE' ? 'status-badge bg-emerald-500/20 text-emerald-400' : 'status-badge bg-red-500/20 text-red-400';
+                    badge.textContent = status.dbHealth === 'ONLINE' ? 'READY' : 'OFFLINE';
+                    document.getElementById('migration-status').classList.add('hidden');
                 }
 
-                // Active State
-                currentMode = data.activeMode;
+                // Update Shard Options
                 document.querySelectorAll('.db-option').forEach(el => el.classList.remove('active'));
-                if (data.activeMode === 'PRIMARY') document.getElementById('opt-primary').classList.add('active');
-                if (data.activeMode === 'SECONDARY') document.getElementById('opt-secondary').classList.add('active');
-                if (data.activeMode === 'THIRD') document.getElementById('opt-third').classList.add('active');
+                const activeId = `opt-${status.activeMode.toLowerCase()}`;
+                if (document.getElementById(activeId)) document.getElementById(activeId).classList.add('active');
 
-                // Update History Log
-                const logEl = document.getElementById('history-log');
-                if (data.operationHistory && data.operationHistory.length > 0) {
-                    logEl.innerHTML = data.operationHistory.map(op => `
-                        <div class="log-entry">
-                            <div class="flex items-center gap-2 text-slate-500 text-[9px] mb-0.5">
-                                <span class="text-blue-400 font-bold">[${op.type}]</span>
-                                <span>${op.date}</span>
-                                <span class="status-badge ${op.status === 'COMPLETE' || op.status === 'SUCCESS' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}">
-                                    ${op.status}
-                                </span>
-                                <span class="opacity-30">|</span>
-                                <span class="${op.integrity === 'PASSED' ? 'text-emerald-500' : 'text-slate-500'}">
-                                    INTEGRITY: ${op.integrity}
-                                </span>
+                // 2. Get Fleet (Workers)
+                const fleetRes = await safeFetch(`${PROD_BASE}/fleet`);
+                const workers = Object.values(fleetRes.fleet || {});
+                const syncWorkers = workers.filter(w => w.id && w.id.startsWith('Sync-worker'));
+                
+                document.getElementById('stat-workers').textContent = syncWorkers.length;
+                
+                const workerGrid = document.getElementById('worker-grid');
+                if (syncWorkers.length > 0) {
+                    workerGrid.innerHTML = syncWorkers.map(w => `
+                        <div class="admin-card p-4 flex flex-col gap-2.5 border-l-2 border-l-blue-500">
+                            <div class="flex justify-between items-start">
+                                <div class="flex flex-col">
+                                    <span class="text-[8px] font-black text-slate-600 uppercase tracking-widest truncate max-w-[100px]">${w.id}</span>
+                                    <span class="text-[11px] font-black text-white uppercase tracking-tighter">${w.name}</span>
+                                </div>
+                                <span class="text-[8px] font-black text-blue-500">ONLINE</span>
                             </div>
-                            <div class="text-slate-300 font-bold uppercase tracking-tight">
-                                ${op.from} <span class="text-slate-600 px-1">→</span> ${op.to}
+                            <div class="flex flex-col gap-1">
+                                <div class="flex justify-between text-[8px] font-mono text-slate-500">
+                                    <span class="truncate pr-2">${w.status_message}</span>
+                                    <span>${w.progress}%</span>
+                                </div>
+                                <div class="progress-bar"><div class="progress-fill" style="width: ${w.progress}%"></div></div>
                             </div>
                         </div>
                     `).join('');
                 } else {
-                    logEl.innerHTML = '<div class="text-slate-700 italic">No operations recorded.</div>';
+                    workerGrid.innerHTML = `<div class="admin-card p-6 flex flex-col items-center justify-center text-slate-700 italic text-[9px] text-center">No active Guardians found.</div>`;
                 }
 
+                // 3. Update Log Stream (Inside Modal)
+                const logStream = document.getElementById('log-stream');
+                if (status.operationHistory && status.operationHistory.length > 0) {
+                    logStream.innerHTML = status.operationHistory.map(op => `
+                        <div class="flex flex-col gap-1 border-l border-white/5 pl-4 pb-2">
+                            <div class="flex items-center gap-2 text-[8px] font-bold">
+                                <span class="text-blue-500">${op.date}</span>
+                                <span class="text-slate-600">|</span>
+                                <span class="${op.status === 'SUCCESS' || op.status === 'COMPLETE' ? 'text-emerald-500' : 'text-red-500'}">${op.status}</span>
+                            </div>
+                            <div class="text-[9px] text-slate-400">TELEPORT: ${op.from} → ${op.to}</div>
+                        </div>
+                    `).join('');
+                }
+
+                // 4. Update Stats
+                document.getElementById('stat-shards').textContent = status.dbHealth === 'ONLINE' ? '3/3' : 'FAIL';
+
             } catch (err) {
-                console.error('Status refresh failed:', err);
-                const logEl = document.getElementById('history-log');
-                logEl.innerHTML = `<div class="text-red-500 font-bold">⚠️ CONNECTION ERROR: ${err.message}</div>
-                                   <div class="text-[9px] text-slate-600 mt-1">Check if ADMIN_KEY matches your local storage and if the server is responsive.</div>`;
+                console.error("Dashboard error:", err);
             }
         }
 
-        function requestSwitch(target) {
-            const isActive = document.getElementById('opt-' + target.toLowerCase()).classList.contains('active');
-            if (isActive) return;
+        function openTeleport() { document.getElementById('teleport-modal').classList.remove('hidden'); }
+        function closeTeleport() { 
+            document.getElementById('teleport-modal').classList.add('hidden'); 
+            document.getElementById('teleport-confirm').classList.add('hidden');
+        }
 
-            pendingTarget = target;
-            document.getElementById('modal-text').innerHTML = `Select strategy to move active pool from <span class="text-slate-300 font-bold">${currentMode}</span> to <span class="text-white font-bold">${target}</span>.`;
-            document.getElementById('confirmation-modal').classList.remove('hidden');
+        function requestSwitch(target) {
+            if (target === currentMode) return;
+            document.getElementById('teleport-confirm').classList.remove('hidden');
+            document.getElementById('modal-text').innerHTML = `Initiate teleport from <span class="text-white font-bold">${currentMode}</span> to <span class="text-white font-bold">${target}</span>? This will perform a safe sync before hot-swapping.`;
             
             document.getElementById('sync-btn').onclick = () => executeTeleport(target);
             document.getElementById('fast-btn').onclick = () => executeFastSwitch(target);
         }
 
         async function executeTeleport(target) {
-            const direction = `${currentMode}_TO_${target}`;
-            const btn = document.getElementById('sync-btn');
-            btn.disabled = true;
-            btn.textContent = 'TELEPORTING...';
-
             try {
-                await safeFetch('/migration/teleport', {
+                await safeFetch(`${API_BASE}/migration/teleport`, {
                     method: 'POST',
-                    body: JSON.stringify({ direction, autoSwitch: true })
+                    body: JSON.stringify({ direction: `${currentMode}_TO_${target}`, autoSwitch: true })
                 });
-                closeModal();
-                alert('Migration started in background. The active pool will switch automatically upon success.');
-                await refreshStatus();
-            } catch (err) {
-                alert('Migration failed: ' + err.message);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Sync & Switch (Teleport)';
-            }
+                alert('Teleport initiated.');
+            } catch (err) { alert('Teleport failed: ' + err.message); }
         }
 
         async function executeFastSwitch(target) {
-            const btn = document.getElementById('fast-btn');
-            btn.disabled = true;
-            btn.textContent = 'SWITCHING...';
-
             try {
-                await safeFetch('/migration/switch', {
+                await safeFetch(`${API_BASE}/migration/switch`, {
                     method: 'POST',
                     body: JSON.stringify({ target })
                 });
-                closeModal();
-                await refreshStatus();
-            } catch (err) {
-                alert('Switch failed: ' + err.message);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Fast Hot-Swap (No Sync)';
-            }
+            } catch (err) { alert('Switch failed: ' + err.message); }
         }
 
-        function closeModal() {
-            document.getElementById('confirmation-modal').classList.add('hidden');
-            pendingTarget = null;
-        }
+        function logout() { localStorage.removeItem('aniclip_admin_key'); window.location.href = 'auth.html'; }
 
         window.onload = () => {
             if (!ADMIN_KEY) { window.location.href = 'auth.html'; return; }
-            refreshStatus();
-            setInterval(refreshStatus, 10000);
+            updateDashboard();
+            setInterval(updateDashboard, 5000);
         };
     </script>
 </body>
