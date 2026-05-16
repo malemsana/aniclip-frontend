@@ -804,7 +804,7 @@
                     badge.classList.add('hidden');
                 }
 
-                document.getElementById('stat-workers').innerText = fleet.length;
+                document.getElementById('stat-workers').innerText = fleet.filter(w => !w.id.startsWith('Sync-worker-')).length;
                 renderWorkers(fleet);
 
                 const groups = {};
@@ -884,10 +884,13 @@
             const list = document.getElementById('fleet-list');
             let working = 0, idle = 0, offline = 0;
 
-            if (fleet.length === 0) {
+            // Filter: Only show Titan workers here. Sync Guardians belong in storage.html.
+            const titanFleet = fleet.filter(w => !w.id.startsWith('Sync-worker-'));
+
+            if (titanFleet.length === 0) {
                 list.innerHTML = `<div class="text-center text-[10px] font-bold text-slate-700 mt-10 uppercase tracking-widest">NO TITANS ONLINE</div>`;
             } else {
-                list.innerHTML = fleet.map(w => {
+                list.innerHTML = titanFleet.map(w => {
                     const isOffline = new Date() - new Date(w.last_heartbeat) > 300000;
                     if (isOffline) offline++;
                     else if (w.status !== 'IDLE') working++;
