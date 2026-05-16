@@ -176,13 +176,14 @@
                     Redundancy Queue
                 </h2>
                 
-                <div id="queue-placeholder" class="admin-card p-12 flex flex-col items-center justify-center text-center gap-4 bg-slate-900/30 border-dashed border border-white/5">
-                    <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-600">
-                        <span class="material-symbols-rounded">pending_actions</span>
-                    </div>
-                    <div>
-                        <h3 class="text-xs font-bold text-slate-500">Queue Engine Offline</h3>
-                        <p class="text-[9px] text-slate-600 uppercase tracking-widest mt-1">Pending Architecture Refinement</p>
+                <div id="queue-list" class="flex flex-col gap-3">
+                    <div class="admin-card p-12 flex flex-col items-center justify-center text-center gap-4 bg-slate-900/30 border-dashed border border-white/5">
+                        <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-600">
+                            <span class="material-symbols-rounded animate-spin">sync</span>
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-500">Loading Queue...</h3>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -320,10 +321,13 @@
                 const activeId = `opt-${status.activeMode.toLowerCase()}`;
                 if (document.getElementById(activeId)) document.getElementById(activeId).classList.add('active');
 
-                // 2. Get Fleet (Workers)
-                const fleetRes = await safeFetch(`${PROD_BASE}/fleet`);
-                const workers = Object.values(fleetRes.fleet || {});
-                const syncWorkers = workers.filter(w => w.id && w.id.startsWith('Sync-worker'));
+                // 2. Get Sync Fleet
+                const fleetRes = await safeFetch(`${PROD_BASE}/worker/sync/fleet`).catch(() => ({ fleet: {} }));
+                const syncWorkers = Object.values(fleetRes.fleet || {});
+                
+                // 2.5 Get Sync Queue
+                const queueRes = await safeFetch(`${PROD_BASE}/worker/sync/queue`).catch(() => ({ animes: [] }));
+                const animes = queueRes.animes || [];
                 
                 document.getElementById('stat-workers').textContent = syncWorkers.length;
                 
@@ -349,6 +353,57 @@
                     `).join('');
                 } else {
                     workerGrid.innerHTML = `<div class="admin-card p-6 flex flex-col items-center justify-center text-slate-700 italic text-[9px] text-center">No active Guardians found.</div>`;
+                }
+
+                // Render Queue
+                const queueList = document.getElementById('queue-list');
+                if (queueList) {
+                    if (animes.length === 0) {
+                        queueList.innerHTML = `<div class="admin-card p-12 flex flex-col items-center justify-center text-center gap-4 bg-slate-900/30 border-dashed border border-white/5"><div class="text-slate-500 text-xs font-bold uppercase tracking-widest">Library Fully Synced</div></div>`;
+                    } else {
+                        queueList.innerHTML = animes.map(anime => {
+                            const isColdSyncing = syncWorkers.some(w => w.status_message && w.status_message.includes(anime.slug) && w.status_message.includes('Cold Sync'));
+                            const totalEps = anime.episodes ? anime.episodes.length : 0;
+                            let completedEps = 0; let totalClips = 0; let syncedClips = 0;
+                            
+                            (anime.episodes || []).forEach(ep => {
+                                totalClips += ep.total;
+                                syncedClips += ep.synced;
+                                if (ep.total > 0 && ep.synced >= ep.total) completedEps++;
+                            });
+                            
+                            const isFullyWarmSynced = totalEps > 0 && completedEps === totalEps;
+                            
+                            let statusBadge = '';
+                            if (isColdSyncing) statusBadge = '<span class="text-[8px] font-black uppercase text-blue-500 bg-blue-500/10 px-2 py-0.5 rounded">COLD SYNCING</span>';
+                            else if (isFullyWarmSynced) statusBadge = '<span class="text-[8px] font-black uppercase text-purple-500 bg-purple-500/10 px-2 py-0.5 rounded">WAITING COLD SYNC</span>';
+                            else statusBadge = '<span class="text-[8px] font-black uppercase text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded">WARM SYNCING</span>';
+
+                            let progressUI = '';
+                            if (isColdSyncing) {
+                                progressUI = `<div class="mt-4"><div class="flex justify-between text-[8px] font-mono text-blue-500 mb-1"><span>Archiving...</span><span class="animate-pulse">PROCESSING</span></div><div class="progress-bar h-2"><div class="progress-fill bg-blue-500 w-full animate-pulse"></div></div></div>`;
+                            } else {
+                                const segments = (anime.episodes || []).map(ep => {
+                                    let cls = 'bg-slate-800';
+                                    if (ep.total > 0) {
+                                        if (ep.synced >= ep.total) cls = 'bg-emerald-500';
+                                        else if (ep.synced > 0) cls = 'bg-blue-500 animate-pulse';
+                                    } else cls = 'bg-slate-800 opacity-20';
+                                    const tooltip = `EP ${ep.ep_num}: ${ep.synced} / ${ep.total} clips`;
+                                    return `<div class="chunk ${cls} flex-1 h-2 rounded-[1px] cursor-pointer hover:ring-1 hover:ring-white/50 transition-all" title="${tooltip}" onclick="alert('${tooltip}')"></div>`;
+                                }).join('');
+                                progressUI = `<div class="mt-4 flex flex-col gap-1.5"><div class="flex justify-between text-[8px] font-mono text-slate-500"><span>WARM PROGRESS</span><span>${syncedClips} / ${totalClips} CLIPS (${completedEps}/${totalEps} EPS)</span></div><div class="flex gap-[2px] w-full">${segments}</div></div>`;
+                            }
+
+                            return `<div class="admin-card p-6 border-l-2 ${isColdSyncing ? 'border-l-blue-500' : 'border-l-emerald-500'} flex flex-col hover:bg-slate-900/50 transition-colors">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex flex-col"><span class="text-sm font-black text-white uppercase tracking-tight">${anime.title}</span><span class="text-[9px] text-slate-500 uppercase tracking-widest">${anime.slug}</span></div>
+                                    ${statusBadge}
+                                </div>
+                                ${progressUI}
+                            </div>`;
+                        }).join('');
+                    }
                 }
 
                 // 3. Update Log Stream (Inside Modal)
