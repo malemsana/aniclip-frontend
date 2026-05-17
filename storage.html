@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Storage Console | AniClips</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <style>
@@ -171,10 +172,16 @@
             
             <!-- Redundancy Queue Placeholder (Left) -->
             <div class="lg:col-span-8 flex flex-col gap-6">
-                <h2 class="text-xs font-black tracking-widest text-slate-500 uppercase flex items-center gap-2">
-                    <span class="material-symbols-rounded text-sm">queue</span>
-                    Redundancy Queue
-                </h2>
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xs font-black tracking-widest text-slate-500 uppercase flex items-center gap-2">
+                        <span class="material-symbols-rounded text-sm">queue</span>
+                        Redundancy Queue
+                    </h2>
+                    <div class="flex gap-2" id="global-toggles">
+                        <button id="toggle-warm" onclick="setSyncMode('warm')" class="px-3 py-1.5 bg-blue-600 text-white rounded text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-1">☀️ Warm</button>
+                        <button id="toggle-cold" onclick="setSyncMode('cold')" class="px-3 py-1.5 bg-slate-800 text-slate-400 rounded text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-1 hover:bg-slate-700">❄️ Cold</button>
+                    </div>
+                </div>
                 
                 <div id="queue-list" class="flex flex-col gap-3">
                     <div class="admin-card p-12 flex flex-col items-center justify-center text-center gap-4 bg-slate-900/30 border-dashed border border-white/5">
@@ -282,6 +289,13 @@
         const PROD_BASE = 'https://aniclip-backend.onrender.com/api/production';
         const ADMIN_KEY = localStorage.getItem('aniclip_admin_key');
         let currentMode = null;
+        let isDragging = false;
+        let currentSortable = null;
+
+        async function setSyncMode(mode) {
+            await safeFetch(`${PROD_BASE}/worker/sync/toggle-mode`, { method: 'POST', body: JSON.stringify({ mode }) });
+            updateDashboard();
+        }
 
         async function safeFetch(url, opts = {}) {
             const res = await fetch(url, {
@@ -357,7 +371,20 @@
 
                 // Render Queue
                 const queueList = document.getElementById('queue-list');
-                if (queueList) {
+                if (queueList && !isDragging) {
+                    // Update Sync Mode Buttons
+                    if (queueRes.mode) {
+                        const btnWarm = document.getElementById('toggle-warm');
+                        const btnCold = document.getElementById('toggle-cold');
+                        if (queueRes.mode === 'warm') {
+                            btnWarm.className = "px-3 py-1.5 bg-blue-600 text-white rounded text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-1";
+                            btnCold.className = "px-3 py-1.5 bg-slate-800 text-slate-400 rounded text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-1 hover:bg-slate-700";
+                        } else if (queueRes.mode === 'cold') {
+                            btnCold.className = "px-3 py-1.5 bg-blue-600 text-white rounded text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-1";
+                            btnWarm.className = "px-3 py-1.5 bg-slate-800 text-slate-400 rounded text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-1 hover:bg-slate-700";
+                        }
+                    }
+
                     if (animes.length === 0) {
                         queueList.innerHTML = `<div class="admin-card p-12 flex flex-col items-center justify-center text-center gap-4 bg-slate-900/30 border-dashed border border-white/5"><div class="text-slate-500 text-xs font-bold uppercase tracking-widest">Library Fully Synced</div></div>`;
                     } else {
@@ -390,19 +417,41 @@
                                         else if (ep.synced > 0) cls = 'bg-blue-500 animate-pulse';
                                     } else cls = 'bg-slate-800 opacity-20';
                                     const tooltip = `EP ${ep.ep_num}: ${ep.synced} / ${ep.total} clips`;
-                                    return `<div class="chunk ${cls} flex-1 h-2 rounded-[1px] cursor-pointer hover:ring-1 hover:ring-white/50 transition-all" title="${tooltip}" onclick="alert('${tooltip}')"></div>`;
+                                    return `<div class="chunk ${cls} flex-1 h-2 rounded-[1px] cursor-pointer hover:ring-1 hover:ring-white/50 transition-all" title="${tooltip} (Click to Reset Sync)" onclick="resetEpisodeSync('${anime.anime_id}', '${ep.ep_num}')"></div>`;
                                 }).join('');
                                 progressUI = `<div class="mt-4 flex flex-col gap-1.5"><div class="flex justify-between text-[8px] font-mono text-slate-500"><span>WARM PROGRESS</span><span>${syncedClips} / ${totalClips} CLIPS (${completedEps}/${totalEps} EPS)</span></div><div class="flex gap-[2px] w-full">${segments}</div></div>`;
                             }
 
-                            return `<div class="admin-card p-6 border-l-2 ${isColdSyncing ? 'border-l-blue-500' : 'border-l-emerald-500'} flex flex-col hover:bg-slate-900/50 transition-colors">
-                                <div class="flex justify-between items-start">
-                                    <div class="flex flex-col"><span class="text-sm font-black text-white uppercase tracking-tight">${anime.title}</span><span class="text-[9px] text-slate-500 uppercase tracking-widest">${anime.slug}</span></div>
-                                    ${statusBadge}
+                            return `<div data-id="${anime.anime_id}" class="admin-card p-6 border-l-2 ${isColdSyncing ? 'border-l-blue-500' : 'border-l-emerald-500'} flex flex-row items-center gap-4 hover:bg-slate-900/50 transition-colors">
+                                <span class="material-symbols-rounded cursor-move text-slate-600 hover:text-white transition-colors" style="font-size: 20px;">drag_indicator</span>
+                                <div class="flex-grow flex flex-col">
+                                    <div class="flex justify-between items-start">
+                                        <div class="flex flex-col"><span class="text-sm font-black text-white uppercase tracking-tight">${anime.title}</span><span class="text-[9px] text-slate-500 uppercase tracking-widest">${anime.slug}</span></div>
+                                        ${statusBadge}
+                                    </div>
+                                    ${progressUI}
                                 </div>
-                                ${progressUI}
                             </div>`;
                         }).join('');
+                        
+                        if (typeof Sortable !== 'undefined') {
+                            if (currentSortable) currentSortable.destroy();
+                            currentSortable = Sortable.create(queueList, {
+                                handle: '.cursor-move',
+                                animation: 150,
+                                onStart: () => { isDragging = true; },
+                                onEnd: async () => {
+                                    isDragging = false;
+                                    const order = currentSortable.toArray();
+                                    try {
+                                        await safeFetch(`${PROD_BASE}/worker/sync/reorder`, {
+                                            method: 'POST',
+                                            body: JSON.stringify({ order })
+                                        });
+                                    } catch (e) { console.error("Failed to reorder", e); }
+                                }
+                            });
+                        }
                     }
                 }
 
@@ -461,6 +510,22 @@
                     body: JSON.stringify({ target })
                 });
             } catch (err) { alert('Switch failed: ' + err.message); }
+        }
+
+        async function resetEpisodeSync(animeId, epNum) {
+            if (!confirm(`Are you sure you want to reset the sync status for Episode ${epNum}? This will force the worker to upload it again to GDrive/Telegram.`)) return;
+            try {
+                const res = await safeFetch(`${PROD_BASE}/worker/sync/reset-episode`, {
+                    method: 'POST',
+                    body: JSON.stringify({ anime_id: animeId, ep_num: epNum })
+                });
+                if (res.status === 'success') {
+                    alert('Episode sync reset successfully.');
+                    updateDashboard();
+                }
+            } catch (e) {
+                alert('Failed to reset: ' + e.message);
+            }
         }
 
         function logout() { localStorage.removeItem('aniclip_admin_key'); window.location.href = 'auth.html'; }
