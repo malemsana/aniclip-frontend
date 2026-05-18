@@ -270,7 +270,8 @@
             mountedEpisodes: new Set(),
             blobRegistry: new Map(),
             visibleEpIndices: new Set(),
-            autoplay: false
+            autoplay: false,
+            epAbortControllers: new Map()
         };
 
         async function safeFetch(url, options = {}) {
@@ -381,6 +382,11 @@
         function unmountEpisode(idx) {
             if (!state.mountedEpisodes.has(idx)) return;
 
+            if (state.epAbortControllers.has(idx)) {
+                state.epAbortControllers.get(idx).abort();
+                state.epAbortControllers.delete(idx);
+            }
+
             const entries = state.blobRegistry.get(idx) || [];
             entries.forEach(entry => {
                 URL.revokeObjectURL(entry.blobUrl);
@@ -402,11 +408,15 @@
         async function mountEpisode(idx) {
             if (state.mountedEpisodes.has(idx)) return;
             state.mountedEpisodes.add(idx);
+            
+            const controller = new AbortController();
+            state.epAbortControllers.set(idx, controller);
+            
             const cDiv = document.getElementById(`content-${idx}`); const ep = state.episodesList[idx];
             document.getElementById(`indicator-${idx}`).className = "w-1 h-5 bg-blue-500 rounded-full block shadow-[0_0_10px_#3b82f6]";
             const title = document.querySelector(`#row-${idx} button span.text-lg`); if (title) { title.classList.replace('text-slate-400', 'text-white'); }
-            if (state.clipsCache[ep.id]) renderClips(cDiv, ep.id, state.clipsCache[ep.id], idx);
-            else { renderSkeleton(cDiv); try { const d = await safeFetch(`/animes/${state.animeSlug}/episodes/${ep.number}/clips`); state.clipsCache[ep.id] = d; if (state.mountedEpisodes.has(idx)) renderClips(cDiv, ep.id, d, idx); } catch { cDiv.innerHTML = '<div class="p-4 text-red-500 text-xs">Failed</div>'; } }
+            if (state.clipsCache[ep.id]) renderClips(cDiv, ep.id, state.clipsCache[ep.id], idx, controller.signal);
+            else { renderSkeleton(cDiv); try { const d = await safeFetch(`/animes/${state.animeSlug}/episodes/${ep.number}/clips`); state.clipsCache[ep.id] = d; if (state.mountedEpisodes.has(idx)) renderClips(cDiv, ep.id, d, idx, controller.signal); } catch { cDiv.innerHTML = '<div class="p-4 text-red-500 text-xs">Failed</div>'; } }
         }
 
         // --- ADVANCED DECRYPTION ENGINE (Per-Episode Optimized) ---
@@ -711,7 +721,7 @@
         }
 
         // --- FIXED: RESTORED VIDEO PREVIEW LOGIC HERE ---
-        function renderClips(container, epId, data, epIdx) {
+        function renderClips(container, epId, data, epIdx, abortSignal = null) {
             const clips = data.clips || data; // Fallback for old API signatures
             if (!clips || !clips.length) { container.innerHTML = '<div class="h-12 px-4 text-xs text-slate-500">No clips.</div>'; return; }
 
@@ -745,7 +755,7 @@
                     const rawUrl = card.getAttribute('data-thumb-raw');
                     const cId = card.getAttribute('data-clip-id');
                     if (rawUrl) {
-                        DecryptionManager.getBlobUrl(rawUrl, cId, 4, null, null, epIdx).then(decrypted => {
+                        DecryptionManager.getBlobUrl(rawUrl, cId, 4, abortSignal, null, epIdx).then(decrypted => {
                             if (decrypted) {
                                 img.src = decrypted;
                                 img.classList.remove('hidden');
