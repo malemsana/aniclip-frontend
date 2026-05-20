@@ -140,7 +140,7 @@
             </a>
 
             <!-- SEARCH SECTION -->
-            <div class="hidden md:block flex-grow max-w-md mx-6 relative group z-50" id="search-wrapper">
+            <div class="flex-grow max-w-md mx-2 sm:mx-6 relative group z-50" id="search-wrapper">
                 <div class="relative">
                     <input type="text" id="global-search" oninput="handleGlobalSearch(this.value)"
                         placeholder="Quick search library..." autocomplete="off"
@@ -168,7 +168,7 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-4">
+            <div class="hidden sm:flex items-center gap-4">
                 <a href="#browse-genres"
                     class="text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-wider transition-colors">Collections</a>
             </div>
@@ -515,6 +515,59 @@
         }
 
         // --- 5. SEARCH LOGIC (FIXED ANIMATION) ---
+        const MANIFEST_URL = 'https://raw.githubusercontent.com/malemsana2/aniclips-search/main/manifest.json';
+        let searchDatabase = null;
+        let isSearchDatabaseLoading = false;
+
+        async function ensureSearchDatabase() {
+            if (searchDatabase) return;
+            if (isSearchDatabaseLoading) {
+                while (isSearchDatabaseLoading) {
+                    await new Promise(r => setTimeout(r, 50));
+                }
+                return;
+            }
+            isSearchDatabaseLoading = true;
+            try {
+                // 1. Fetch manifest from raw GitHub (bypasses cache for instant update info)
+                const manifestRes = await fetch(MANIFEST_URL);
+                if (!manifestRes.ok) throw new Error("Failed to fetch manifest");
+                const manifest = await manifestRes.json();
+                const activeHash = manifest.current_hash;
+
+                // 2. Check disk cache (localStorage) for exact version
+                const cachedHash = localStorage.getItem('ac_search_hash');
+                const cachedDb = localStorage.getItem('ac_search_db');
+                if (cachedHash === activeHash && cachedDb) {
+                    searchDatabase = JSON.parse(cachedDb);
+                    console.log('⚡ Loaded search database from cache.');
+                    return;
+                }
+
+                // 3. Download the compressed gzip file (served through fast jsdelivr CDN from manifest.url)
+                console.log(`📥 Downloading search index gzip: ${manifest.url}`);
+                const response = await fetch(manifest.url);
+                if (!response.ok) throw new Error("Failed to fetch search gzip file");
+
+                // 4. Decompress the gzip stream in the browser natively!
+                const ds = new DecompressionStream('gzip');
+                const decompressedStream = response.body.pipeThrough(ds);
+                const text = await new Response(decompressedStream).text();
+
+                searchDatabase = JSON.parse(text);
+
+                // 5. Store in disk cache (localStorage)
+                localStorage.setItem('ac_search_hash', activeHash);
+                localStorage.setItem('ac_search_db', text);
+                console.log('✅ Updated and cached search database version:', activeHash);
+
+            } catch (e) {
+                console.error("Failed to load search database, falling back to API:", e);
+            } finally {
+                isSearchDatabaseLoading = false;
+            }
+        }
+
         window.handleGlobalSearch = function (query) {
             const dropdown = document.getElementById('search-dropdown'), list = document.getElementById('search-results-list'), spin = document.getElementById('search-spinner');
             if (!query || query.length < 1) { closeSearch(); return; }
@@ -526,8 +579,34 @@
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(async () => {
                 try {
-                    const res = await fetch(`${API_URL}/search?q=${encodeURIComponent(query)}`);
-                    const matches = await res.json();
+                    await ensureSearchDatabase();
+
+                    let matches = [];
+                    if (searchDatabase) {
+                        const cleanStr = (str) => (str || '').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+                        const q = cleanStr(query);
+                        matches = q ? searchDatabase
+                            .filter(a => {
+                                // a[2] = title, a[3] = title_english, a[4] = title_japanese
+                                return (a[2] && cleanStr(a[2]).includes(q)) ||
+                                    (a[3] && cleanStr(a[3]).includes(q)) ||
+                                    (a[4] && cleanStr(a[4]).includes(q));
+                            })
+                            .slice(0, 10)
+                            .map(a => ({
+                                id: a[0],
+                                name: a[1], // slug alias for template matching
+                                title: a[2],
+                                title_english: a[3],
+                                title_japanese: a[4],
+                                poster_url: a[5]
+                            })) : [];
+                    } else {
+                        // Fallback API call if local JSON fetch failed
+                        const res = await fetch(`${API_URL}/search?q=${encodeURIComponent(query)}`);
+                        matches = await res.json();
+                    }
+
                     spin.classList.add('hidden');
                     if (matches.length === 0) {
                         list.innerHTML = `<div class="p-8 text-center"><span class="material-symbols-rounded text-3xl text-slate-700 mb-2">sentiment_dissatisfied</span><p class="text-xs text-slate-500">No matches</p></div>`;
@@ -536,13 +615,13 @@
                         list.innerHTML = matches.map(a => `
                             <a href="anime.html?name=${encodeURIComponent(a.name)}" class="flex items-center gap-3 p-2.5 hover:bg-slate-800/50 transition-colors border-b border-white/5 last:border-0 group">
                                 <div class="w-16 aspect-[4/3] bg-slate-900 rounded overflow-hidden shrink-0 border border-white/10 group-hover:border-blue-500/40 transition-all"><img src="${a.poster_url}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"></div>
-                                <div class="flex-grow min-w-0"><h4 class="text-sm font-bold text-slate-200 group-hover:text-blue-400 truncate transition-colors">${a.title || a.name}</h4><div class="flex items-center gap-2 mt-1"><span class="text-[9px] font-mono bg-blue-600/20 text-blue-300 px-1 rounded border border-blue-500/20">SERIES</span></div></div>
+                                <div class="flex-grow min-w-0"><h4 class="text-sm font-bold text-slate-200 group-hover:text-blue-400 truncate transition-colors">${a.title_english || a.title || a.name}</h4><div class="flex items-center gap-2 mt-1"><span class="text-[9px] font-mono bg-blue-600/20 text-blue-300 px-1 rounded border border-blue-500/20">SERIES</span></div></div>
                                 <span class="material-symbols-rounded text-slate-600 group-hover:text-blue-400 -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all text-lg">chevron_right</span>
                             </a>`).join('');
                         document.getElementById('search-footer').classList.remove('hidden');
                     }
                 } catch { spin.classList.add('hidden'); }
-            }, 300);
+            }, 150);
         };
 
         window.closeSearch = function () {
