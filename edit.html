@@ -138,6 +138,20 @@
                         <span id="lifetime-downloads" class="text-sm font-black text-white">0</span>
                         <span class="text-[8px] uppercase tracking-widest text-slate-500 font-bold mt-1">Lifetime Downloads</span>
                     </div>
+                    <!-- Warm Backup -->
+                    <div class="bg-slate-950/50 p-3 rounded-lg border border-white/5 flex flex-col items-center justify-center text-center">
+                        <span class="material-symbols-rounded text-blue-400 mb-1 text-xl">cloud_sync</span>
+                        <span class="text-sm font-black text-white leading-tight">
+                            <span id="warm-backup-count">0</span><span class="text-slate-500 text-[10px] font-bold">/<span id="warm-backup-total">?</span></span>
+                        </span>
+                        <span class="text-[8px] uppercase tracking-widest text-slate-500 font-bold mt-1">Warm Backup</span>
+                    </div>
+                    <!-- Cold Backup — dims when not backed up, highlights when done -->
+                    <div id="cold-backup-cell" class="bg-slate-950/50 p-3 rounded-lg border border-white/5 flex flex-col items-center justify-center text-center opacity-30 transition-opacity duration-300">
+                        <span class="material-symbols-rounded text-amber-400 mb-1 text-xl">archive</span>
+                        <span id="cold-backup-parts" class="text-sm font-black text-white">—</span>
+                        <span class="text-[8px] uppercase tracking-widest text-slate-500 font-bold mt-1">Cold Backup</span>
+                    </div>
                 </div>
             </div>
 
@@ -377,6 +391,25 @@
                 if (document.getElementById('lifetime-downloads')) {
                     document.getElementById('lifetime-downloads').innerText = (anime.download_count || 0).toLocaleString();
                 }
+
+                // Populate Warm Backup counter (x synced episodes, total filled by loadEpisodes)
+                const warmBackup = anime.warm_backup || {};
+                const warmCount = Array.isArray(warmBackup)
+                    ? warmBackup.length
+                    : Object.keys(warmBackup).length;
+                document.getElementById('warm-backup-count').innerText = warmCount;
+
+                // Populate Cold Backup badge
+                const coldBackup = anime.cold_backup;
+                const coldCell = document.getElementById('cold-backup-cell');
+                const coldParts = document.getElementById('cold-backup-parts');
+                if (coldBackup && Array.isArray(coldBackup) && coldBackup.length > 0) {
+                    coldParts.innerText = `${coldBackup.length} part${coldBackup.length !== 1 ? 's' : ''}`;
+                    coldCell.classList.remove('opacity-30');
+                    coldCell.classList.add('opacity-100', 'border-amber-500/30');
+                } else {
+                    coldParts.innerText = 'None';
+                }
             } catch (e) { console.error("Metadata Load Failed", e); }
         }
 
@@ -387,6 +420,8 @@
                 });
                 const episodes = await res.json();
                 document.getElementById('episode-count-stat').innerText = `${episodes.length} Episodes Cached`;
+                // Update the warm backup denominator now that we know the total
+                document.getElementById('warm-backup-total').innerText = episodes.length;
 
                 const list = document.getElementById('content-list');
                 list.innerHTML = episodes.map(ep => `
