@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script>
+        tailwind.config = { theme: { extend: { colors: { gray: { 900: '#0f172a', 950: '#020617' } }, animation: { 'spin-slow': 'spin 3s linear infinite' } } } }
+    </script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            background-image: radial-gradient(circle at 50% 0%, #1e3a8a 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        .aspect-16-9 {
+            aspect-ratio: 16 / 9;
+        }
+
+        .aspect-4-3 {
+            aspect-ratio: 4 / 3;
+        }
+
+        .material-symbols-rounded {
+            font-size: 24px;
+        }
+
+        #episodes-wrapper {
+            transform: translateZ(0);
+            will-change: contents;
+        }
+
+        #preview-modal {
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.2s ease-out;
+        }
+
+        #preview-modal.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .thumbnail-slider::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .thumbnail-slider::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        .thumbnail-slider::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        .thumbnail-slider .active-thumbnail {
+            outline: 2px solid #3b82f6;
+            opacity: 1;
+            filter: brightness(1.2);
+        }
+
+        /* RESTORED: These styles were present but unused in the broken version */
+        .clip-card video {
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .clip-card:hover video {
+            opacity: 1;
+        }
+
+        .clip-card:hover img {
+            opacity: 0;
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, #1e293b 0%, #334155 50%, #1e293b 100%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        .ep-content {
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="text-slate-100 antialiased min-h-screen flex flex-col">
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-40 border-b border-white/5 bg-slate-950/80 backdrop-blur-xl">
+        <nav class="container mx-auto px-4 h-16 flex justify-between items-center">
+            <a href="/" class="flex items-center gap-3 group">
+                <div
+                    class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                    <span class="material-symbols-rounded text-white text-lg">movie</span>
+                </div>
+                <span class="font-black text-xl tracking-tight text-slate-100">Ani<span
+                        class="text-blue-500">Clips</span></span>
+            </a>
+            <a href="/"
+                class="text-xs font-bold text-slate-500 hover:text-white transition-colors flex items-center gap-1 uppercase tracking-wider"><span
+                    class="material-symbols-rounded text-sm">arrow_back</span> Library</a>
+        </nav>
+    </header>
+
+    <main class="flex-grow container mx-auto p-4 sm:p-6 lg:p-8">
+        <a href="/" class="inline-flex items-center text-slate-400 hover:text-blue-400 mb-6 text-sm transition-colors">
+            <span class="material-symbols-rounded text-lg mr-1">arrow_back</span> Back to Library
+        </a>
+
+        <!-- Hero Panel -->
+        <section id="anime-info-panel"
+            class="relative rounded-2xl overflow-hidden mb-12 border border-white/10 shadow-2xl bg-slate-900/40 min-h-[250px]">
+            <div class="flex h-full p-8 gap-8 items-end animate-pulse">
+                <div class="w-32 md:w-48 aspect-4-3 bg-slate-800 rounded"></div>
+                <div class="flex-1 space-y-4">
+                    <div class="h-8 bg-slate-800 w-3/4 rounded"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Container -->
+        <section id="episodes-wrapper" class="space-y-6 min-h-[50vh]"></section>
+    </main>
+
+    <!-- NAV MODAL -->
+    <div id="nav-modal" onclick="closeNav()"
+        class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-[60] p-4 opacity-0 invisible transition-all duration-200">
+        <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl shadow-2xl w-full max-w-lg flex flex-col max-h-[80vh]"
+            onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2"><span
+                        class="material-symbols-rounded text-blue-500">format_list_bulleted</span> Jump to Episode</h3>
+                <button onclick="closeNav()" class="text-slate-500 hover:text-white transition-colors"><span
+                        class="material-symbols-rounded">close</span></button>
+            </div>
+            <div id="nav-grid" class="grid grid-cols-4 sm:grid-cols-5 gap-3 overflow-y-auto pr-2 custom-scrollbar">
+            </div>
+        </div>
+    </div>
+
+    <!-- PREVIEW MODAL -->
+    <div id="preview-modal"
+        class="fixed inset-0 z-50 p-4 opacity-0 invisible transition-all duration-300 flex items-center justify-center">
+        <!-- Backdrop Blur -->
+        <div onclick="closePreview()" class="absolute inset-0 bg-slate-950/80 backdrop-blur-md transition-opacity">
+        </div>
+
+        <!-- Main Modal Content -->
+        <div
+            class="relative w-full max-w-7xl h-[90vh] md:h-auto bg-slate-900 rounded-xl overflow-hidden border border-slate-700 shadow-2xl flex flex-col lg:flex-row shadow-[0_0_60px_rgba(0,0,0,0.6)] z-10">
+            <button onclick="closePreview()"
+                class="absolute top-2 right-2 lg:top-4 lg:right-4 z-50 bg-black/50 hover:bg-red-500/80 text-white p-1 rounded-full transition-colors backdrop-blur-sm"><span
+                    class="material-symbols-rounded">close</span></button>
+
+            <div class="w-full lg:w-[70%] bg-black flex flex-col relative group/video">
+                <div class="relative w-full flex-grow flex items-center justify-center bg-black">
+                    <video id="video-player" class="w-full max-h-[65vh] aspect-16-9 object-contain outline-none"
+                        controls autoplay playsinline></video>
+                    <!-- Nav Btns -->
+                    <button id="prev-clip-btn"
+                        class="absolute left-0 top-0 bottom-14 w-24 flex items-center justify-start pl-4 bg-gradient-to-r from-black/60 to-transparent opacity-0 group-hover/video:opacity-100 transition-opacity disabled:hidden focus:outline-none"><span
+                            class="material-symbols-rounded text-5xl text-white/90 drop-shadow-lg transform active:scale-95 transition-transform">chevron_left</span></button>
+                    <button id="next-clip-btn"
+                        class="absolute right-0 top-0 bottom-14 w-24 flex items-center justify-end pr-4 bg-gradient-to-l from-black/60 to-transparent opacity-0 group-hover/video:opacity-100 transition-opacity disabled:hidden focus:outline-none"><span
+                            class="material-symbols-rounded text-5xl text-white/90 drop-shadow-lg transform active:scale-95 transition-transform">chevron_right</span></button>
+                </div>
+                <!-- Thumb Slider -->
+                <div class="h-24 bg-slate-950 border-t border-white/10 flex flex-col justify-center relative">
+                    <div id="thumbnail-slider"
+                        class="thumbnail-slider flex gap-2 overflow-x-auto px-4 py-2 snap-x items-center scroll-smooth">
+                    </div>
+                    <div
+                        class="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-slate-950 to-transparent pointer-events-none">
+                    </div>
+                    <div
+                        class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-slate-950 to-transparent pointer-events-none">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div
+                class="w-full lg:w-[30%] bg-slate-900 p-6 lg:p-8 flex flex-col border-l border-slate-800 overflow-y-auto">
+                <div class="mb-4 flex items-center justify-between">
+                    <span
+                        class="bg-blue-600/20 text-blue-400 text-[10px] font-bold px-2 py-1 rounded border border-blue-500/30 uppercase tracking-widest">HD
+                        Source</span>
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <span class="text-xs text-slate-400 font-medium group-hover:text-slate-200">Auto Play</span>
+                        <input type="checkbox" id="autoplay-toggle" class="sr-only peer">
+                        <div
+                            class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600 relative top-0.5">
+                        </div>
+                    </label>
+                </div>
+
+                <h3 id="preview-filename"
+                    class="text-lg md:text-xl font-bold text-white mb-6 font-mono break-words leading-tight">...</h3>
+
+                <div class="text-sm text-slate-400 space-y-3 mb-8 bg-slate-800/50 p-4 rounded-lg border border-white/5">
+                    <div class="flex justify-between border-b border-white/5 pb-2">
+                        <span>Duration</span>
+                        <span id="preview-duration" class="text-slate-200 font-mono">--:--</span>
+                    </div>
+                    <div class="flex justify-between border-b border-white/5 pb-2">
+                        <span>Quality</span>
+                        <span class="text-slate-200">1080p / High</span>
+                    </div>
+                </div>
+
+                <!-- STABLE DOWNLOAD CONTAINER -->
+                <div id="download-container" class="mt-auto space-y-3 pb-4"></div>
+            </div>
+        </div>
+    </div>
+
+ <script>
+        // Smart API URL: switch between backend server and production render implicitly.
+        const API_URL = 'https://aniclip-backend.onrender.com/api';
+        const WINDOW_PADDING = 1;
+
+        const state = {
+            animeSlug: new URLSearchParams(window.location.search).get('name') || new URLSearchParams(window.location.search).get('slug'),
+            animeId: null,
+            episodesList: [],
+            clipsCache: {},
+            mountedEpisodes: new Set(),
+            blobRegistry: new Map(),
+            visibleEpIndices: new Set(),
+            autoplay: false,
+            epAbortControllers: new Map(),
+            // --- ARCHITECTURAL CHANGE: The Global Modal Priority Lock ---
+            activeModal: false,
+            currentFocusIdx: null
+        };
+
+        async function safeFetch(url, options = {}) {
+            const fullUrl = url.startsWith('http') ? url : `${API_URL}${url}`;
+            const res = await fetch(fullUrl, options);
+            if (!res.ok) throw new Error("Fetch failed: " + res.status);
+            return await res.json();
+        }
+
+        const els = {
+            hero: document.getElementById('anime-info-panel'),
+            wrapper: document.getElementById('episodes-wrapper'),
+            modal: document.getElementById('preview-modal'),
+            navModal: document.getElementById('nav-modal'),
+            navGrid: document.getElementById('nav-grid'),
+            player: document.getElementById('video-player'),
+            slider: document.getElementById('thumbnail-slider'),
+            dlContainer: document.getElementById('download-container'),
+            autoPlayInput: document.getElementById('autoplay-toggle'),
+            prevBtn: document.getElementById('prev-clip-btn'),
+            nextBtn: document.getElementById('next-clip-btn')
+        };
+
+        window.onload = async () => {
+            if (!state.animeSlug) { window.location.href = 'index.html'; return; }
+            try {
+                const [anime, episodes] = await Promise.all([
+                    safeFetch(`/animes/${state.animeSlug}`),
+                    safeFetch(`/animes/${state.animeSlug}/episodes`)
+                ]);
+                state.episodesList = episodes.sort((a, b) => a.number - b.number).map((ep, idx) => ({ ...ep, index: idx }));
+                state.animeId = anime.id;
+                document.title = `${anime.title} | AniClips`;
+                renderHero(anime);
+                createListStructure();
+                populateNavGrid();
+                initMemoryManager();
+                if (localStorage.getItem('ac_autoplay') === 'true') {
+                    els.autoPlayInput.checked = true;
+                    state.autoplay = true;
+                }
+            } catch (e) { console.error(e); }
+        };
+
+        els.autoPlayInput.addEventListener('change', (e) => {
+            state.autoplay = e.target.checked;
+            localStorage.setItem('ac_autoplay', state.autoplay);
+        });
+
+        function createListStructure() {
+            els.wrapper.innerHTML = state.episodesList.map(ep => `
+            <div id="row-${ep.index}" class="episode-row transition-all duration-300 scroll-mt-28" data-index="${ep.index}" data-id="${ep.id}">
+                <div class="sticky top-16 bg-slate-950/90 backdrop-blur z-30 py-1 mb-1 border-b border-slate-800/50">
+                    <button onclick="openNav()" class="group flex items-center gap-3 w-full text-left focus:outline-none hover:bg-slate-900/50 px-2 py-0.5 rounded-lg transition-colors -ml-2">
+                        <span id="indicator-${ep.index}" class="w-1 h-5 bg-slate-700 rounded-full block transition-colors"></span> 
+                        <span class="text-lg font-bold text-slate-400 group-hover:text-blue-400 transition-colors">Episode ${ep.number}</span>
+                        <span class="material-symbols-rounded text-slate-600 group-hover:text-blue-400 text-lg transition-colors opacity-0 group-hover:opacity-100 transform translate-y-0.5">expand_more</span>
+                    </button>
+                </div>
+                <div id="content-${ep.index}" class="ep-content min-h-[160px]"></div>
+            </div>`).join('');
+        }
+
+        function populateNavGrid() { els.navGrid.innerHTML = state.episodesList.map(ep => `<button onclick="jumpToEpisode(${ep.index})" class="py-3 px-2 bg-slate-800 hover:bg-blue-600 hover:text-white rounded-lg border border-slate-700 transition-colors text-slate-300 font-medium text-sm flex flex-col items-center"><span>Ep ${ep.number}</span></button>`).join(''); }
+        function openNav() { els.navModal.classList.remove('invisible', 'opacity-0'); }
+        function closeNav() { els.navModal.classList.add('invisible', 'opacity-0'); }
+        async function jumpToEpisode(idx) {
+            closeNav();
+            reconcileEpisodes(idx, idx);
+            const r = document.getElementById(`row-${idx}`); if (r) requestAnimationFrame(() => r.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+        }
+
+        function initMemoryManager() {
+            const obs = new IntersectionObserver((e) => {
+                e.forEach(x => {
+                    const i = parseInt(x.target.getAttribute('data-index'));
+                    if (x.isIntersecting) state.visibleEpIndices.add(i);
+                    else state.visibleEpIndices.delete(i);
+                });
+                if (state.visibleEpIndices.size > 0) processActiveWindow();
+            }, { rootMargin: '200px' });
+            document.querySelectorAll('.episode-row').forEach(r => obs.observe(r));
+        }
+
+        function updatePrioritiesAndCancelBackground() {
+            if (state.activeModal) return; 
+
+            const visibleIndices = Array.from(state.visibleEpIndices);
+            if (visibleIndices.length === 0) return;
+
+            const focusIdx = Math.min(...visibleIndices);
+            state.currentFocusIdx = focusIdx;
+
+            DecryptionManager.queue.forEach(task => {
+                if (task.priority >= 4) {
+                    if (task.episodeIdx === focusIdx) {
+                        task.priority = 4; 
+                    } else if (Math.abs(task.episodeIdx - focusIdx) === 1) {
+                        task.priority = 5; 
+                    } else {
+                        task.priority = 6; 
+                    }
+                }
+            });
+
+            DecryptionManager.queue.sort((a, b) => a.priority - b.priority);
+
+            for (const [url, info] of Object.entries(DecryptionManager.internalControllers)) {
+                if (info.priority >= 4) {
+                    const distance = Math.abs(info.episodeIdx - focusIdx);
+                    if (distance > 1) { 
+                        info.controller.abort();
+                    }
+                }
+            }
+
+            DecryptionManager._process();
+        }
+
+        function processActiveWindow() {
+            const idxs = Array.from(state.visibleEpIndices); if (!idxs.length) return;
+            const min = Math.min(...idxs), max = Math.max(...idxs);
+            reconcileEpisodes(min, max);
+            updatePrioritiesAndCancelBackground();
+        }
+
+        function reconcileEpisodes(minIdx, maxIdx) {
+            const targetWindow = new Set();
+            for (let i = Math.max(0, minIdx - WINDOW_PADDING); i <= Math.min(state.episodesList.length - 1, maxIdx + WINDOW_PADDING); i++) {
+                targetWindow.add(i);
+            }
+
+            for (const idx of state.mountedEpisodes) {
+                if (!targetWindow.has(idx)) {
+                    unmountEpisode(idx);
+                }
+            }
+
+            for (const idx of targetWindow) {
+                if (!state.mountedEpisodes.has(idx)) {
+                    mountEpisode(idx);
+                }
+            }
+        }
+
+        function unmountEpisode(idx) {
+            if (!state.mountedEpisodes.has(idx)) return;
+
+            if (state.epAbortControllers.has(idx)) {
+                state.epAbortControllers.get(idx).abort();
+                state.epAbortControllers.delete(idx);
+            }
+
+            const cDiv = document.getElementById(`content-${idx}`);
+            if (cDiv) cDiv.innerHTML = '';
+
+            const indicator = document.getElementById(`indicator-${idx}`);
+            if (indicator) indicator.className = "w-1 h-5 bg-slate-700 rounded-full block transition-colors";
+
+            const title = document.querySelector(`#row-${idx} button span.text-lg`);
+            if (title) title.classList.replace('text-white', 'text-slate-400');
+
+            state.mountedEpisodes.delete(idx);
+        }
+
+        async function mountEpisode(idx) {
+            if (state.mountedEpisodes.has(idx)) return;
+            state.mountedEpisodes.add(idx);
+
+            const controller = new AbortController();
+            state.epAbortControllers.set(idx, controller);
+
+            const cDiv = document.getElementById(`content-${idx}`); const ep = state.episodesList[idx];
+            document.getElementById(`indicator-${idx}`).className = "w-1 h-5 bg-blue-500 rounded-full block shadow-[0_0_10px_#3b82f6]";
+            const title = document.querySelector(`#row-${idx} button span.text-lg`); if (title) { title.classList.replace('text-slate-400', 'text-white'); }
+            if (state.clipsCache[ep.id]) renderClips(cDiv, ep.id, state.clipsCache[ep.id], idx, controller.signal);
+            else {
+                renderSkeleton(cDiv);
+                try {
+                    const d = await safeFetch(`/animes/${state.animeSlug}/episodes/${ep.number}/clips`, { signal: controller.signal });
+                    state.clipsCache[ep.id] = d;
+                    if (state.mountedEpisodes.has(idx)) renderClips(cDiv, ep.id, d, idx, controller.signal);
+                } catch (e) {
+                    if (e.name !== 'AbortError') {
+                        cDiv.innerHTML = '<div class="p-4 text-red-500 text-xs">Failed</div>';
+                    }
+                }
+            }
+        }
+
+        const cryptoCache = {}; 
+        const pendingKeyRequests = {}; 
+        const blobCache = {};   
+
+        async function getEpisodeCrypto(malId, epNum) {
+            const token = `${malId}-${epNum}`;
+            if (cryptoCache[token]) return cryptoCache[token];
+            if (pendingKeyRequests[token]) return pendingKeyRequests[token];
+
+            pendingKeyRequests[token] = (async () => {
+                try {
+                    const data = await safeFetch(`/episodes/${malId}/${epNum}/key`);
+                    const keyBytes = new Uint8Array(data.key.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+                    const ivSeedBytes = new Uint8Array(data.iv_seed.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+
+                    const cryptoKey = await crypto.subtle.importKey("raw", keyBytes, { name: "AES-CTR" }, false, ["decrypt"]);
+                    cryptoCache[token] = { key: cryptoKey, ivSeed: ivSeedBytes };
+                    return cryptoCache[token];
+                } finally {
+                    delete pendingKeyRequests[token];
+                }
+            })();
+
+            return pendingKeyRequests[token];
+        }
+
+        const ivCache = {}; 
+        async function deriveClipIV(ivSeed, clipId) {
+            if (ivCache[clipId]) return ivCache[clipId];
+            const key = await crypto.subtle.importKey("raw", ivSeed, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+            const idBytes = new TextEncoder().encode(clipId);
+            const signature = await crypto.subtle.sign("HMAC", key, idBytes);
+            ivCache[clipId] = new Uint8Array(signature).slice(0, 16);
+            return ivCache[clipId];
+        }
+
+        const DownloadTasks = {
+            tasks: {}, 
+
+            getTask(url, clipId, filename) {
+                const key = url;
+                if (!this.tasks[key]) {
+                    this.tasks[key] = {
+                        progress: 0,
+                        status: 'IDLE',
+                        filename: filename,
+                        blobUrl: null,
+                        subscribers: []
+                    };
+                }
+                return this.tasks[key];
+            },
+
+            subscribe(url, callback) {
+                const task = this.getTask(url, ''); 
+                task.subscribers.push(callback);
+                callback(task);
+            },
+
+            notify(url) {
+                const task = this.tasks[url];
+                if (task) {
+                    task.subscribers.forEach(cb => cb(task));
+                }
+            },
+
+            async startDownload(url, clipId, filename) {
+                const task = this.getTask(url, clipId, filename);
+                if (task.status !== 'IDLE') return;
+
+                task.status = 'DOWNLOADING';
+                this.notify(url);
+
+                try {
+                    const blobUrl = await DecryptionManager.getBlobUrl(url, clipId, 0, null, (p) => {
+                        task.progress = p;
+                        this.notify(url);
+                    });
+                    task.blobUrl = blobUrl;
+                    task.status = 'COMPLETE';
+                    task.progress = 100;
+                    this.notify(url);
+                    return blobUrl;
+                } catch (e) {
+                    task.status = 'FAILED';
+                    this.notify(url);
+                    throw e;
+                }
+            }
+        };
+
+        const getFallbackUrl = (cdnUrl) => {
+            if (cdnUrl && cdnUrl.includes('cdn.jsdelivr.net/gh/')) {
+                return cdnUrl
+                    .replace('cdn.jsdelivr.net/gh/', 'raw.githubusercontent.com/')
+                    .replace('@', '/'); 
+            }
+            return cdnUrl;
+        };
+
+        const DecryptionManager = {
+            queue: [], 
+            activeCount: 0,
+            MAX_CONCURRENT: 5,
+            running: {}, 
+            internalControllers: {}, 
+
+            async getBlobUrl(url, clipId, priority = 3, abortSignal = null, onProgress = null, episodeIdx = null) {
+                if (!url) return "";
+                if (!url.endsWith('.bin') && !url.endsWith('.ebp')) return url;
+                if (blobCache[url]) {
+                    if (onProgress) onProgress(100);
+                    return blobCache[url];
+                }
+
+                let task = this.queue.find(t => t.url === url);
+                if (!task && this.running[url]) {
+                    if (this.internalControllers[url] && priority < this.internalControllers[url].priority) {
+                        this.internalControllers[url].priority = priority;
+                    }
+                    if (onProgress) {
+                        this.running[url].then(() => onProgress(100)).catch(() => { });
+                    }
+                    return this.running[url];
+                }
+
+                if (task) {
+                    if (priority < task.priority) {
+                        task.priority = priority;
+                        this.queue.sort((a, b) => a.priority - b.priority);
+                    }
+                    if (onProgress) {
+                        const oldOnProgress = task.onProgress;
+                        task.onProgress = (p) => {
+                            if (oldOnProgress) oldOnProgress(p);
+                            onProgress(p);
+                        };
+                    }
+                    return new Promise((resolve, reject) => task.listeners.push({ resolve, reject }));
+                }
+
+                return new Promise((resolve, reject) => {
+                    this.queue.push({
+                        url, clipId, type: url.endsWith('.ebp') ? 'image' : 'video',
+                        priority, abortSignal, onProgress, episodeIdx,
+                        listeners: [{ resolve, reject }]
+                    });
+                    this.queue.sort((a, b) => a.priority - b.priority);
+                    this._process();
+                });
+            },
+
+            ruthlessAbortBackground() {
+                this.queue = this.queue.filter(task => {
+                    if (task.priority >= 4) {
+                        task.listeners.forEach(l => l.reject(new DOMException("Aborted by Modal Priority", "AbortError")));
+                        return false;
+                    }
+                    return true;
+                });
+
+                for (const [url, info] of Object.entries(this.internalControllers)) {
+                    if (info.priority >= 4) {
+                        info.controller.abort();
+                    }
+                }
+            },
+
+            async _process() {
+                if (this.activeCount >= this.MAX_CONCURRENT || this.queue.length === 0) return;
+
+                // --- FIXED BYPASS: Allow Autoplay next items (P1) to slide past the active lock ---
+                if (state.activeModal && this.queue[0].priority >= 4) {
+                    return; 
+                }
+
+                const task = this.queue.shift();
+
+                if (task.abortSignal && task.abortSignal.aborted) {
+                    task.listeners.forEach(l => l.reject(new DOMException("Aborted", "AbortError")));
+                    return this._process();
+                }
+
+                this.activeCount++;
+
+                const internalCtrl = new AbortController();
+                const abortHandler = () => internalCtrl.abort();
+                if (task.abortSignal) {
+                    task.abortSignal.addEventListener('abort', abortHandler);
+                }
+
+                this.internalControllers[task.url] = { controller: internalCtrl, priority: task.priority, episodeIdx: task.episodeIdx };
+                this.running[task.url] = this._decrypt(task.url, task.clipId, task.type, internalCtrl.signal, task.onProgress, task.episodeIdx);
+
+                try {
+                    const result = await this.running[task.url];
+                    task.listeners.forEach(l => l.resolve(result));
+                } catch (e) {
+                    task.listeners.forEach(l => l.reject(e));
+                } finally {
+                    if (task.abortSignal) {
+                        task.abortSignal.removeEventListener('abort', abortHandler);
+                    }
+                    delete this.running[task.url];
+                    delete this.internalControllers[task.url];
+                    this.activeCount--;
+                    this._process();
+                }
+            },
+
+            async _decrypt(url, clipId, type, abortSignal, onProgress, episodeIdx) {
+                const parts = clipId.split('-');
+                const epCrypto = await getEpisodeCrypto(parts[0], parts[1]);
+                const clipIv = await deriveClipIV(epCrypto.ivSeed, clipId);
+
+                let currentUrl = url;
+                let response;
+                let attempt = 0;
+                const maxAttempts = type === 'image' ? 2 : 3;
+
+                while (attempt < maxAttempts) {
+                    const timeoutMs = type === 'image' ? 1500 : 10000;
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+                    const abortHandler = () => controller.abort();
+                    if (abortSignal) abortSignal.addEventListener('abort', abortHandler);
+
+                    try {
+                        response = await fetch(currentUrl, { signal: controller.signal });
+                        clearTimeout(timeoutId);
+                        if (abortSignal) abortSignal.removeEventListener('abort', abortHandler);
+
+                        if (response.ok) break; 
+                    } catch (e) {
+                        clearTimeout(timeoutId);
+                        if (abortSignal) abortSignal.removeEventListener('abort', abortHandler);
+
+                        if (abortSignal && abortSignal.aborted) {
+                            throw new DOMException("Aborted by system", "AbortError");
+                        }
+                        console.warn(`Fetch attempt ${attempt + 1} failed for ${currentUrl}`, e.message);
+                    }
+
+                    attempt++;
+                    if (type === 'image') {
+                        if (attempt === 1) currentUrl = getFallbackUrl(url);
+                    } else {
+                        if (attempt === 2) currentUrl = getFallbackUrl(url);
+                    }
+                }
+
+                if (!response || !response.ok) throw new Error(`HTTP fetch failed after ${maxAttempts} attempts`);
+
+                const contentLength = +response.headers.get('Content-Length');
+                const reader = response.body.getReader();
+                let receivedLength = 0;
+                let chunks = [];
+
+                while (true) {
+                    if (abortSignal && abortSignal.aborted) throw new DOMException("Aborted by system", "AbortError");
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    chunks.push(value);
+                    receivedLength += value.length;
+                    if (onProgress && contentLength) {
+                        onProgress(Math.round((receivedLength / contentLength) * 100));
+                    }
+                }
+
+                const ciphertext = new Uint8Array(receivedLength);
+                let position = 0;
+                for (let chunk of chunks) {
+                    ciphertext.set(chunk, position);
+                    position += chunk.length;
+                }
+
+                const decryptedBuffer = await crypto.subtle.decrypt(
+                    { name: "AES-CTR", counter: clipIv, length: 128 },
+                    epCrypto.key,
+                    ciphertext
+                );
+
+                const mimeType = type === 'image' ? 'image/webp' : 'video/mp4';
+                const blob = new Blob([decryptedBuffer], { type: mimeType });
+                const blobUrl = URL.createObjectURL(blob);
+                blobCache[url] = blobUrl; 
+
+                if (episodeIdx !== null && episodeIdx !== undefined) {
+                    if (!state.blobRegistry.has(episodeIdx)) state.blobRegistry.set(episodeIdx, []);
+                    state.blobRegistry.get(episodeIdx).push({ originalUrl: url, blobUrl });
+                }
+
+                if (onProgress) onProgress(100);
+                return blobCache[url];
+            }
+        };
+
+        const hoverControllers = {};
+
+        async function playPreview(el, hoverUrl, clipId, epIdx) {
+            let v = el.querySelector('video');
+            if (!v) {
+                el.innerHTML += `<div class="absolute inset-0 flex items-center justify-center bg-black/80 z-10"><span class="material-symbols-rounded animate-spin text-white">progress_activity</span></div>`;
+                hoverControllers[clipId] = new AbortController();
+                try {
+                    const decryptedUrl = await DecryptionManager.getBlobUrl(hoverUrl, clipId, 2, hoverControllers[clipId].signal, null, epIdx);
+                    el.querySelector('.absolute.inset-0.bg-black\\/80')?.remove();
+                    el.insertAdjacentHTML('beforeend', `<video src="${decryptedUrl}" loop muted playsinline class="absolute inset-0 w-full h-full object-cover z-0"></video>`);
+                    v = el.querySelector('video');
+                } catch (e) { }
+            }
+            if (v) { v.currentTime = 0; v.play().catch(() => { }); }
+        }
+
+        function stopPreview(el, clipId) {
+            if (hoverControllers[clipId]) {
+                hoverControllers[clipId].abort();
+                delete hoverControllers[clipId];
+            }
+            const v = el.querySelector('video'); if (v) v.pause();
+            el.querySelector('.absolute.inset-0.bg-black\\/80')?.remove();
+        }
+
+        function renderClips(container, epId, data, epIdx, abortSignal = null) {
+            const clips = data.clips || data; 
+            if (!clips || !clips.length) { container.innerHTML = '<div class="h-12 px-4 text-xs text-slate-500">No clips.</div>'; return; }
+
+            container.innerHTML = `
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-[2px] rounded-lg overflow-hidden border border-slate-800 bg-slate-900/50 fade-in">
+                ${clips.map((c, i) => {
+                const thumbRaw = c.sources?.thumbnail || c.thumb_url || "";
+                const hoverRaw = c.sources?.hover || "";
+                return `
+                    <div class="relative group clip-card cursor-pointer overflow-hidden bg-slate-950 aspect-16-9" 
+                         onclick="openPreview('${epId}', ${i})"
+                         onmouseenter="playPreview(this, '${hoverRaw}', '${c.id}', ${epIdx})" 
+                         onmouseleave="stopPreview(this, '${c.id}')"
+                         data-thumb-raw="${thumbRaw}" data-clip-id="${c.id}">
+                        <div class="absolute inset-0 flex items-center justify-center animate-pulse"><span class="material-symbols-rounded text-slate-700 text-2xl">image</span></div>
+                        <img src="" loading="lazy" class="clip-thumb absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-0 transition-opacity z-10 hidden">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none">
+                            <span class="material-symbols-rounded text-4xl text-white">play_circle</span>
+                        </div>
+                        <span class="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] px-1 rounded z-20 font-mono">10s</span>
+                    </div>
+                `}).join('')}
+            </div>`;
+
+            setTimeout(() => {
+                const cards = Array.from(container.querySelectorAll('.clip-card'));
+                for (const card of cards) {
+                    const img = card.querySelector('.clip-thumb');
+                    const rawUrl = card.getAttribute('data-thumb-raw');
+                    const cId = card.getAttribute('data-clip-id');
+                    if (rawUrl) {
+                        const initialPriority = (epIdx === state.currentFocusIdx) ? 4 : 5;
+                        DecryptionManager.getBlobUrl(rawUrl, cId, initialPriority, abortSignal, null, epIdx).then(decrypted => {
+                            if (decrypted) {
+                                img.src = decrypted;
+                                img.classList.remove('hidden');
+                                card.querySelector('.animate-pulse')?.remove();
+                            }
+                        }).catch(() => { });
+                    }
+                }
+            }, 50);
+        }
+
+        function renderSkeleton(container) { container.innerHTML = `<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-[2px] opacity-50">${Array(6).fill(0).map(() => `<div class="aspect-16-9 shimmer bg-slate-800"></div>`).join('')}</div>`; }
+        function renderHero(d) {
+            const g = (d.genres || []).map(x => `<span class="text-[9px] bg-slate-800/80 border border-slate-600 px-2 py-0.5 rounded text-slate-300 uppercase font-bold tracking-wide">${x}</span>`).join('');
+            els.hero.innerHTML = `<div class="absolute inset-0 z-0"><img src="${d.poster_url}" class="w-full h-full object-cover object-top opacity-30 blur-xl"></div><div class="absolute inset-0 z-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent"></div><div class="relative z-10 p-6 md:p-8 flex flex-col md:flex-row gap-6 items-start md:items-end h-full"><img src="${d.poster_url}" class="w-32 md:w-48 rounded shadow-2xl border border-white/10 aspect-4-3 object-cover bg-slate-950"><div class="flex-1 mb-2"><div class="flex gap-2 mb-2 flex-wrap items-center"><span class="text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded font-bold uppercase tracking-wider shadow-lg">TV SERIES</span>${g}</div><h1 class="text-3xl md:text-5xl font-black text-white leading-tight drop-shadow-md">${d.title}</h1><p class="text-slate-300 mt-4 text-sm leading-relaxed max-w-2xl line-clamp-3 font-medium">${d.description}</p></div></div>`;
+        }
+
+        let activeCtx = { epId: null, idx: 0 };
+
+        function openPreview(epId, idx) {
+            state.activeModal = true;
+            DecryptionManager.ruthlessAbortBackground();
+
+            if (activeCtx.epId !== epId) renderSliderBase(epId);
+            activeCtx = { epId, idx };
+            els.modal.classList.add('active');
+            els.modal.classList.remove('invisible', 'opacity-0');
+            document.body.style.overflow = 'hidden';
+            loadPlayer(true);
+        }
+
+        function closePreview() {
+            els.modal.classList.add('invisible', 'opacity-0');
+            els.modal.classList.remove('active');
+            document.body.style.overflow = '';
+
+            els.player.pause();
+            els.player.src = "";
+            els.player.load(); 
+
+            setTimeout(() => {
+                activeCtx.idx = -1;
+                state.activeModal = false;
+
+                for (const idx of state.mountedEpisodes) {
+                    const cDiv = document.getElementById(`content-${idx}`);
+                    const epId = state.episodesList[idx].id;
+                    if (cDiv && state.clipsCache[epId]) {
+                        const controller = state.epAbortControllers.get(idx);
+                        if (!controller) continue;
+
+                        const cards = Array.from(cDiv.querySelectorAll('.clip-card'));
+                        for (const card of cards) {
+                            const img = card.querySelector('.clip-thumb');
+                            const rawUrl = card.getAttribute('data-thumb-raw');
+                            const cId = card.getAttribute('data-clip-id');
+
+                            if (rawUrl && img.classList.contains('hidden')) {
+                                DecryptionManager.getBlobUrl(rawUrl, cId, 4, controller.signal, null, idx).then(decrypted => {
+                                    if (decrypted) {
+                                        img.src = decrypted;
+                                        img.classList.remove('hidden');
+                                        card.querySelector('.animate-pulse')?.remove();
+                                    }
+                                }).catch(() => { });
+                            }
+                        }
+                    }
+                }
+                updatePrioritiesAndCancelBackground();
+            }, 200);
+        }
+
+        function renderSliderBase(epId) {
+            const epIdx = state.episodesList.findIndex(e => e.id === epId);
+            const clips = state.clipsCache[epId].clips || state.clipsCache[epId];
+            els.slider.innerHTML = clips.map((c, i) => {
+                const thumbRaw = c.sources?.thumbnail || c.thumb_url || "";
+                return `
+            <div onclick="userSwitchClip(${i})" class="relative flex-shrink-0 cursor-pointer snap-center group">
+                <img src="" data-src="${thumbRaw}" data-clip-id="${c.id}" class="slider-thumb h-16 w-28 object-cover rounded opacity-50 group-hover:opacity-100 hover:scale-105 transition-all border border-transparent group-hover:border-blue-500 hidden">
+                <div class="h-16 w-28 animate-pulse bg-slate-800 rounded"></div>
+            </div>`;
+            }).join('');
+
+            els.slider.querySelectorAll('.slider-thumb').forEach(img => {
+                DecryptionManager.getBlobUrl(img.dataset.src, img.dataset.clipId, 3, null, null, epIdx).then(dec => {
+                    img.src = dec;
+                    img.classList.remove('hidden');
+                    img.nextElementSibling?.remove();
+                }).catch(() => { });
+            });
+        }
+
+        function userSwitchClip(newIdx) {
+            if (newIdx === activeCtx.idx) return;
+            activeCtx.idx = newIdx;
+            loadPlayer(true);
+        }
+
+        async function forceDownload(rawUrl, clipId, filename) {
+            trackDownload();
+            const task = DownloadTasks.getTask(rawUrl, clipId, filename);
+            if (task.status === 'COMPLETE') {
+                const a = document.createElement('a'); a.href = task.blobUrl; a.download = `${filename}.mp4`;
+                a.click(); return;
+            }
+            if (task.status !== 'IDLE' && task.status !== 'FAILED') return;
+
+            try {
+                const blobUrl = await DownloadTasks.startDownload(rawUrl, clipId, filename);
+                const a = document.createElement('a'); a.href = blobUrl; a.download = `${filename}.mp4`;
+                a.click();
+            } catch { window.open(rawUrl, '_blank'); }
+        }
+
+        async function loadPlayer(shouldPlay) {
+            const clipsData = state.clipsCache[activeCtx.epId];
+            const clips = clipsData.clips || clipsData;
+            const clip = clips[activeCtx.idx];
+            const total = clips.length;
+
+            const previewRaw = clip.sources?.preview || clip.video_url || "";
+            const hqRaw = clip.sources?.hq || clip.videohq_url || "";
+
+            const ep = state.episodesList.find(e => e.id == activeCtx.epId);
+            const epNum = ep ? ep.number : "?";
+            const serial = activeCtx.idx + 1;
+            const baseFileName = `${state.animeSlug}-ep${epNum}-${serial}`;
+
+            let dur = clip.duration || ((clip.end || clip.end_time || clip.end_ms || 0) - (clip.start || clip.start_time || clip.start_ms || 0));
+            if (dur > 2000) dur = dur / 1000;
+
+            const durText = (!dur || isNaN(dur)) ? "??" : dur.toFixed(1) + 's';
+
+            els.player.src = "";
+            els.player.poster = "";
+            document.getElementById('preview-filename').textContent = "Decrypting Stream...";
+            document.getElementById('preview-duration').textContent = durText;
+
+            const container = els.dlContainer;
+            container.innerHTML = '';
+
+            const renderDownloadBtn = (rawUrl, label, suffix) => {
+                const filename = `${baseFileName}_${suffix}`;
+                const btn = document.createElement('button');
+                btn.className = "relative w-full py-4 px-4 text-white text-center rounded-lg font-bold shadow-lg flex items-center justify-center gap-2 group transition-all active:scale-[0.98] overflow-hidden";
+                if (suffix === 'Fast') btn.classList.add('bg-slate-800', 'hover:bg-slate-700', 'border', 'border-slate-700', 'text-slate-200');
+                else btn.classList.add('bg-blue-600', 'hover:bg-blue-500', 'border', 'border-transparent', 'mt-2');
+
+                const progressLayer = document.createElement('div');
+                progressLayer.className = "absolute inset-0 bg-white/10 w-0 transition-all duration-300 pointer-events-none";
+                btn.appendChild(progressLayer);
+
+                const content = document.createElement('div');
+                content.className = "relative z-10 flex items-center gap-2";
+                content.innerHTML = `<span class="material-symbols-rounded group-hover:-translate-y-0.5 transition-transform">download</span> ${label}`;
+                btn.appendChild(content);
+
+                btn.onclick = () => forceDownload(rawUrl, clip.id, filename);
+
+                DownloadTasks.subscribe(rawUrl, (task) => {
+                    if (task.status === 'DOWNLOADING') {
+                        progressLayer.style.width = `${task.progress}%`;
+                        content.innerHTML = `<span class="material-symbols-rounded animate-spin text-lg">progress_activity</span> Downloading... ${task.progress}%`;
+                        btn.disabled = true;
+                    } else if (task.status === 'COMPLETE') {
+                        progressLayer.style.width = "100%";
+                        content.innerHTML = `<span class="material-symbols-rounded">check_circle</span> Download Ready`;
+                        btn.disabled = false;
+                    } else if (task.status === 'FAILED') {
+                        content.innerHTML = `<span class="material-symbols-rounded">error</span> Try Again`;
+                        btn.disabled = false;
+                    }
+                });
+
+                return btn;
+            };
+
+            container.appendChild(renderDownloadBtn(previewRaw, "Fast Clip", "Fast"));
+            if (hqRaw) container.appendChild(renderDownloadBtn(hqRaw, "High Quality Clip", "HQ"));
+
+            try {
+                const epIdx = ep ? ep.index : null;
+                // --- DESIGN SYNC: Requesting the primary clip with high execution level (Priority 1) ---
+                const decryptedUrl = await DecryptionManager.getBlobUrl(previewRaw, clip.id, 1, null, null, epIdx);
+                if (!decryptedUrl) throw new Error("Decryption returned empty");
+
+                els.player.src = decryptedUrl;
+                document.getElementById('preview-filename').textContent = baseFileName + '.mp4';
+                if (shouldPlay) els.player.play().catch(() => { });
+
+                if (state.autoplay && activeCtx.idx < total - 1) {
+                    const nextClip = clips[activeCtx.idx + 1];
+                    const nextPreviewRaw = nextClip?.sources?.preview || nextClip?.video_url || "";
+                    if (nextPreviewRaw) {
+                        // --- PRE-FETCH SYNC: Assigned priority level 1 to keep lock from wiping it out ---
+                        DecryptionManager.getBlobUrl(nextPreviewRaw, nextClip.id, 1, null, null, epIdx)
+                            .catch(() => { });
+                    }
+                }
+            } catch (e) {
+                document.getElementById('preview-filename').textContent = "Decryption Failed";
+                console.error(e);
+            }
+
+            Array.from(els.slider.children).forEach((el, i) => {
+                const img = el.querySelector('img');
+                if (i === activeCtx.idx) {
+                    if (img) img.className = "slider-thumb h-16 w-28 object-cover rounded hover:scale-105 transition-all opacity-100 border-2 border-blue-500 brightness-110 shadow-lg shadow-blue-500/30";
+                    el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                } else {
+                    if (img) img.className = "slider-thumb h-16 w-28 object-cover rounded opacity-50 group-hover:opacity-100 hover:scale-105 transition-all border border-transparent group-hover:border-blue-500";
+                }
+            });
+
+            els.prevBtn.style.display = activeCtx.idx === 0 ? 'none' : 'flex';
+            els.nextBtn.style.display = activeCtx.idx === total - 1 ? 'none' : 'flex';
+            els.prevBtn.onclick = (e) => { e.stopPropagation(); userSwitchClip(activeCtx.idx - 1); };
+            els.nextBtn.onclick = (e) => { e.stopPropagation(); userSwitchClip(activeCtx.idx + 1); };
+        }
+
+        els.player.addEventListener('ended', () => {
+            if (!state.autoplay || !els.modal.classList.contains('active')) return;
+
+            const clipsData = state.clipsCache[activeCtx.epId];
+            const clips = clipsData.clips || clipsData;
+
+            if (activeCtx.idx < clips.length - 1) {
+                userSwitchClip(activeCtx.idx + 1);
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (!els.navModal.classList.contains('invisible') && e.key === 'Escape') closeNav();
+            if (!els.modal.classList.contains('active')) return;
+            if (e.key === 'ArrowRight') userSwitchClip(activeCtx.idx + 1);
+            if (e.key === 'ArrowLeft') userSwitchClip(activeCtx.idx - 1);
+            if (e.key === ' ' && document.activeElement !== els.player) { e.preventDefault(); els.player.paused ? els.player.play() : els.player.pause(); }
+            if (e.key === 'Escape') closePreview();
+        });
+
+        function trackDownload() { fetch(`${API_URL}/animes/${state.animeId}/track-download`, { method: 'POST' }).catch(() => { }); }
+    </script>
+    <!-- ==== FOOTER ==== -->
+    <footer class="mt-20 border-t border-white/5 bg-slate-950/80 backdrop-blur-2xl pt-16 pb-8">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
+
+                <!-- Column 1: Brand & About (4 Cols) -->
+                <div class="lg:col-span-4 space-y-6">
+                    <a href="/" class="flex items-center gap-3 group">
+                        <div
+                            class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                            <span class="material-symbols-rounded text-white text-lg">movie</span>
+                        </div>
+                        <span class="font-black text-xl tracking-tight text-slate-100">Ani<span
+                                class="text-blue-500">Clips</span></span>
+                    </a>
+                    <p class="text-slate-400 text-sm leading-relaxed max-w-sm">
+                        AniClips is your ultimate destination for high-quality anime moments. We provide a seamless
+                        experience for discovering, previewing, and collecting your favorite clips from the world's most
+                        popular series.
+                    </p>
+                    <div class="flex gap-4">
+                        <a target="_blank" href="https://t.me/+QTrHC5GUA9w5NjI9" title="Telegram"
+                            class="w-10 h-10 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#26A5E4] hover:border-[#26A5E4]/30 transition-all shadow-lg">
+                            <i class="fa-brands fa-telegram text-xl"></i>
+                        </a>
+                        <a target="_blank" href="https://www.reddit.com/r/aniclips_site/" title="Reddit"
+                            class="w-10 h-10 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#FF4500] hover:border-[#FF4500]/30 transition-all shadow-lg">
+                            <i class="fa-brands fa-reddit-alien text-xl"></i>
+                        </a>
+                        <!-- <a href="#" title="X (Twitter)" class="w-10 h-10 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:border-white/30 transition-all shadow-lg">
+                            <i class="fa-brands fa-x-twitter text-xl"></i>
+                        </a> -->
+                    </div>
+                </div>
+
+                <!-- Column 2: Navigation (2 Cols) -->
+                <div class="lg:col-span-2">
+                    <h4 class="text-white font-bold mb-6 text-xs uppercase tracking-widest">Library</h4>
+                    <ul class="space-y-4 text-slate-400 text-sm">
+                        <li><a href="/" class="hover:text-blue-400 transition-colors">Home</a></li>
+                        <li><a href="/" class="hover:text-blue-400 transition-colors">Trending</a></li>
+                        <li><a href="/" class="hover:text-blue-400 transition-colors">Collections</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Collapsible FOQA (6 Cols) -->
+                <div class="lg:col-span-6">
+                    <h4 class="text-white font-bold mb-6 text-xs uppercase tracking-widest">Quick FOQA</h4>
+                    <div class="space-y-3">
+                        <details
+                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary
+                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                                <span class="text-sm font-bold text-slate-200">Is the library free to use?</span>
+                                <span
+                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                            </summary>
+                            <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
+                                Yes, AniClips is a free community-driven project. We do not charge for access to our
+                                standard or 4K/RAW library segments.
+                            </div>
+                        </details>
+
+                        <details
+                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary
+                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                                <span class="text-sm font-bold text-slate-200">How do I download RAW clips?</span>
+                                <span
+                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                            </summary>
+                            <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
+                                Open any episode, click on a clip card, and use the "Download Ready" button. You can
+                                choose between 'Fast' (standard) or 'HQ' (RAW) depending on availability.
+                            </div>
+                        </details>
+
+                        <details
+                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary
+                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                                <span class="text-sm font-bold text-slate-200">What about copyrights of the
+                                    clips?</span>
+                                <span
+                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                            </summary>
+                            <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
+                                They are rightfully owned by the respective owners of the anime. We are just an editor
+                                community operate on principle of fair use and keeping the fanbase alive.
+                                We are industrially not recognised but tolerated as fan Media such as AMV, edit
+                                stimulates
+                                Blu-ray and merchandise sales. At no point do we monitise from this website nor do our
+                                users (you)
+                                as youtube claims all the money anyway, going straight to the rightful owners.
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div
+                class="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                <p>&copy; 2025 AniClips Library. All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-white transition-colors">Privacy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms</a>
+                    <a href="#" class="hover:text-white transition-colors">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

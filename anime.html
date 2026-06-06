@@ -1099,13 +1099,20 @@
         }
 
         els.player.addEventListener('ended', () => {
-            // Safety check: Don't autoplay if the user closed the modal
-            if (!state.autoplay || !els.modal.classList.contains('active')) return;
+    console.log('ENDED');
+    console.log('autoplay', state.autoplay);
+    console.log('modal active', els.modal.classList.contains('active'));
 
-            const clipsData = state.clipsCache[activeCtx.epId];
-            const clips = clipsData.clips || clipsData;
-            if (activeCtx.idx < clips.length - 1) userSwitchClip(activeCtx.idx + 1);
-        });
+    if (!state.autoplay || !els.modal.classList.contains('active')) return;
+
+    console.log('MOVING TO NEXT CLIP');
+
+    const clipsData = state.clipsCache[activeCtx.epId];
+    const clips = clipsData.clips || clipsData;
+
+    if (activeCtx.idx < clips.length - 1)
+        userSwitchClip(activeCtx.idx + 1);
+});
 
         document.addEventListener('keydown', (e) => {
             if (!els.navModal.classList.contains('invisible') && e.key === 'Escape') closeNav();
