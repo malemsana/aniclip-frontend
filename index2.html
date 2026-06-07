@@ -6,16 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anime Clips Library</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <meta property="og:image" content="https://cdn.jsdelivr.net/gh/malemsana/aniclip-frontend@main/preview.png" />
+    <meta property="og:image" content="https://cdn.jsdelivr.net/gh/malemsana2/aniclip-frontend@main/preview.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:title" content="Aniclips – Anime Clips Library">
     <meta property="og:description"
         content="Browse and download high-quality anime clips in 4K and RAW. Action, romance, fights and cinematic scenes.">
     <meta property="og:url" content="https://aniclips.site">
+    <meta name="monetag" content="46bf66b367b6991b85e07ff5de4d8026">
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/malemsana/aniclip-frontend@main/preview.png" />
+    <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/malemsana2/aniclip-frontend@main/preview.png" />
     <meta name="description"
         content="Aniclips is a high-quality anime clips library featuring 4K, RAW, action, romance, fight and cinematic scenes for editors and fans.">
 
@@ -117,6 +118,7 @@
         }
     </style>
 </head>
+<script>(function (s) { s.dataset.zone = '11112598', s.src = 'https://n6wxm.com/vignette.min.js' })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 
 <body class="antialiased min-h-screen flex flex-col pb-16 bg-[#020617]">
 
@@ -140,7 +142,7 @@
             </a>
 
             <!-- SEARCH SECTION -->
-            <div class="hidden md:block flex-grow max-w-md mx-6 relative group z-50" id="search-wrapper">
+            <div class="flex-grow max-w-md mx-2 sm:mx-6 relative group z-50" id="search-wrapper">
                 <div class="relative">
                     <input type="text" id="global-search" oninput="handleGlobalSearch(this.value)"
                         placeholder="Quick search library..." autocomplete="off"
@@ -168,7 +170,7 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-4">
+            <div class="hidden sm:flex items-center gap-4">
                 <a href="#browse-genres"
                     class="text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-wider transition-colors">Collections</a>
             </div>
@@ -200,7 +202,7 @@
         <div class="mb-16">
             <div class="flex items-center gap-3 mb-4 border-b border-white/5 pb-2">
                 <span class="material-symbols-rounded text-blue-500 text-xl">trending_up</span>
-                <h2 class="text-base font-extrabold text-white">Library Content</h2>
+                <h2 class="text-base font-extrabold text-white">Most Downloaded</h2>
                 <div
                     class="ml-auto text-[9px] text-slate-500 uppercase font-bold tracking-widest bg-slate-900 px-2 py-1 rounded">
                     Popularity Sort</div>
@@ -515,6 +517,59 @@
         }
 
         // --- 5. SEARCH LOGIC (FIXED ANIMATION) ---
+        const MANIFEST_URL = 'https://raw.githubusercontent.com/malemsana2/aniclips-search/main/manifest.json';
+        let searchDatabase = null;
+        let isSearchDatabaseLoading = false;
+
+        async function ensureSearchDatabase() {
+            if (searchDatabase) return;
+            if (isSearchDatabaseLoading) {
+                while (isSearchDatabaseLoading) {
+                    await new Promise(r => setTimeout(r, 50));
+                }
+                return;
+            }
+            isSearchDatabaseLoading = true;
+            try {
+                // 1. Fetch manifest from raw GitHub (bypasses cache for instant update info)
+                const manifestRes = await fetch(MANIFEST_URL);
+                if (!manifestRes.ok) throw new Error("Failed to fetch manifest");
+                const manifest = await manifestRes.json();
+                const activeHash = manifest.current_hash;
+
+                // 2. Check disk cache (localStorage) for exact version
+                const cachedHash = localStorage.getItem('ac_search_hash');
+                const cachedDb = localStorage.getItem('ac_search_db');
+                if (cachedHash === activeHash && cachedDb) {
+                    searchDatabase = JSON.parse(cachedDb);
+                    console.log('⚡ Loaded search database from cache.');
+                    return;
+                }
+
+                // 3. Download the compressed gzip file (served through fast jsdelivr CDN from manifest.url)
+                console.log(`📥 Downloading search index gzip: ${manifest.url}`);
+                const response = await fetch(manifest.url);
+                if (!response.ok) throw new Error("Failed to fetch search gzip file");
+
+                // 4. Decompress the gzip stream in the browser natively!
+                const ds = new DecompressionStream('gzip');
+                const decompressedStream = response.body.pipeThrough(ds);
+                const text = await new Response(decompressedStream).text();
+
+                searchDatabase = JSON.parse(text);
+
+                // 5. Store in disk cache (localStorage)
+                localStorage.setItem('ac_search_hash', activeHash);
+                localStorage.setItem('ac_search_db', text);
+                console.log('✅ Updated and cached search database version:', activeHash);
+
+            } catch (e) {
+                console.error("Failed to load search database, falling back to API:", e);
+            } finally {
+                isSearchDatabaseLoading = false;
+            }
+        }
+
         window.handleGlobalSearch = function (query) {
             const dropdown = document.getElementById('search-dropdown'), list = document.getElementById('search-results-list'), spin = document.getElementById('search-spinner');
             if (!query || query.length < 1) { closeSearch(); return; }
@@ -526,8 +581,34 @@
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(async () => {
                 try {
-                    const res = await fetch(`${API_URL}/search?q=${encodeURIComponent(query)}`);
-                    const matches = await res.json();
+                    await ensureSearchDatabase();
+
+                    let matches = [];
+                    if (searchDatabase) {
+                        const cleanStr = (str) => (str || '').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+                        const q = cleanStr(query);
+                        matches = q ? searchDatabase
+                            .filter(a => {
+                                // a[2] = title, a[3] = title_english, a[4] = title_japanese
+                                return (a[2] && cleanStr(a[2]).includes(q)) ||
+                                    (a[3] && cleanStr(a[3]).includes(q)) ||
+                                    (a[4] && cleanStr(a[4]).includes(q));
+                            })
+                            .slice(0, 10)
+                            .map(a => ({
+                                id: a[0],
+                                name: a[1], // slug alias for template matching
+                                title: a[2],
+                                title_english: a[3],
+                                title_japanese: a[4],
+                                poster_url: a[5]
+                            })) : [];
+                    } else {
+                        // Fallback API call if local JSON fetch failed
+                        const res = await fetch(`${API_URL}/search?q=${encodeURIComponent(query)}`);
+                        matches = await res.json();
+                    }
+
                     spin.classList.add('hidden');
                     if (matches.length === 0) {
                         list.innerHTML = `<div class="p-8 text-center"><span class="material-symbols-rounded text-3xl text-slate-700 mb-2">sentiment_dissatisfied</span><p class="text-xs text-slate-500">No matches</p></div>`;
@@ -536,13 +617,13 @@
                         list.innerHTML = matches.map(a => `
                             <a href="anime.html?name=${encodeURIComponent(a.name)}" class="flex items-center gap-3 p-2.5 hover:bg-slate-800/50 transition-colors border-b border-white/5 last:border-0 group">
                                 <div class="w-16 aspect-[4/3] bg-slate-900 rounded overflow-hidden shrink-0 border border-white/10 group-hover:border-blue-500/40 transition-all"><img src="${a.poster_url}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"></div>
-                                <div class="flex-grow min-w-0"><h4 class="text-sm font-bold text-slate-200 group-hover:text-blue-400 truncate transition-colors">${a.title || a.name}</h4><div class="flex items-center gap-2 mt-1"><span class="text-[9px] font-mono bg-blue-600/20 text-blue-300 px-1 rounded border border-blue-500/20">SERIES</span></div></div>
+                                <div class="flex-grow min-w-0"><h4 class="text-sm font-bold text-slate-200 group-hover:text-blue-400 truncate transition-colors">${a.title_english || a.title || a.name}</h4><div class="flex items-center gap-2 mt-1"><span class="text-[9px] font-mono bg-blue-600/20 text-blue-300 px-1 rounded border border-blue-500/20">SERIES</span></div></div>
                                 <span class="material-symbols-rounded text-slate-600 group-hover:text-blue-400 -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all text-lg">chevron_right</span>
                             </a>`).join('');
                         document.getElementById('search-footer').classList.remove('hidden');
                     }
                 } catch { spin.classList.add('hidden'); }
-            }, 300);
+            }, 150);
         };
 
         window.closeSearch = function () {
@@ -558,6 +639,117 @@
         document.addEventListener('click', e => { if (document.getElementById('search-wrapper') && !document.getElementById('search-wrapper').contains(e.target)) closeSearch(); });
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSearch(); });
     </script>
+    <footer class="mt-20 border-t border-white/5 bg-slate-950/80 backdrop-blur-2xl pt-16 pb-8">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
+
+                <!-- Column 1: Brand & About (4 Cols) -->
+                <div class="lg:col-span-4 space-y-6">
+                    <a href="/" class="flex items-center gap-3 group">
+                        <div
+                            class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                            <span class="material-symbols-rounded text-white text-lg">movie</span>
+                        </div>
+                        <span class="font-black text-xl tracking-tight text-slate-100">Ani<span
+                                class="text-blue-500">Clips</span></span>
+                    </a>
+                    <p class="text-slate-400 text-sm leading-relaxed max-w-sm">
+                        AniClips is your ultimate destination for high-quality anime moments. We provide a seamless
+                        experience for discovering, previewing, and collecting your favorite clips from the world's most
+                        popular series.
+                    </p>
+                    <div class="flex gap-4">
+                        <a target="_blank" href="https://t.me/+QTrHC5GUA9w5NjI9" title="Telegram"
+                            class="w-10 h-10 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#26A5E4] hover:border-[#26A5E4]/30 transition-all shadow-lg">
+                            <i class="fa-brands fa-telegram text-xl"></i>
+                        </a>
+                        <a target="_blank" href="https://www.reddit.com/r/aniclips_site/" title="Reddit"
+                            class="w-10 h-10 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#FF4500] hover:border-[#FF4500]/30 transition-all shadow-lg">
+                            <i class="fa-brands fa-reddit-alien text-xl"></i>
+                        </a>
+                        <!-- <a href="#" title="X (Twitter)" class="w-10 h-10 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:border-white/30 transition-all shadow-lg">
+                            <i class="fa-brands fa-x-twitter text-xl"></i>
+                        </a> -->
+                    </div>
+                </div>
+
+                <!-- Column 2: Navigation (2 Cols) -->
+                <div class="lg:col-span-2">
+                    <h4 class="text-white font-bold mb-6 text-xs uppercase tracking-widest">Library</h4>
+                    <ul class="space-y-4 text-slate-400 text-sm">
+                        <li><a href="/" class="hover:text-blue-400 transition-colors">Home</a></li>
+                        <li><a href="/" class="hover:text-blue-400 transition-colors">Trending</a></li>
+                        <li><a href="/" class="hover:text-blue-400 transition-colors">Collections</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Collapsible FOQA (6 Cols) -->
+                <div class="lg:col-span-6">
+                    <h4 class="text-white font-bold mb-6 text-xs uppercase tracking-widest">Quick FOQA</h4>
+                    <div class="space-y-3">
+                        <details
+                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary
+                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                                <span class="text-sm font-bold text-slate-200">Is the library free to use?</span>
+                                <span
+                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                            </summary>
+                            <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
+                                Yes, AniClips is a free community-driven project. We do not charge for access to our
+                                standard or 4K/RAW library segments.
+                            </div>
+                        </details>
+
+                        <details
+                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary
+                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                                <span class="text-sm font-bold text-slate-200">How do I download RAW clips?</span>
+                                <span
+                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                            </summary>
+                            <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
+                                Open any episode, click on a clip card, and use the "Download Ready" button. You can
+                                choose between 'Fast' (standard) or 'HQ' (RAW) depending on availability.
+                            </div>
+                        </details>
+
+                        <details
+                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary
+                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                                <span class="text-sm font-bold text-slate-200">What about copyrights of the
+                                    clips?</span>
+                                <span
+                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                            </summary>
+                            <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
+                                They are rightfully owned by the respective owners of the anime. We are just an editor
+                                community operate on principle of fair use and keeping the fanbase alive.
+                                We are industrially not recognised but tolerated as fan Media such as AMV, edit
+                                stimulates
+                                Blu-ray and merchandise sales. At no point do we monitise from this website nor do our
+                                users (you)
+                                as youtube claims all the money anyway, going straight to the rightful owners.
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div
+                class="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                <p>&copy; 2025 AniClips Library. All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-white transition-colors">Privacy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms</a>
+                    <a href="#" class="hover:text-white transition-colors">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
 </body>
 
 

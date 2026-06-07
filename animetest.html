@@ -72,7 +72,6 @@
             filter: brightness(1.2);
         }
 
-        /* RESTORED: These styles were present but unused in the broken version */
         .clip-card video {
             object-fit: cover;
             opacity: 0;
@@ -236,14 +235,38 @@
                 <h3 id="preview-filename"
                     class="text-lg md:text-xl font-bold text-white mb-6 font-mono break-words leading-tight">...</h3>
 
-                <div class="text-sm text-slate-400 space-y-3 mb-8 bg-slate-800/50 p-4 rounded-lg border border-white/5">
-                    <div class="flex justify-between border-b border-white/5 pb-2">
-                        <span>Duration</span>
-                        <span id="preview-duration" class="text-slate-200 font-mono">--:--</span>
-                    </div>
-                    <div class="flex justify-between border-b border-white/5 pb-2">
-                        <span>Quality</span>
-                        <span class="text-slate-200">1080p / High</span>
+                <!-- Hidden elements to preserve JS bindings and prevent exceptions -->
+                <span id="preview-duration" class="hidden">--:--</span>
+
+                <!-- Adsterra 300x250 Ad Slot (Sandboxed to prevent malicious auto-redirects) -->
+                <div class="my-6 flex justify-center items-center w-full">
+                    <div class="w-[300px] h-[250px] overflow-hidden rounded-lg flex-shrink-0">
+                        <iframe srcdoc="
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                        html, body { width: 300px; height: 250px; overflow: hidden; background: transparent; }
+                        body { display: flex; justify-content: center; align-items: flex-start; }
+                    </style>
+                </head>
+                <body>
+                    <script type='text/javascript'>
+                        atOptions = {
+                            'key' : '33d80cd41181a61e5f567fc01f4eec71',
+                            'format' : 'iframe',
+                            'height' : 250,
+                            'width' : 300,
+                            'params' : {}
+                        };
+                    </script>
+                    <script type='text/javascript' src='https://www.highperformanceformat.com/33d80cd41181a61e5f567fc01f4eec71/invoke.js'></script>
+                </body>
+                </html>
+             " sandbox="allow-scripts allow-popups allow-same-origin" width="300" height="250"
+                            style="display: block; border: none; overflow: hidden; width: 300px; height: 250px;" scrolling="no">
+                        </iframe>
                     </div>
                 </div>
 
@@ -253,7 +276,7 @@
         </div>
     </div>
 
- <script>
+    <script>
         // Smart API URL: switch between backend server and production render implicitly.
         const API_URL = 'https://aniclip-backend.onrender.com/api';
         const WINDOW_PADDING = 1;
@@ -343,6 +366,7 @@
             const r = document.getElementById(`row-${idx}`); if (r) requestAnimationFrame(() => r.scrollIntoView({ behavior: 'smooth', block: 'start' }));
         }
 
+        // --- STREAMING_CHUNK: Creating memory manager and intersection observer... -->
         function initMemoryManager() {
             const obs = new IntersectionObserver((e) => {
                 e.forEach(x => {
@@ -355,38 +379,44 @@
             document.querySelectorAll('.episode-row').forEach(r => obs.observe(r));
         }
 
+        // --- DYNAMIC PRIORITIZATION & ACTIVE CANCELLATION ---
         function updatePrioritiesAndCancelBackground() {
-            if (state.activeModal) return; 
+            if (state.activeModal) return; // Prevent priority updates while the viewer is active
 
             const visibleIndices = Array.from(state.visibleEpIndices);
             if (visibleIndices.length === 0) return;
 
+            // Define current primary focused index as the first visible episode index
             const focusIdx = Math.min(...visibleIndices);
             state.currentFocusIdx = focusIdx;
 
+            // 1. Shift priorities of waiting background elements
             DecryptionManager.queue.forEach(task => {
                 if (task.priority >= 4) {
                     if (task.episodeIdx === focusIdx) {
-                        task.priority = 4; 
+                        task.priority = 4; // Top focus viewport priority
                     } else if (Math.abs(task.episodeIdx - focusIdx) === 1) {
-                        task.priority = 5; 
+                        task.priority = 5; // Immediately adjacent padding priority
                     } else {
-                        task.priority = 6; 
+                        task.priority = 6; // Far away elements
                     }
                 }
             });
 
+            // Re-sort current queue by priority order
             DecryptionManager.queue.sort((a, b) => a.priority - b.priority);
 
+            // 2. Terminate background downloads for out-of-focus episodes mid-flight
             for (const [url, info] of Object.entries(DecryptionManager.internalControllers)) {
                 if (info.priority >= 4) {
                     const distance = Math.abs(info.episodeIdx - focusIdx);
-                    if (distance > 1) { 
+                    if (distance > 1) { // If it's further than our padding window, abort it immediately
                         info.controller.abort();
                     }
                 }
             }
 
+            // Flush queue task executor
             DecryptionManager._process();
         }
 
@@ -403,12 +433,14 @@
                 targetWindow.add(i);
             }
 
+            // Unmount episodes not in target window
             for (const idx of state.mountedEpisodes) {
                 if (!targetWindow.has(idx)) {
                     unmountEpisode(idx);
                 }
             }
 
+            // Mount episodes in target window
             for (const idx of targetWindow) {
                 if (!state.mountedEpisodes.has(idx)) {
                     mountEpisode(idx);
@@ -424,6 +456,9 @@
                 state.epAbortControllers.delete(idx);
             }
 
+            // --- ARCHITECTURAL CHANGE: DOM Virtualization ---
+            // DO NOT revoke blob URLs! 
+            // We wipe innerHTML to free VRAM (Uncompressed Bitmaps), but keep network blobs mapped in JS memory.
             const cDiv = document.getElementById(`content-${idx}`);
             if (cDiv) cDiv.innerHTML = '';
 
@@ -450,6 +485,7 @@
             else {
                 renderSkeleton(cDiv);
                 try {
+                    // Pass active abort signal to clips fetch to cancel obsolete loads instantly
                     const d = await safeFetch(`/animes/${state.animeSlug}/episodes/${ep.number}/clips`, { signal: controller.signal });
                     state.clipsCache[ep.id] = d;
                     if (state.mountedEpisodes.has(idx)) renderClips(cDiv, ep.id, d, idx, controller.signal);
@@ -461,9 +497,11 @@
             }
         }
 
-        const cryptoCache = {}; 
-        const pendingKeyRequests = {}; 
-        const blobCache = {};   
+        // --- STREAMING_CHUNK: Decryption and prioritization scheduler... -->
+        // --- ADVANCED DECRYPTION ENGINE (Per-Episode Optimized) ---
+        const cryptoCache = {}; // episodeToken -> { key: cryptoKey, ivSeed: Uint8Array }
+        const pendingKeyRequests = {}; // token -> Promise
+        const blobCache = {};   // url -> blob URL
 
         async function getEpisodeCrypto(malId, epNum) {
             const token = `${malId}-${epNum}`;
@@ -487,7 +525,7 @@
             return pendingKeyRequests[token];
         }
 
-        const ivCache = {}; 
+        const ivCache = {}; // clipId -> Uint8Array
         async function deriveClipIV(ivSeed, clipId) {
             if (ivCache[clipId]) return ivCache[clipId];
             const key = await crypto.subtle.importKey("raw", ivSeed, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
@@ -498,7 +536,7 @@
         }
 
         const DownloadTasks = {
-            tasks: {}, 
+            tasks: {}, // key -> { progress, status, filename, blobUrl, subscribers: [] }
 
             getTask(url, clipId, filename) {
                 const key = url;
@@ -515,8 +553,9 @@
             },
 
             subscribe(url, callback) {
-                const task = this.getTask(url, ''); 
+                const task = this.getTask(url, ''); // Ensure task exists
                 task.subscribers.push(callback);
+                // Immediate trigger with current state
                 callback(task);
             },
 
@@ -551,22 +590,23 @@
                 }
             }
         };
-
         const getFallbackUrl = (cdnUrl) => {
             if (cdnUrl && cdnUrl.includes('cdn.jsdelivr.net/gh/')) {
                 return cdnUrl
                     .replace('cdn.jsdelivr.net/gh/', 'raw.githubusercontent.com/')
-                    .replace('@', '/'); 
+                    .replace('@', '/'); // jsDelivr uses @ for versions/branches, GitHub uses /
             }
             return cdnUrl;
         };
 
         const DecryptionManager = {
-            queue: [], 
+            queue: [], // { url, clipId, type, priority, listeners: [], abortSignal, onProgress, episodeIdx }
             activeCount: 0,
             MAX_CONCURRENT: 5,
-            running: {}, 
-            internalControllers: {}, 
+            running: {}, // url -> Promise
+
+            // --- ARCHITECTURAL CHANGE: Internal Controller Mapping ---
+            internalControllers: {}, // url -> { controller, priority, episodeIdx }
 
             async getBlobUrl(url, clipId, priority = 3, abortSignal = null, onProgress = null, episodeIdx = null) {
                 if (!url) return "";
@@ -578,6 +618,7 @@
 
                 let task = this.queue.find(t => t.url === url);
                 if (!task && this.running[url]) {
+                    // Update priority of running task so it isn't killed if modal opens
                     if (this.internalControllers[url] && priority < this.internalControllers[url].priority) {
                         this.internalControllers[url].priority = priority;
                     }
@@ -613,7 +654,9 @@
                 });
             },
 
+            // --- ARCHITECTURAL CHANGE: The Ruthless Abort Execution ---
             ruthlessAbortBackground() {
+                // 1. Purge background (Priority 4+) tasks from queue immediately
                 this.queue = this.queue.filter(task => {
                     if (task.priority >= 4) {
                         task.listeners.forEach(l => l.reject(new DOMException("Aborted by Modal Priority", "AbortError")));
@@ -622,6 +665,7 @@
                     return true;
                 });
 
+                // 2. Terminate any mid-flight background fetches immediately to release network sockets
                 for (const [url, info] of Object.entries(this.internalControllers)) {
                     if (info.priority >= 4) {
                         info.controller.abort();
@@ -632,9 +676,9 @@
             async _process() {
                 if (this.activeCount >= this.MAX_CONCURRENT || this.queue.length === 0) return;
 
-                // --- FIXED BYPASS: Allow Autoplay next items (P1) to slide past the active lock ---
+                // --- ARCHITECTURAL CHANGE: The Modal Global Priority Lock ---
                 if (state.activeModal && this.queue[0].priority >= 4) {
-                    return; 
+                    return; // Yield network implicitly while modal is active.
                 }
 
                 const task = this.queue.shift();
@@ -646,6 +690,7 @@
 
                 this.activeCount++;
 
+                // Unified internal abort controller allowing mid-fetch intercepts
                 const internalCtrl = new AbortController();
                 const abortHandler = () => internalCtrl.abort();
                 if (task.abortSignal) {
@@ -671,6 +716,7 @@
                 }
             },
 
+
             async _decrypt(url, clipId, type, abortSignal, onProgress, episodeIdx) {
                 const parts = clipId.split('-');
                 const epCrypto = await getEpisodeCrypto(parts[0], parts[1]);
@@ -679,12 +725,19 @@
                 let currentUrl = url;
                 let response;
                 let attempt = 0;
+
+                // Thumbnails: 1 attempt jsDelivr -> GitHub
+                // Clips: 1 attempt jsDelivr -> 1 retry jsDelivr -> GitHub
                 const maxAttempts = type === 'image' ? 2 : 3;
 
                 while (attempt < maxAttempts) {
+                    // 1.5s for thumbnails, 10s for video clips
                     const timeoutMs = type === 'image' ? 1500 : 10000;
+
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+                    // Link external user hover/modal abort to our local timeout controller
                     const abortHandler = () => controller.abort();
                     if (abortSignal) abortSignal.addEventListener('abort', abortHandler);
 
@@ -693,11 +746,12 @@
                         clearTimeout(timeoutId);
                         if (abortSignal) abortSignal.removeEventListener('abort', abortHandler);
 
-                        if (response.ok) break; 
+                        if (response.ok) break; // Success!
                     } catch (e) {
                         clearTimeout(timeoutId);
                         if (abortSignal) abortSignal.removeEventListener('abort', abortHandler);
 
+                        // If the user unhovered/modal opened, completely stop retrying to save bandwidth
                         if (abortSignal && abortSignal.aborted) {
                             throw new DOMException("Aborted by system", "AbortError");
                         }
@@ -705,15 +759,20 @@
                     }
 
                     attempt++;
+
+                    // Switch to fallback URLs based on the current attempt
                     if (type === 'image') {
+                        // Thumbnail: Immediately fallback to GitHub Raw if the 1.5s timeout fails
                         if (attempt === 1) currentUrl = getFallbackUrl(url);
                     } else {
+                        // Clip: Retry jsDelivr once, then fallback to GitHub Raw
                         if (attempt === 2) currentUrl = getFallbackUrl(url);
                     }
                 }
 
                 if (!response || !response.ok) throw new Error(`HTTP fetch failed after ${maxAttempts} attempts`);
 
+                // --- EXISTING DECRYPTION & BLOB CREATION LOGIC ---
                 const contentLength = +response.headers.get('Content-Length');
                 const reader = response.body.getReader();
                 let receivedLength = 0;
@@ -746,7 +805,7 @@
                 const mimeType = type === 'image' ? 'image/webp' : 'video/mp4';
                 const blob = new Blob([decryptedBuffer], { type: mimeType });
                 const blobUrl = URL.createObjectURL(blob);
-                blobCache[url] = blobUrl; 
+                blobCache[url] = blobUrl; // Map back to original URL
 
                 if (episodeIdx !== null && episodeIdx !== undefined) {
                     if (!state.blobRegistry.has(episodeIdx)) state.blobRegistry.set(episodeIdx, []);
@@ -764,13 +823,14 @@
             let v = el.querySelector('video');
             if (!v) {
                 el.innerHTML += `<div class="absolute inset-0 flex items-center justify-center bg-black/80 z-10"><span class="material-symbols-rounded animate-spin text-white">progress_activity</span></div>`;
+
                 hoverControllers[clipId] = new AbortController();
                 try {
                     const decryptedUrl = await DecryptionManager.getBlobUrl(hoverUrl, clipId, 2, hoverControllers[clipId].signal, null, epIdx);
                     el.querySelector('.absolute.inset-0.bg-black\\/80')?.remove();
                     el.insertAdjacentHTML('beforeend', `<video src="${decryptedUrl}" loop muted playsinline class="absolute inset-0 w-full h-full object-cover z-0"></video>`);
                     v = el.querySelector('video');
-                } catch (e) { }
+                } catch (e) { /* Suppress abort/fetch errors if user unhovered fast */ }
             }
             if (v) { v.currentTime = 0; v.play().catch(() => { }); }
         }
@@ -784,10 +844,13 @@
             el.querySelector('.absolute.inset-0.bg-black\\/80')?.remove();
         }
 
+        // --- STREAMING_CHUNK: Implementing DOM rendering and video preview logic... -->
+        // --- FIXED: RESTORED VIDEO PREVIEW LOGIC HERE ---
         function renderClips(container, epId, data, epIdx, abortSignal = null) {
-            const clips = data.clips || data; 
+            const clips = data.clips || data; // Fallback for old API signatures
             if (!clips || !clips.length) { container.innerHTML = '<div class="h-12 px-4 text-xs text-slate-500">No clips.</div>'; return; }
 
+            // Render initial structure. Video and Thumbnails are lazy-decrypted.
             container.innerHTML = `
             <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-[2px] rounded-lg overflow-hidden border border-slate-800 bg-slate-900/50 fade-in">
                 ${clips.map((c, i) => {
@@ -809,6 +872,7 @@
                 `}).join('')}
             </div>`;
 
+            // Queue background decrypts via Manager
             setTimeout(() => {
                 const cards = Array.from(container.querySelectorAll('.clip-card'));
                 for (const card of cards) {
@@ -816,6 +880,7 @@
                     const rawUrl = card.getAttribute('data-thumb-raw');
                     const cId = card.getAttribute('data-clip-id');
                     if (rawUrl) {
+                        // Dynamically resolve baseline priority
                         const initialPriority = (epIdx === state.currentFocusIdx) ? 4 : 5;
                         DecryptionManager.getBlobUrl(rawUrl, cId, initialPriority, abortSignal, null, epIdx).then(decrypted => {
                             if (decrypted) {
@@ -835,9 +900,11 @@
             els.hero.innerHTML = `<div class="absolute inset-0 z-0"><img src="${d.poster_url}" class="w-full h-full object-cover object-top opacity-30 blur-xl"></div><div class="absolute inset-0 z-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent"></div><div class="relative z-10 p-6 md:p-8 flex flex-col md:flex-row gap-6 items-start md:items-end h-full"><img src="${d.poster_url}" class="w-32 md:w-48 rounded shadow-2xl border border-white/10 aspect-4-3 object-cover bg-slate-950"><div class="flex-1 mb-2"><div class="flex gap-2 mb-2 flex-wrap items-center"><span class="text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded font-bold uppercase tracking-wider shadow-lg">TV SERIES</span>${g}</div><h1 class="text-3xl md:text-5xl font-black text-white leading-tight drop-shadow-md">${d.title}</h1><p class="text-slate-300 mt-4 text-sm leading-relaxed max-w-2xl line-clamp-3 font-medium">${d.description}</p></div></div>`;
         }
 
+        // --- PLAYER & DOM-BASED BUTTON LOGIC ---
         let activeCtx = { epId: null, idx: 0 };
 
         function openPreview(epId, idx) {
+            // --- ARCHITECTURAL CHANGE: Set Global Lock & Abort Background Fetch ---
             state.activeModal = true;
             DecryptionManager.ruthlessAbortBackground();
 
@@ -850,18 +917,23 @@
         }
 
         function closePreview() {
+            // Hide modal immediately
             els.modal.classList.add('invisible', 'opacity-0');
             els.modal.classList.remove('active');
             document.body.style.overflow = '';
 
+            // STOP VIDEO INSTANTLY to prevent ghost audio
             els.player.pause();
             els.player.src = "";
-            els.player.load(); 
+            els.player.load(); // Force reset the buffer
 
             setTimeout(() => {
                 activeCtx.idx = -1;
+
+                // --- ARCHITECTURAL CHANGE: Unfreeze Queue & Re-eval Background Fetches ---
                 state.activeModal = false;
 
+                // Ping all currently mounted DOM elements. If an image is missing, queue it back up.
                 for (const idx of state.mountedEpisodes) {
                     const cDiv = document.getElementById(`content-${idx}`);
                     const epId = state.episodesList[idx].id;
@@ -875,6 +947,7 @@
                             const rawUrl = card.getAttribute('data-thumb-raw');
                             const cId = card.getAttribute('data-clip-id');
 
+                            // Re-fetch only if the blob application hasn't resolved yet
                             if (rawUrl && img.classList.contains('hidden')) {
                                 DecryptionManager.getBlobUrl(rawUrl, cId, 4, controller.signal, null, idx).then(decrypted => {
                                     if (decrypted) {
@@ -887,7 +960,10 @@
                         }
                     }
                 }
+
+                // Re-trigger and sync priorities
                 updatePrioritiesAndCancelBackground();
+
             }, 200);
         }
 
@@ -943,6 +1019,7 @@
             const previewRaw = clip.sources?.preview || clip.video_url || "";
             const hqRaw = clip.sources?.hq || clip.videohq_url || "";
 
+            // Clean filename: anime-slug-epX-serial
             const ep = state.episodesList.find(e => e.id == activeCtx.epId);
             const epNum = ep ? ep.number : "?";
             const serial = activeCtx.idx + 1;
@@ -958,6 +1035,7 @@
             document.getElementById('preview-filename').textContent = "Decrypting Stream...";
             document.getElementById('preview-duration').textContent = durText;
 
+            // --- EAGER RENDERING: Create buttons immediately with Progress Support ---
             const container = els.dlContainer;
             container.innerHTML = '';
 
@@ -1000,9 +1078,9 @@
             container.appendChild(renderDownloadBtn(previewRaw, "Fast Clip", "Fast"));
             if (hqRaw) container.appendChild(renderDownloadBtn(hqRaw, "High Quality Clip", "HQ"));
 
+            // Async Decrypt Main Player (Connection-optimized Priority 1)
             try {
                 const epIdx = ep ? ep.index : null;
-                // --- DESIGN SYNC: Requesting the primary clip with high execution level (Priority 1) ---
                 const decryptedUrl = await DecryptionManager.getBlobUrl(previewRaw, clip.id, 1, null, null, epIdx);
                 if (!decryptedUrl) throw new Error("Decryption returned empty");
 
@@ -1010,13 +1088,16 @@
                 document.getElementById('preview-filename').textContent = baseFileName + '.mp4';
                 if (shouldPlay) els.player.play().catch(() => { });
 
+                // --- SHADOW LOADER: Pre-fetch next clip at background priority ---
+                // Only fires after current clip is ready, and only if autoplay is on.
+                // Priority 5 = lowest, so HQ downloads (P0) and current clip (P1) always win.
                 if (state.autoplay && activeCtx.idx < total - 1) {
                     const nextClip = clips[activeCtx.idx + 1];
                     const nextPreviewRaw = nextClip?.sources?.preview || nextClip?.video_url || "";
                     if (nextPreviewRaw) {
-                        // --- PRE-FETCH SYNC: Assigned priority level 1 to keep lock from wiping it out ---
-                        DecryptionManager.getBlobUrl(nextPreviewRaw, nextClip.id, 1, null, null, epIdx)
-                            .catch(() => { });
+                        // Fire and forget — the result lands in blobCache automatically
+                        DecryptionManager.getBlobUrl(nextPreviewRaw, nextClip.id, 5, null, null, epIdx)
+                            .catch(() => { /* Silently ignore if next clip pre-fetch fails */ });
                     }
                 }
             } catch (e) {
@@ -1024,6 +1105,7 @@
                 console.error(e);
             }
 
+            // Highlights
             Array.from(els.slider.children).forEach((el, i) => {
                 const img = el.querySelector('img');
                 if (i === activeCtx.idx) {
@@ -1041,14 +1123,19 @@
         }
 
         els.player.addEventListener('ended', () => {
+            console.log('ENDED');
+            console.log('autoplay', state.autoplay);
+            console.log('modal active', els.modal.classList.contains('active'));
+
             if (!state.autoplay || !els.modal.classList.contains('active')) return;
+
+            console.log('MOVING TO NEXT CLIP');
 
             const clipsData = state.clipsCache[activeCtx.epId];
             const clips = clipsData.clips || clipsData;
 
-            if (activeCtx.idx < clips.length - 1) {
+            if (activeCtx.idx < clips.length - 1)
                 userSwitchClip(activeCtx.idx + 1);
-            }
         });
 
         document.addEventListener('keydown', (e) => {
@@ -1091,9 +1178,6 @@
                             class="w-10 h-10 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#FF4500] hover:border-[#FF4500]/30 transition-all shadow-lg">
                             <i class="fa-brands fa-reddit-alien text-xl"></i>
                         </a>
-                        <!-- <a href="#" title="X (Twitter)" class="w-10 h-10 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:border-white/30 transition-all shadow-lg">
-                            <i class="fa-brands fa-x-twitter text-xl"></i>
-                        </a> -->
                     </div>
                 </div>
 
