@@ -368,13 +368,13 @@
 
             // 1. Shift priorities of waiting background elements
             DecryptionManager.queue.forEach(task => {
-                if (task.priority >= 4) {
+                if (task.priority >= 5) {
                     if (task.episodeIdx === focusIdx) {
-                        task.priority = 4; // Top focus viewport priority
+                        task.priority = 5; // Top focus viewport priority
                     } else if (Math.abs(task.episodeIdx - focusIdx) === 1) {
-                        task.priority = 5; // Immediately adjacent padding priority
+                        task.priority = 6; // Immediately adjacent padding priority
                     } else {
-                        task.priority = 6; // Far away elements
+                        task.priority = 7; // Far away elements
                     }
                 }
             });
@@ -384,7 +384,7 @@
 
             // 2. Terminate background downloads for out-of-focus episodes mid-flight
             for (const [url, info] of Object.entries(DecryptionManager.internalControllers)) {
-                if (info.priority >= 4) {
+                if (info.priority >= 5) {
                     const distance = Math.abs(info.episodeIdx - focusIdx);
                     if (distance > 1) { // If it's further than our padding window, abort it immediately
                         info.controller.abort();
@@ -639,7 +639,7 @@
             ruthlessAbortBackground() {
                 // 1. Purge background (Priority 4+) tasks from queue immediately
                 this.queue = this.queue.filter(task => {
-                    if (task.priority >= 4) {
+                    if (task.priority >= 5) {
                         task.listeners.forEach(l => l.reject(new DOMException("Aborted by Modal Priority", "AbortError")));
                         return false;
                     }
@@ -648,7 +648,7 @@
 
                 // 2. Terminate any mid-flight background fetches immediately to release network sockets
                 for (const [url, info] of Object.entries(this.internalControllers)) {
-                    if (info.priority >= 4) {
+                    if (info.priority >= 5) {
                         info.controller.abort();
                     }
                 }
@@ -658,7 +658,7 @@
                 if (this.activeCount >= this.MAX_CONCURRENT || this.queue.length === 0) return;
 
                 // --- ARCHITECTURAL CHANGE: The Modal Global Priority Lock ---
-                if (state.activeModal && this.queue[0].priority >= 4) {
+                if (state.activeModal && this.queue[0].priority >= 5) {
                     return; // Yield network implicitly while modal is active.
                 }
 
@@ -862,7 +862,7 @@
                     const cId = card.getAttribute('data-clip-id');
                     if (rawUrl) {
                         // Dynamically resolve baseline priority
-                        const initialPriority = (epIdx === state.currentFocusIdx) ? 4 : 5;
+                        const initialPriority = (epIdx === state.currentFocusIdx) ? 5 : 6;
                         DecryptionManager.getBlobUrl(rawUrl, cId, initialPriority, abortSignal, null, epIdx).then(decrypted => {
                             if (decrypted) {
                                 img.src = decrypted;
@@ -1077,7 +1077,7 @@
                     const nextPreviewRaw = nextClip?.sources?.preview || nextClip?.video_url || "";
                     if (nextPreviewRaw) {
                         // Fire and forget — the result lands in blobCache automatically
-                        DecryptionManager.getBlobUrl(nextPreviewRaw, nextClip.id, 5, null, null, epIdx)
+                        DecryptionManager.getBlobUrl(nextPreviewRaw, nextClip.id, 4, null, null, epIdx)
                             .catch(() => { /* Silently ignore if next clip pre-fetch fails */ });
                     }
                 }
