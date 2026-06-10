@@ -1,0 +1,51 @@
+function loadAd() {
+const container = document.getElementById('ad-refresh-slot');
+if (!container) return;
+
+```
+container.innerHTML = `
+    <iframe srcdoc="
+    <!DOCTYPE html>
+    <html>
+    <body style='margin:0;padding:0;overflow:hidden'>
+        <script type='text/javascript'>
+            atOptions = {
+                'key' : '33d80cd41181a61e5f567fc01f4eec71',
+                'format' : 'iframe',
+                'height' : 250,
+                'width' : 300,
+                'params' : {}
+            };
+        </script>
+        <script type='text/javascript' src='https://www.highperformanceformat.com/33d80cd41181a61e5f567fc01f4eec71/invoke.js'></script>
+    </body>
+    </html>
+    "
+    sandbox="allow-scripts allow-popups allow-same-origin"
+    width="300"
+    height="250"
+    style="border:none;width:300px;height:250px">
+    </iframe>
+`;
+```
+
+}
+
+function maybeRefreshAd() {
+const elapsed = Date.now() - state.adLastRefresh;
+
+```
+if (
+    (state.adClipChanges >= 3 || elapsed >= 30000) &&
+    elapsed >= 30000
+) {
+    console.log('Refreshing ad');
+
+    loadAd();
+
+    state.adClipChanges = 0;
+    state.adLastRefresh = Date.now();
+}
+```
+
+}

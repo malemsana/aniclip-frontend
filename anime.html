@@ -608,6 +608,11 @@
                     if (priority < task.priority) {
                         task.priority = priority;
                         this.queue.sort((a, b) => a.priority - b.priority);
+
+                        // --- FIX: Wake up the sleeping queue processor ---
+                        // If the queue was yielding due to the modal lock on >= 4 priorities, 
+                        // this priority upgrade (e.g., to Priority 1) unlocks it.
+                        this._process();
                     }
                     if (onProgress) {
                         const oldOnProgress = task.onProgress;
@@ -1099,20 +1104,20 @@
         }
 
         els.player.addEventListener('ended', () => {
-    console.log('ENDED');
-    console.log('autoplay', state.autoplay);
-    console.log('modal active', els.modal.classList.contains('active'));
+            console.log('ENDED');
+            console.log('autoplay', state.autoplay);
+            console.log('modal active', els.modal.classList.contains('active'));
 
-    if (!state.autoplay || !els.modal.classList.contains('active')) return;
+            if (!state.autoplay || !els.modal.classList.contains('active')) return;
 
-    console.log('MOVING TO NEXT CLIP');
+            console.log('MOVING TO NEXT CLIP');
 
-    const clipsData = state.clipsCache[activeCtx.epId];
-    const clips = clipsData.clips || clipsData;
+            const clipsData = state.clipsCache[activeCtx.epId];
+            const clips = clipsData.clips || clipsData;
 
-    if (activeCtx.idx < clips.length - 1)
-        userSwitchClip(activeCtx.idx + 1);
-});
+            if (activeCtx.idx < clips.length - 1)
+                userSwitchClip(activeCtx.idx + 1);
+        });
 
         document.addEventListener('keydown', (e) => {
             if (!els.navModal.classList.contains('invisible') && e.key === 'Escape') closeNav();

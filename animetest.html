@@ -240,33 +240,7 @@
 
                 <!-- Adsterra 300x250 Ad Slot (Sandboxed to prevent malicious auto-redirects) -->
                 <div class="my-6 flex justify-center items-center w-full">
-                    <div class="w-[300px] h-[250px] overflow-hidden rounded-lg flex-shrink-0">
-                        <iframe srcdoc="
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <style>
-                        * { margin: 0; padding: 0; box-sizing: border-box; }
-                        html, body { width: 300px; height: 250px; overflow: hidden; background: transparent; }
-                        body { display: flex; justify-content: center; align-items: flex-start; }
-                    </style>
-                </head>
-                <body>
-                    <script type='text/javascript'>
-                        atOptions = {
-                            'key' : '33d80cd41181a61e5f567fc01f4eec71',
-                            'format' : 'iframe',
-                            'height' : 250,
-                            'width' : 300,
-                            'params' : {}
-                        };
-                    </script>
-                    <script type='text/javascript' src='https://www.highperformanceformat.com/33d80cd41181a61e5f567fc01f4eec71/invoke.js'></script>
-                </body>
-                </html>
-             " sandbox="allow-scripts allow-popups allow-same-origin" width="300" height="250"
-                            style="display: block; border: none; overflow: hidden; width: 300px; height: 250px;" scrolling="no">
-                        </iframe>
+                    <div id="ad-refresh-slot" class="w-[300px] h-[250px] overflow-hidden rounded-lg flex-shrink-0">
                     </div>
                 </div>
 
@@ -293,7 +267,11 @@
             epAbortControllers: new Map(),
             // --- ARCHITECTURAL CHANGE: The Global Modal Priority Lock ---
             activeModal: false,
-            currentFocusIdx: null
+            currentFocusIdx: null,
+            // -- Ad refresh States
+            adClipChanges: 0,
+            adLastRefresh: Date.now(),
+            adTimer: null,
         };
 
         async function safeFetch(url, options = {}) {
@@ -632,6 +610,11 @@
                     if (priority < task.priority) {
                         task.priority = priority;
                         this.queue.sort((a, b) => a.priority - b.priority);
+
+                        // --- FIX: Wake up the sleeping queue processor ---
+                        // If the queue was yielding due to the modal lock on >= 4 priorities, 
+                        // this priority upgrade (e.g., to Priority 1) unlocks it.
+                        this._process();
                     }
                     if (onProgress) {
                         const oldOnProgress = task.onProgress;
@@ -906,6 +889,16 @@
         function openPreview(epId, idx) {
             // --- ARCHITECTURAL CHANGE: Set Global Lock & Abort Background Fetch ---
             state.activeModal = true;
+            loadAd();
+
+            state.adClipChanges = 0;
+            state.adLastRefresh = Date.now();
+
+            clearInterval(state.adTimer);
+
+            state.adTimer = setInterval(() => {
+                maybeRefreshAd();
+            }, 5000);
             DecryptionManager.ruthlessAbortBackground();
 
             if (activeCtx.epId !== epId) renderSliderBase(epId);
@@ -917,6 +910,9 @@
         }
 
         function closePreview() {
+
+            clearInterval(state.adTimer);
+            state.adTimer = null;
             // Hide modal immediately
             els.modal.classList.add('invisible', 'opacity-0');
             els.modal.classList.remove('active');
@@ -967,6 +963,54 @@
             }, 200);
         }
 
+        function loadAd() {
+            const container = document.getElementById('ad-refresh-slot');
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            const iframe = document.createElement('iframe');
+            iframe.width = '300';
+            iframe.height = '250';
+            iframe.style.border = 'none';
+            iframe.sandbox = 'allow-scripts allow-popups allow-same-origin';
+
+            const o = String.fromCharCode(60);  // <
+            const c = String.fromCharCode(62);  // >
+            const s = '/';
+
+            iframe.srcdoc = o + '!DOCTYPE html' + c
+                + o + 'html' + c
+                + o + 'body style="margin:0;padding:0;overflow:hidden"' + c
+                + o + 'script type="text/javascript"' + c
+                + 'atOptions={key:"33d80cd41181a61e5f567fc01f4eec71",format:"iframe",height:250,width:300,params:{}};'
+                + o + s + 'script' + c
+                + o + 'script type="text/javascript" src="https://www.highperformanceformat.com/33d80cd41181a61e5f567fc01f4eec71/invoke.js"' + c
+                + o + s + 'script' + c
+                + o + s + 'body' + c
+                + o + s + 'html' + c;
+
+            container.appendChild(iframe);
+        }
+
+        function maybeRefreshAd() {
+            const elapsed = Date.now() - state.adLastRefresh;
+
+            if (
+                (state.adClipChanges >= 3 || elapsed >= 30000) &&
+                elapsed >= 30000
+            ) {
+                console.log('Refreshing ad');
+
+                loadAd();
+
+                state.adClipChanges = 0;
+                state.adLastRefresh = Date.now();
+            }
+        }
+
+
+
         function renderSliderBase(epId) {
             const epIdx = state.episodesList.findIndex(e => e.id === epId);
             const clips = state.clipsCache[epId].clips || state.clipsCache[epId];
@@ -991,6 +1035,8 @@
         function userSwitchClip(newIdx) {
             if (newIdx === activeCtx.idx) return;
             activeCtx.idx = newIdx;
+            state.adClipChanges++;
+            maybeRefreshAd();
             loadPlayer(true);
         }
 
