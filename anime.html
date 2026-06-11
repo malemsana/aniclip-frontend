@@ -185,7 +185,7 @@
 
         <!-- Main Modal Content -->
         <div
-            class="relative w-full max-w-7xl h-[90vh] md:h-auto bg-slate-900 rounded-xl overflow-hidden border border-slate-700 shadow-2xl flex flex-col lg:flex-row shadow-[0_0_60px_rgba(0,0,0,0.6)] z-10">
+            class="relative w-full max-w-7xl h-[90vh] md:max-h-[90vh] bg-slate-900 rounded-xl overflow-hidden border border-slate-700 shadow-2xl flex flex-col lg:flex-row shadow-[0_0_60px_rgba(0,0,0,0.6)] z-10">
             <button onclick="closePreview()"
                 class="absolute top-2 right-2 lg:top-4 lg:right-4 z-50 bg-black/50 hover:bg-red-500/80 text-white p-1 rounded-full transition-colors backdrop-blur-sm"><span
                     class="material-symbols-rounded">close</span></button>
@@ -205,7 +205,7 @@
                 <!-- Thumb Slider -->
                 <div class="h-24 bg-slate-950 border-t border-white/10 flex flex-col justify-center relative">
                     <div id="thumbnail-slider"
-                        class="thumbnail-slider flex gap-2 overflow-x-auto px-4 py-2 snap-x items-center scroll-smooth">
+                        class="thumbnail-slider flex gap-2 overflow-x-auto overflow-y-hidden px-4 py-2 snap-x items-center scroll-smooth">
                     </div>
                     <div
                         class="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-slate-950 to-transparent pointer-events-none">
@@ -218,7 +218,7 @@
 
             <!-- Sidebar -->
             <div
-                class="w-full lg:w-[30%] bg-slate-900 p-6 lg:p-8 flex flex-col border-l border-slate-800 overflow-y-auto">
+                class="w-full lg:w-[30%] bg-slate-900 p-6 lg:p-8 flex flex-col border-l border-slate-800 overflow-hidden">
                 <div class="mb-4 flex items-center justify-between">
                     <span
                         class="bg-blue-600/20 text-blue-400 text-[10px] font-bold px-2 py-1 rounded border border-blue-500/30 uppercase tracking-widest">HD
@@ -235,19 +235,17 @@
                 <h3 id="preview-filename"
                     class="text-lg md:text-xl font-bold text-white mb-6 font-mono break-words leading-tight">...</h3>
 
-                <div class="text-sm text-slate-400 space-y-3 mb-8 bg-slate-800/50 p-4 rounded-lg border border-white/5">
-                    <div class="flex justify-between border-b border-white/5 pb-2">
-                        <span>Duration</span>
-                        <span id="preview-duration" class="text-slate-200 font-mono">--:--</span>
-                    </div>
-                    <div class="flex justify-between border-b border-white/5 pb-2">
-                        <span>Quality</span>
-                        <span class="text-slate-200">1080p / High</span>
+                <!-- Hidden elements to preserve JS bindings and prevent exceptions -->
+                <span id="preview-duration" class="hidden">--:--</span>
+
+                <!-- Adsterra 300x250 Ad Slot: flex-1 + min-h-0 fills the freed space, overflow-hidden clips the ad -->
+                <div class="flex-1 min-h-0 overflow-hidden mb-8 flex justify-center items-start">
+                    <div id="ad-refresh-slot" class="w-[300px] h-[250px] overflow-hidden rounded-lg flex-shrink-0">
                     </div>
                 </div>
 
                 <!-- STABLE DOWNLOAD CONTAINER -->
-                <div id="download-container" class="mt-auto space-y-3 pb-4"></div>
+                <div id="download-container" class="space-y-3 pb-4"></div>
             </div>
         </div>
     </div>
@@ -269,7 +267,11 @@
             epAbortControllers: new Map(),
             // --- ARCHITECTURAL CHANGE: The Global Modal Priority Lock ---
             activeModal: false,
-            currentFocusIdx: null
+            currentFocusIdx: null,
+            // -- Ad refresh States
+            adClipChanges: 0,
+            adLastRefresh: Date.now(),
+            adTimer: null,
         };
 
         async function safeFetch(url, options = {}) {
@@ -386,7 +388,7 @@
             for (const [url, info] of Object.entries(DecryptionManager.internalControllers)) {
                 if (info.priority >= 5) {
                     const distance = Math.abs(info.episodeIdx - focusIdx);
-                    if (distance > 1) { // If it's further than our padding window, abort it immediately
+                    if (distance > (WINDOW_PADDING + 1)) { // If it's further than our padding window, abort it immediately
                         info.controller.abort();
                     }
                 }
@@ -637,7 +639,7 @@
 
             // --- ARCHITECTURAL CHANGE: The Ruthless Abort Execution ---
             ruthlessAbortBackground() {
-                // 1. Purge background (Priority 4+) tasks from queue immediately
+                // 1. Purge background (Priority 5+) tasks from queue immediately
                 this.queue = this.queue.filter(task => {
                     if (task.priority >= 5) {
                         task.listeners.forEach(l => l.reject(new DOMException("Aborted by Modal Priority", "AbortError")));
@@ -887,6 +889,16 @@
         function openPreview(epId, idx) {
             // --- ARCHITECTURAL CHANGE: Set Global Lock & Abort Background Fetch ---
             state.activeModal = true;
+            loadAd();
+
+            state.adClipChanges = 0;
+            state.adLastRefresh = Date.now();
+
+            clearInterval(state.adTimer);
+
+            state.adTimer = setInterval(() => {
+                maybeRefreshAd();
+            }, 5000);
             DecryptionManager.ruthlessAbortBackground();
 
             if (activeCtx.epId !== epId) renderSliderBase(epId);
@@ -898,6 +910,9 @@
         }
 
         function closePreview() {
+
+            clearInterval(state.adTimer);
+            state.adTimer = null;
             // Hide modal immediately
             els.modal.classList.add('invisible', 'opacity-0');
             els.modal.classList.remove('active');
@@ -930,7 +945,7 @@
 
                             // Re-fetch only if the blob application hasn't resolved yet
                             if (rawUrl && img.classList.contains('hidden')) {
-                                DecryptionManager.getBlobUrl(rawUrl, cId, 4, controller.signal, null, idx).then(decrypted => {
+                                DecryptionManager.getBlobUrl(rawUrl, cId, 5, controller.signal, null, idx).then(decrypted => {
                                     if (decrypted) {
                                         img.src = decrypted;
                                         img.classList.remove('hidden');
@@ -947,6 +962,54 @@
 
             }, 200);
         }
+
+        function loadAd() {
+            const container = document.getElementById('ad-refresh-slot');
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            const iframe = document.createElement('iframe');
+            iframe.width = '300';
+            iframe.height = '250';
+            iframe.style.border = 'none';
+            iframe.sandbox = 'allow-scripts allow-popups allow-same-origin';
+
+            const o = String.fromCharCode(60);  // <
+            const c = String.fromCharCode(62);  // >
+            const s = '/';
+
+            iframe.srcdoc = o + '!DOCTYPE html' + c
+                + o + 'html' + c
+                + o + 'body style="margin:0;padding:0;overflow:hidden"' + c
+                + o + 'script type="text/javascript"' + c
+                + 'atOptions={key:"33d80cd41181a61e5f567fc01f4eec71",format:"iframe",height:250,width:300,params:{}};'
+                + o + s + 'script' + c
+                + o + 'script type="text/javascript" src="https://www.highperformanceformat.com/33d80cd41181a61e5f567fc01f4eec71/invoke.js"' + c
+                + o + s + 'script' + c
+                + o + s + 'body' + c
+                + o + s + 'html' + c;
+
+            container.appendChild(iframe);
+        }
+
+        function maybeRefreshAd() {
+            const elapsed = Date.now() - state.adLastRefresh;
+
+            if (
+                (state.adClipChanges >= 3 || elapsed >= 30000) &&
+                elapsed >= 30000
+            ) {
+                console.log('Refreshing ad');
+
+                loadAd();
+
+                state.adClipChanges = 0;
+                state.adLastRefresh = Date.now();
+            }
+        }
+
+
 
         function renderSliderBase(epId) {
             const epIdx = state.episodesList.findIndex(e => e.id === epId);
@@ -972,6 +1035,8 @@
         function userSwitchClip(newIdx) {
             if (newIdx === activeCtx.idx) return;
             activeCtx.idx = newIdx;
+            state.adClipChanges++;
+            maybeRefreshAd();
             loadPlayer(true);
         }
 
