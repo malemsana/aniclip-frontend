@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ad Revenue Console | AniClips</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .material-symbols-rounded { font-size: 18px; }
+
+        .admin-card {
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        .stat-tile {
+            border-right: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+
+        .group-btn.active {
+            background-color: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+    </style>
+</head>
+<body class="flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="border-b border-white/5 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50 h-14 flex items-center shrink-0">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-white"><span class="material-symbols-rounded text-[14px]">monitoring</span></div>
+                    <span class="text-slate-200 font-black uppercase tracking-wide text-xs">Ani<span class="text-slate-500">Clips</span> <span class="text-blue-500 font-mono text-[9px] ml-1">AD_CONSOLE</span></span>
+                </div>
+                <div class="h-6 w-px bg-white/10"></div>
+                <div class="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest">
+                    <a href="admin.html" class="text-slate-500 hover:text-white transition-colors flex items-center gap-2"><span class="material-symbols-rounded text-sm">dashboard</span> Main Panel</a>
+                    <a href="production.html" class="text-slate-500 hover:text-white transition-colors flex items-center gap-2"><span class="material-symbols-rounded text-sm">precision_manufacturing</span> Production</a>
+                    <a href="storage.html" class="text-slate-500 hover:text-white transition-colors flex items-center gap-2"><span class="material-symbols-rounded text-sm">database</span> Storage</a>
+                    <a href="ad-dash.html" class="text-blue-400 flex items-center gap-2"><span class="material-symbols-rounded text-sm">monitoring</span> Ad Revenue</a>
+                </div>
+            </div>
+            <button onclick="logout()" class="text-[10px] font-bold text-red-500 hover:text-red-400 uppercase tracking-widest">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Slim Stats Bar -->
+    <div class="bg-slate-900/40 border-b border-white/5 h-14 flex items-stretch shrink-0">
+        <div class="container mx-auto px-6 flex items-stretch">
+            <div class="stat-tile flex items-center gap-3 px-6 min-w-[140px]">
+                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400"><span class="material-symbols-rounded text-sm">payments</span></div>
+                <div class="flex items-baseline gap-2"><span id="stat-revenue" class="text-lg font-black text-white">$0.00</span><span class="text-[8px] font-black text-emerald-500 uppercase tracking-tighter">Revenue</span></div>
+            </div>
+            <div class="stat-tile flex items-center gap-3 px-6 min-w-[140px]">
+                <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500"><span class="material-symbols-rounded text-sm">visibility</span></div>
+                <div class="flex items-baseline gap-2"><span id="stat-impressions" class="text-lg font-black text-white">0</span><span class="text-[8px] font-black text-blue-500 uppercase tracking-tighter">Impressions</span></div>
+            </div>
+            <div class="stat-tile flex items-center gap-3 px-6 min-w-[140px]">
+                <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400"><span class="material-symbols-rounded text-sm">ads_click</span></div>
+                <div class="flex items-baseline gap-2"><span id="stat-clicks" class="text-lg font-black text-white">0</span><span class="text-[8px] font-black text-purple-500 uppercase tracking-tighter">Clicks</span></div>
+            </div>
+            <div class="stat-tile flex items-center gap-3 px-6 min-w-[140px]">
+                <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400"><span class="material-symbols-rounded text-sm">speed</span></div>
+                <div class="flex items-baseline gap-2"><span id="stat-cpm" class="text-lg font-black text-white">$0.00</span><span class="text-[8px] font-black text-amber-500 uppercase tracking-tighter">Avg CPM</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8 flex-grow max-w-7xl flex flex-col gap-6">
+        
+        <!-- Controls -->
+        <div class="flex justify-between items-center">
+            <div class="flex gap-2 bg-slate-900 p-1 rounded-lg border border-white/5" id="date-presets">
+                <button onclick="setDateRange('today')" class="px-4 py-1.5 rounded text-[10px] font-bold text-slate-400 hover:text-white transition-colors">Today</button>
+                <button onclick="setDateRange('yesterday')" class="px-4 py-1.5 rounded text-[10px] font-bold text-slate-400 hover:text-white transition-colors">Yesterday</button>
+                <button onclick="setDateRange('7days')" class="px-4 py-1.5 rounded text-[10px] font-bold bg-white/5 text-white shadow transition-colors">Last 7 Days</button>
+                <button onclick="setDateRange('30days')" class="px-4 py-1.5 rounded text-[10px] font-bold text-slate-400 hover:text-white transition-colors">Last 30 Days</button>
+            </div>
+            <div class="flex gap-2">
+                <input type="date" id="start-date" class="bg-slate-900 border border-white/10 rounded px-3 py-1.5 text-xs text-white">
+                <input type="date" id="finish-date" class="bg-slate-900 border border-white/10 rounded px-3 py-1.5 text-xs text-white">
+                <button onclick="fetchStats()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-1">
+                    <span class="material-symbols-rounded text-[14px]">refresh</span> Update
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Chart Section (Left) -->
+            <div class="lg:col-span-8 flex flex-col gap-4">
+                <div class="admin-card p-6 flex-grow flex flex-col">
+                    <h2 class="text-xs font-black tracking-widest text-slate-500 uppercase flex items-center gap-2 mb-4">
+                        <span class="material-symbols-rounded text-sm">show_chart</span> Performance Chart
+                    </h2>
+                    <div class="relative flex-grow min-h-[300px]">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Breakdown Table (Right) -->
+            <div class="lg:col-span-4 flex flex-col gap-4">
+                <div class="admin-card flex flex-col h-full overflow-hidden">
+                    <div class="p-4 border-b border-white/5 flex justify-between items-center bg-slate-900/50">
+                        <h2 class="text-xs font-black tracking-widest text-slate-500 uppercase flex items-center gap-2">
+                            <span class="material-symbols-rounded text-sm">view_list</span> Breakdown
+                        </h2>
+                        <div class="flex gap-1">
+                            <button onclick="setGroupBy('date')" id="btn-group-date" class="group-btn active px-2 py-1 border border-transparent rounded text-[9px] font-black uppercase tracking-widest transition-colors">Date</button>
+                            <button onclick="setGroupBy('country')" id="btn-group-country" class="group-btn px-2 py-1 border border-transparent rounded text-[9px] font-black uppercase tracking-widest transition-colors text-slate-400 hover:text-white">Country</button>
+                            <button onclick="setGroupBy('domain')" id="btn-group-domain" class="group-btn px-2 py-1 border border-transparent rounded text-[9px] font-black uppercase tracking-widest transition-colors text-slate-400 hover:text-white">Domain</button>
+                            <button onclick="setGroupBy('placement')" id="btn-group-placement" class="group-btn px-2 py-1 border border-transparent rounded text-[9px] font-black uppercase tracking-widest transition-colors text-slate-400 hover:text-white">Placement</button>
+                        </div>
+                    </div>
+                    <div class="flex-grow overflow-y-auto custom-scrollbar">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-950/50 text-[9px] font-black text-slate-500 uppercase sticky top-0 border-b border-white/5 backdrop-blur-sm z-10">
+                                <tr>
+                                    <th class="px-4 py-3" id="th-group">Date</th>
+                                    <th class="px-4 py-3 text-right">Impr.</th>
+                                    <th class="px-4 py-3 text-right">CPM</th>
+                                    <th class="px-4 py-3 text-right">Rev.</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stats-body" class="divide-y divide-white/5">
+                                <tr><td colspan="4" class="p-8 text-center text-slate-500 text-[10px] uppercase font-bold italic">Loading data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const API_URL = 'https://aniclip-backend.onrender.com/api';
+        const ADMIN_KEY = localStorage.getItem('aniclip_admin_key');
+        let chartInstance = null;
+        let currentGroupBy = 'date';
+        let domainMap = {};
+        let placementMap = {};
+
+        if (!ADMIN_KEY) { window.location.href = 'auth.html'; }
+
+        // Formatting utilities
+        const formatMoney = (val) => '$' + Number(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 8 });
+        const formatNum = (val) => new Intl.NumberFormat('en-US').format(val);
+
+        // Date utilities
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function setDateRange(preset) {
+            const today = new Date();
+            let start = new Date();
+            let finish = new Date();
+
+            document.querySelectorAll('#date-presets button').forEach(b => {
+                b.className = "px-4 py-1.5 rounded text-[10px] font-bold text-slate-400 hover:text-white transition-colors";
+            });
+            event.target.className = "px-4 py-1.5 rounded text-[10px] font-bold bg-white/5 text-white shadow transition-colors";
+
+            if (preset === 'today') {
+                // start and finish are today
+            } else if (preset === 'yesterday') {
+                start.setDate(today.getDate() - 1);
+                finish.setDate(today.getDate() - 1);
+            } else if (preset === '7days') {
+                start.setDate(today.getDate() - 6);
+            } else if (preset === '30days') {
+                start.setDate(today.getDate() - 29);
+            }
+
+            document.getElementById('start-date').value = formatDate(start);
+            document.getElementById('finish-date').value = formatDate(finish);
+            fetchStats();
+        }
+
+        function setGroupBy(group) {
+            currentGroupBy = group;
+            document.querySelectorAll('.group-btn').forEach(btn => {
+                btn.classList.remove('active', 'text-blue-500');
+                btn.classList.add('text-slate-400', 'hover:text-white');
+            });
+            const activeBtn = document.getElementById(`btn-group-${group}`);
+            activeBtn.classList.remove('text-slate-400', 'hover:text-white');
+            activeBtn.classList.add('active');
+            
+            document.getElementById('th-group').innerText = group.charAt(0).toUpperCase() + group.slice(1);
+            fetchStats();
+        }
+
+        // Helper to get human-friendly names for countries, domains, and placements
+        function formatGroupValue(val, type) {
+            if (!val) return 'Unknown';
+            if (type === 'country') {
+                try {
+                    return new Intl.DisplayNames(['en'], { type: 'region' }).of(val.toUpperCase()) || val;
+                } catch (e) {
+                    return val.toUpperCase();
+                }
+            }
+            if (type === 'domain') {
+                return domainMap[val] || `Domain ID: ${val}`;
+            }
+            if (type === 'placement') {
+                return placementMap[val] || `Placement ID: ${val}`;
+            }
+            return val;
+        }
+
+        async function loadMetadata() {
+            try {
+                const [domRes, placRes] = await Promise.all([
+                    fetch(`${API_URL}/admin/adsterra/domains`, { headers: { 'Authorization': `Bearer ${ADMIN_KEY}` } }),
+                    fetch(`${API_URL}/admin/adsterra/placements`, { headers: { 'Authorization': `Bearer ${ADMIN_KEY}` } })
+                ]);
+                if (domRes.ok) {
+                    const domData = await domRes.json();
+                    (domData.items || []).forEach(d => { domainMap[d.id] = d.title; });
+                }
+                if (placRes.ok) {
+                    const placData = await placRes.json();
+                    (placData.items || []).forEach(p => { placementMap[p.id] = p.title || p.alias; });
+                }
+            } catch (e) {
+                console.error('[Adsterra] Failed to load metadata:', e);
+            }
+        }
+
+        async function fetchStats() {
+            const start = document.getElementById('start-date').value;
+            const finish = document.getElementById('finish-date').value;
+            const tbody = document.getElementById('stats-body');
+
+            tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-blue-500 text-[10px] uppercase font-bold tracking-widest animate-pulse">Fetching from Adsterra...</td></tr>`;
+
+            try {
+                const res = await fetch(`${API_URL}/admin/adsterra/stats?start_date=${start}&finish_date=${finish}&group_by=${currentGroupBy}`, {
+                    headers: { 'Authorization': `Bearer ${ADMIN_KEY}` }
+                });
+                
+                if (!res.ok) throw new Error(await res.text());
+                const data = await res.json();
+                
+                renderDashboard(data.items || []);
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-red-500 text-[10px] uppercase font-bold tracking-widest">Failed to load: ${err.message}</td></tr>`;
+            }
+        }
+
+        function renderDashboard(items) {
+            let totalRev = 0, totalImp = 0, totalClicks = 0;
+            
+            // Sort by date/grouping
+            items.sort((a, b) => {
+                const valA = a[currentGroupBy] || '';
+                const valB = b[currentGroupBy] || '';
+                return valA > valB ? -1 : 1; // descending
+            });
+
+            const tbody = document.getElementById('stats-body');
+            tbody.innerHTML = '';
+
+            const chartLabels = [];
+            const chartRev = [];
+            const chartImp = [];
+
+            if (items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-500 text-[10px] uppercase font-bold italic">No data found for this period.</td></tr>`;
+            } else {
+                items.forEach(item => {
+                    totalRev += parseFloat(item.revenue || 0);
+                    totalImp += parseInt(item.impression || 0);
+                    totalClicks += parseInt(item.clicks || 0);
+
+                    const groupVal = item[currentGroupBy] || 'Unknown';
+                    const displayVal = formatGroupValue(groupVal, currentGroupBy);
+                    const rev = parseFloat(item.revenue || 0);
+                    const imp = parseInt(item.impression || 0);
+                    const cpm = parseFloat(item.cpm || 0);
+
+                    // Add to chart arrays (reverse so chronological for chart if date)
+                    chartLabels.unshift(displayVal);
+                    chartRev.unshift(rev);
+                    chartImp.unshift(imp);
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-white/[0.02] transition-colors">
+                            <td class="px-4 py-3 text-[11px] text-slate-300 truncate max-w-[160px]" title="${displayVal}">${displayVal}</td>
+                            <td class="px-4 py-3 text-right text-[11px] text-slate-400">${formatNum(imp)}</td>
+                            <td class="px-4 py-3 text-right text-[11px] font-mono text-amber-500/80">${formatMoney(cpm)}</td>
+                            <td class="px-4 py-3 text-right text-[11px] font-bold text-emerald-400">${formatMoney(rev)}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Update Header Stats
+            document.getElementById('stat-revenue').innerText = formatMoney(totalRev);
+            document.getElementById('stat-impressions').innerText = formatNum(totalImp);
+            document.getElementById('stat-clicks').innerText = formatNum(totalClicks);
+            document.getElementById('stat-cpm').innerText = formatMoney(totalImp > 0 ? (totalRev / totalImp * 1000) : 0);
+
+            updateChart(chartLabels, chartRev, chartImp);
+        }
+
+        function updateChart(labels, revData, impData) {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            Chart.defaults.color = '#64748b';
+            Chart.defaults.font.family = 'Inter';
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Revenue ($)',
+                            data: revData,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 2,
+                            yAxisID: 'y',
+                            tension: 0.3,
+                            fill: true,
+                            pointBackgroundColor: '#020617',
+                            pointBorderColor: '#10b981',
+                            pointRadius: 3
+                        },
+                        {
+                            label: 'Impressions',
+                            data: impData,
+                            borderColor: '#3b82f6',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            yAxisID: 'y1',
+                            tension: 0.3,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { position: 'top', align: 'end', labels: { boxWidth: 12, usePointStyle: true, font: { size: 10, weight: 'bold' } } },
+                        tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', titleFont: { size: 11 }, bodyFont: { size: 11 }, padding: 10, cornerRadius: 8, borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1 }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { font: { size: 10 } } },
+                        y: { type: 'linear', display: true, position: 'left', grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { callback: (val) => '$' + val, font: { size: 10 } } },
+                        y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, ticks: { font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        function logout() { localStorage.removeItem('aniclip_admin_key'); window.location.href = 'auth.html'; }
+
+        window.onload = async () => {
+            // Default to Last 7 Days
+            const today = new Date();
+            const start = new Date();
+            start.setDate(today.getDate() - 6);
+            document.getElementById('start-date').value = formatDate(start);
+            document.getElementById('finish-date').value = formatDate(today);
+            
+            await loadMetadata();
+            fetchStats();
+        };
+    </script>
+</body>
+</html>
