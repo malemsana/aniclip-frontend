@@ -1,0 +1,28 @@
+[
+  {
+    "id": "introducing-aniclips-v5",
+    "title": "AniClips v5: The Future of Visual Memory Search",
+    "slug": "introducing-aniclips-v5.html",
+    "date": "June 15, 2026",
+    "readTime": "5 min read",
+    "category": "Platform Inventions",
+    "excerpt": "We are completely changing how anime clips are discovered. Think of a scene naturally, and let semantic vector matching map your visual memories back to exact frame sequences.",
+    "image": "https://i.ibb.co/zT3SwMqJ/Aniclips-5v-announcement-poster.png",
+    "author": "Previous Stomach",
+    "authorTitle": "Creator & Lead Dev",
+    "featured": true
+  },
+  {
+    "id": "introducing-aniclips-v4",
+    "title": "Introducing AniClips V4",
+    "slug": "introducing-aniclips.html",
+    "date": "February 12, 2026",
+    "readTime": "4 min read",
+    "category": "Creator Notes",
+    "excerpt": "Why scrubbing timelines, wrestling heavy video files, and opening endless background browser tabs inspired the launch of a frame-accurate clip utility platform.",
+    "image": "https://cdn.jsdelivr.net/gh/malemsana2/aniclip-frontend@main/blogs/assets/aniclips-v4-blogposter.webp",
+    "author": "Previous Stomach",
+    "authorTitle": "Creator & Lead Dev",
+    "featured": false
+  }
+]

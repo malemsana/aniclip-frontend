@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Unique dynamic config parameters for dynamic routing cross-references -->
+    <meta name="article-id" content="introducing-aniclips-v5">
+    
+    <title>AniClips v5: The Future of Visual Memory Search | AniClips Blog</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Unified Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <!-- Original Homepage Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { gray: { 900: '#0f172a', 950: '#020617' }, brand: { 500: '#3b82f6', 600: '#2563eb' } },
+                    animation: { 'fade-in': 'fadeIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards' }
+                }
+            }
+        }
+    </script>
+
+    <!-- Unified Styles -->
+    <style>
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+
+        /* Glass Nav */
+        .glass-nav {
+            background: rgba(2, 6, 23, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-enter {
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+        
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;  
+            overflow: hidden;
+        }
+
+        /* Smooth Scroll-Reveal Classes (Restored from browse.html) */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+                        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform, opacity;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body class="antialiased min-h-screen flex flex-col bg-[#020617] relative selection:bg-blue-600 selection:text-white">
+
+    <!-- Subtle Ambient Glows -->
+    <div class="absolute top-0 right-1/4 w-[500px] h-[500px] bg-blue-900/10 rounded-full blur-[150px] pointer-events-none z-0"></div>
+
+    <!-- ==== PREMIUM GLASS NAVIGATION BAR ==== -->
+    <header class="fixed top-0 w-full z-50 glass-nav transition-all duration-300">
+        <nav class="container mx-auto px-4 h-16 flex justify-between items-center">
+            <!-- LOGO -->
+            <a href="../index.html" class="flex items-center gap-3 group z-50">
+                <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                    <span class="material-symbols-rounded text-white text-lg">movie</span>
+                </div>
+                <span class="font-black text-xl tracking-wide text-slate-100 group-hover:text-white transition-colors">
+                    Ani<span class="text-blue-500">Clips</span>
+                </span>
+                <span class="ml-2 px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[9px] font-bold text-slate-400 uppercase tracking-widest hidden sm:block">
+                    Blog
+                </span>
+            </a>
+
+            <!-- NAV LINKS -->
+            <div class="flex items-center gap-6 z-50">
+                <a href="../blogs.html" class="text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-wider transition-colors flex items-center gap-1">
+                    <span class="material-symbols-rounded text-sm">arrow_back</span> Back to Blogs
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ==== ARTICLE HERO ==== -->
+    <div class="w-full relative pt-28 pb-12 sm:pt-36 sm:pb-16 px-4 z-10 animate-enter">
+        <div class="max-w-4xl mx-auto">
+            
+            <!-- Breadcrumbs / Meta -->
+            <div class="flex flex-wrap items-center gap-3 mb-6">
+                <a href="../blogs.html" class="text-[10px] font-bold text-blue-500 hover:text-blue-400 uppercase tracking-widest transition-colors">Platform Inventions</a>
+                <span class="w-1 h-1 rounded-full bg-slate-700"></span>
+                <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">June 15, 2026</span>
+                <span class="w-1 h-1 rounded-full bg-slate-700"></span>
+                <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                    <span class="material-symbols-rounded text-[12px]">schedule</span> 5 min read
+                </span>
+            </div>
+
+            <!-- Title -->
+            <h1 class="text-3xl sm:text-5xl md:text-6xl font-black text-white leading-[1.1] tracking-tight mb-6 uppercase italic">
+                AniClips v5: The Future of Visual Memory Search
+            </h1>
+
+            <!-- Subtitle -->
+            <p class="text-lg sm:text-xl text-slate-400 font-medium leading-relaxed max-w-3xl mb-10">
+                We are completely changing how anime clips are discovered. Think of a scene naturally, and let semantic vector matching map your visual memories back to exact frame sequences.
+            </p>
+
+            <!-- Author Plate -->
+            <div class="flex items-center gap-4 border-t border-white/5 pt-6">
+                <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white text-sm shadow-[0_0_10px_rgba(37,99,235,0.3)]">
+                    PS
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-white">Previous Stomach</p>
+                    <p class="text-[10px] text-slate-500 uppercase tracking-wider">Creator & Lead Developer</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ==== MAIN ARTICLE CONTENT (RESTORED FROM BROWSE.HTML) ==== -->
+    <main class="max-w-3xl mx-auto w-full px-4 pb-12 z-10">
+        
+        <!-- Large High-Impact Header Poster (Full Width at Top) -->
+        <div class="reveal w-full mb-12" style="animation-delay: 50ms;">
+            <div class="rounded-2xl overflow-hidden bg-slate-950 border border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.8)] hover:border-blue-500/20 transition-all duration-500">
+                <img src="https://i.ibb.co/zT3SwMqJ/Aniclips-5v-announcement-poster.png" alt="AniClips v5 Announcement Poster" class="w-full h-auto object-cover">
+            </div>
+            <p class="text-[11px] text-center text-slate-500 font-medium mt-3">AniClips v5.0 — Release Announcement Poster</p>
+        </div>
+
+        <article class="space-y-16">
+            
+            <!-- Opening Section -->
+            <section class="reveal space-y-6">
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Hi Editors, Anime lovers!</h2>
+                <p class="text-slate-300 leading-relaxed text-base sm:text-lg">
+                    Today I am excited to announce what <span class="text-blue-400 font-semibold">AniClips v5</span> is bringing to the community.
+                </p>
+                <p class="text-slate-400 leading-relaxed text-sm sm:text-base">
+                    Right now, AniClips lets you browse clips through anime episodes, preview them, and download the exact moments you need. 
+                </p>
+                <p class="text-slate-400 leading-relaxed text-sm sm:text-base">
+                    But there is still a major limitation. You can only find a clip if you already know:
+                </p>
+                <ul class="space-y-2 pl-4 border-l border-blue-500/30 text-sm text-slate-300">
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> the anime</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> the episode</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> or where the scene is from</li>
+                </ul>
+                <p class="text-slate-400 leading-relaxed text-sm sm:text-base">
+                    That means if a scene only exists in your memory, finding it becomes difficult.
+                </p>
+            </section>
+
+            <!-- Memory Gap (Original Wide Banners with Blurred Backgrounds Restored) -->
+            <section class="reveal space-y-6">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Maybe you remember...</h3>
+                <div class="space-y-4">
+                    
+                    <!-- 1. Train Scene -->
+                    <div class="relative overflow-hidden rounded-xl border border-white/10 h-32 sm:h-40 group flex items-center p-6 sm:p-8 transition-colors hover:border-blue-500/30">
+                        <!-- Blur (3px) Background Image to represent blurred memory -->
+                        <div class="absolute inset-0 z-0 transition-transform duration-700 ease-out group-hover:scale-[1.04] bg-cover bg-center"
+                             style="background-image: url('https://i.ibb.co/WmBtsNc/image.png'); filter: blur(3px) brightness(0.4); transform: scale(1.08);">
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/40 to-transparent z-10"></div>
+                        <div class="relative z-20 max-w-[85%] space-y-1 sm:space-y-2">
+                            <span class="text-[9px] font-black tracking-widest text-blue-400 uppercase">Visual Memory Search</span>
+                            <h4 class="text-sm sm:text-lg font-bold text-white leading-tight group-hover:text-blue-300 transition-colors">a girl leaning on someone in a train</h4>
+                            <p class="text-[11px] text-slate-300 hidden sm:block">Locates exact visual framing from vague situational descriptions</p>
+                        </div>
+                    </div>
+
+                    <!-- 2. Rainy Scene -->
+                    <div class="relative overflow-hidden rounded-xl border border-white/10 h-32 sm:h-40 group flex items-center p-6 sm:p-8 transition-colors hover:border-blue-500/30">
+                        <div class="absolute inset-0 z-0 transition-transform duration-700 ease-out group-hover:scale-[1.04] bg-cover bg-center"
+                             style="background-image: url('https://i.ibb.co/fcpwn0H/image.png'); filter: blur(3px) brightness(0.4); transform: scale(1.08);">
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/40 to-transparent z-10"></div>
+                        <div class="relative z-20 max-w-[85%] space-y-1 sm:space-y-2">
+                            <span class="text-[9px] font-black tracking-widest text-blue-400 uppercase">Atmospheric Search</span>
+                            <h4 class="text-sm sm:text-lg font-bold text-white leading-tight group-hover:text-blue-300 transition-colors">a quiet rainy scene</h4>
+                            <p class="text-[11px] text-slate-300 hidden sm:block">Analyzes weather states, color palettes, and environmental moods</p>
+                        </div>
+                    </div>
+
+                    <!-- 3. Broken Katana -->
+                    <div class="relative overflow-hidden rounded-xl border border-white/10 h-32 sm:h-40 group flex items-center p-6 sm:p-8 transition-colors hover:border-blue-500/30">
+                        <div class="absolute inset-0 z-0 transition-transform duration-700 ease-out group-hover:scale-[1.04] bg-cover bg-center"
+                             style="background-image: url('https://i.ibb.co/psMP3kL/kimetsu-no-yaiba-tanjiro-vs-rui-wallpaper-2304x768-103.jpg'); filter: blur(3px) brightness(0.4); transform: scale(1.08);">
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/40 to-transparent z-10"></div>
+                        <div class="relative z-20 max-w-[85%] space-y-1 sm:space-y-2">
+                            <span class="text-[9px] font-black tracking-widest text-blue-400 uppercase">Action & Frame Search</span>
+                            <h4 class="text-sm sm:text-lg font-bold text-white leading-tight group-hover:text-blue-300 transition-colors">a broken katana during a fight</h4>
+                            <p class="text-[11px] text-slate-300 hidden sm:block">Detects key action moments, object damage, and weapon states</p>
+                        </div>
+                    </div>
+
+                    <!-- 4. Dialogue Scene -->
+                    <div class="relative overflow-hidden rounded-xl border border-white/10 h-32 sm:h-40 group flex items-center p-6 sm:p-8 transition-colors hover:border-blue-500/30">
+                        <div class="absolute inset-0 z-0 transition-transform duration-700 ease-out group-hover:scale-[1.04] bg-cover bg-center"
+                             style="background-image: url('https://i.ibb.co/WN7XSrh4/image.png'); filter: blur(3px) brightness(0.4); transform: scale(1.08);">
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/40 to-transparent z-10"></div>
+                        <div class="relative z-20 max-w-[85%] space-y-1 sm:space-y-2">
+                            <span class="text-[9px] font-black tracking-widest text-blue-400 uppercase">Transcript & Subtitle Search</span>
+                            <h4 class="text-sm sm:text-lg font-bold text-white leading-tight group-hover:text-blue-300 transition-colors">a dialogue that stayed in your head for years</h4>
+                            <p class="text-[11px] text-slate-300 hidden sm:block">Matches exact subtitle phrases and spoken words in real-time</p>
+                        </div>
+                    </div>
+
+                </div>
+                <p class="text-slate-400 leading-relaxed text-sm sm:text-base pt-2">
+                    But you don't remember the episode. Sometimes not even the anime itself.
+                </p>
+                <p class="text-white text-base sm:text-lg font-medium leading-relaxed">
+                    So with <span class="text-blue-400 font-semibold">v5</span>, we want to change how anime clips are discovered completely.
+                </p>
+            </section>
+
+            <!-- Feature 1 (Original List Style Restored) -->
+            <section class="reveal space-y-4 border-t border-white/5 pt-8">
+                <div class="text-[10px] font-black text-blue-500 tracking-wider uppercase">Feature 01</div>
+                <h4 class="text-xl font-bold text-white">Search by anime, genre, episode</h4>
+                <p class="text-slate-400 leading-relaxed text-sm sm:text-base">
+                    What we already support today, but significantly improved.
+                </p>
+                <div class="bg-slate-900/30 border border-white/5 rounded-xl p-4 space-y-1.5 text-xs text-slate-400">
+                    <p class="font-bold text-slate-300 uppercase tracking-wide text-[10px]">Examples:</p>
+                    <p>• Demon Slayer Episode 16</p>
+                    <p>• Romance anime</p>
+                    <p>• Action, Isekai</p>
+                    <p>• Classroom scenes</p>
+                </div>
+            </section>
+
+            <!-- Feature 2 -->
+            <section class="reveal space-y-4 border-t border-white/5 pt-8">
+                <div class="text-[10px] font-black text-blue-500 tracking-wider uppercase">Feature 02</div>
+                <h4 class="text-xl font-bold text-white">Search by scene description</h4>
+                <p class="text-slate-400 leading-relaxed text-sm sm:text-base">
+                    Describe a scene naturally using your own words and instantly get matching visual clips.
+                </p>
+                <div class="bg-slate-900/30 border border-white/5 rounded-xl p-4 space-y-1.5 text-xs text-slate-400 italic">
+                    <p class="font-bold text-slate-300 uppercase tracking-wide text-[10px] not-italic">Examples:</p>
+                    <p>"A loving couple in a train"</p>
+                    <p>"Girl leans on the boy"</p>
+                    <p>"MC fighting demon with katana"</p>
+                    <p>"Katana snaps during battle"</p>
+                    <p>"Sad anime rain scene"</p>
+                </div>
+            </section>
+
+            <!-- Feature 3 -->
+            <section class="reveal space-y-4 border-t border-white/5 pt-8">
+                <div class="text-[10px] font-black text-blue-500 tracking-wider uppercase">Feature 03</div>
+                <h4 class="text-xl font-bold text-white">Search by dialogue</h4>
+                <p class="text-slate-400 leading-relaxed text-sm sm:text-base">
+                    Yes. Real dialogue search across our entire library. Not just the ultra-famous edits, but every spoken sentence indexed.
+                </p>
+                <div class="bg-slate-900/30 border border-white/5 rounded-xl p-4 space-y-2 text-xs text-slate-400">
+                    <p class="font-bold text-slate-300 uppercase tracking-wide text-[10px]">Examples:</p>
+                    <p class="italic">"Can't find a door? Create your own."</p>
+                    <p class="italic">"Change someone's life, even just in a small way."</p>
+                </div>
+            </section>
+
+            <!-- Feature 4 -->
+            <section class="reveal space-y-4 border-t border-white/5 pt-8">
+                <div class="text-[10px] font-black text-blue-500 tracking-wider uppercase">Feature 04</div>
+                <h4 class="text-xl font-bold text-white">Find similar clips</h4>
+                <p class="text-slate-400 leading-relaxed text-sm sm:text-base">
+                    Found a clip you like? AniClips v5 can help you discover similar scenes:
+                </p>
+                <ul class="space-y-2 pl-4 border-l border-blue-500/30 text-xs sm:text-sm text-slate-400">
+                    <li>• from the same anime</li>
+                    <li>• or completely different anime with similar emotions, visuals, or atmosphere</li>
+                </ul>
+            </section>
+
+            <!-- Feature 5 & 6 -->
+            <section class="reveal space-y-4 border-t border-white/5 pt-8">
+                <div class="text-[10px] font-black text-blue-500 tracking-wider uppercase">Workflow & Performance</div>
+                <h4 class="text-xl font-bold text-white">Faster downloading & browsing</h4>
+                <p class="text-slate-400 leading-relaxed text-sm sm:text-base">
+                    We designed v5 with a complete understanding of how video editors work.
+                </p>
+                <div class="space-y-3 pl-4 border-l border-slate-700 text-sm text-slate-300">
+                    <div>
+                        <p class="font-bold text-white">Multi-Clip Downloads:</p>
+                        <p class="text-xs text-slate-400 mt-1">Download current clip, previous clip, and next clip all together at once. Because editors usually never need only one clip.</p>
+                    </div>
+                    <div>
+                        <p class="font-bold text-white">Extreme Optimization:</p>
+                        <p class="text-xs text-slate-400 mt-1">Smoother previews, instant hover playback, faster page loads, and a lighter browser footprint.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Simple Goal Callout -->
+            <section class="reveal py-8 border-y border-white/5 space-y-3">
+                <div class="text-2xl sm:text-3xl font-black text-white italic tracking-wide uppercase">
+                    The goal is simple:
+                </div>
+                <p class="text-xl sm:text-2xl font-light text-blue-400 leading-normal">
+                    You think of a moment from memory <span class="text-white font-semibold">&rarr; AniClips finds the exact clip.</span>
+                </p>
+                <p class="text-sm text-slate-500 leading-relaxed">
+                    Not just famous scenes. Not just trending edits. But even small, intimate moments that people normally forget.
+                </p>
+            </section>
+
+            <!-- Closing Sign-off -->
+            <section class="reveal space-y-4">
+                <p class="text-slate-400 leading-relaxed text-sm sm:text-base">
+                    Our team is working hard to bring that experience to life.
+                </p>
+                <p class="text-lg font-bold text-white">
+                    Just hang in tight. AniClips v5 is coming.
+                </p>
+            </section>
+
+            <!-- Conclusion Callout Link -->
+            <div class="reveal mt-16 pt-10 border-t border-white/5 space-y-6 text-center">
+                <a href="../index.html" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3.5 rounded-lg shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all hover:-translate-y-0.5">
+                    <span class="material-symbols-rounded">movie</span> Back to Library
+                </a>
+            </div>
+
+        </article>
+    </main>
+
+    <!-- ==== DYNAMIC DUAL-CROSS REFERENCE (Continue Reading Segment) ==== -->
+    <section class="max-w-5xl mx-auto w-full px-4 pt-12 pb-24 border-t border-white/5 z-10">
+        <div class="flex items-center justify-between mb-8">
+            <h3 class="text-base font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+                <span class="material-symbols-rounded text-blue-500 text-lg">read_more</span> Continue Reading
+            </h3>
+            <a href="../blogs.html" class="text-xs text-slate-500 hover:text-white uppercase font-bold tracking-widest transition-colors flex items-center gap-1">
+                All Articles <span class="material-symbols-rounded text-xs">arrow_forward</span>
+            </a>
+        </div>
+        
+        <div id="continue-reading-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Dynamic items loaded based on local JSON analysis -->
+            <div class="h-48 bg-slate-900/40 rounded-xl border border-slate-800 animate-pulse"></div>
+            <div class="h-48 bg-slate-900/40 rounded-xl border border-slate-800 animate-pulse"></div>
+        </div>
+    </section>
+
+    <!-- ==== FOOTER (Copied directly from index.html) ==== -->
+    <footer class="mt-auto border-t border-white/5 bg-slate-950/80 backdrop-blur-2xl pt-16 pb-8 z-10">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
+
+                <!-- Column 1: Brand & About (4 Cols) -->
+                <div class="lg:col-span-4 space-y-6">
+                    <a href="/" class="flex items-center gap-3 group">
+                        <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                            <span class="material-symbols-rounded text-white text-lg">movie</span>
+                        </div>
+                        <span class="font-black text-xl tracking-tight text-slate-100">Ani<span class="text-blue-500">Clips</span></span>
+                    </a>
+                    <p class="text-slate-400 text-sm leading-relaxed max-w-sm">
+                        AniClips is your ultimate destination for high-quality anime moments. We provide a seamless experience for discovering, previewing, and collecting your favorite clips from the world's most popular series.
+                    </p>
+                    <div class="flex gap-4">
+                        <a target="_blank" href="https://t.me/+QTrHC5GUA9w5NjI9" title="Telegram" class="w-10 h-10 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#26A5E4] hover:border-[#26A5E4]/30 transition-all shadow-lg">
+                            <i class="fa-brands fa-telegram text-xl"></i>
+                        </a>
+                        <a target="_blank" href="https://www.reddit.com/r/aniclips_site/" title="Reddit" class="w-10 h-10 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#FF4500] hover:border-[#FF4500]/30 transition-all shadow-lg">
+                            <i class="fa-brands fa-reddit-alien text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Column 2: Navigation (2 Cols) -->
+                <div class="lg:col-span-2">
+                    <h4 class="text-white font-bold mb-6 text-xs uppercase tracking-widest">Library</h4>
+                    <ul class="space-y-4 text-slate-400 text-sm">
+                        <li><a href="/" class="hover:text-blue-400 transition-colors">Home</a></li>
+                        <li><a href="/" class="hover:text-blue-400 transition-colors">Trending</a></li>
+                        <li><a href="/" class="hover:text-blue-400 transition-colors">Collections</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Collapsible FOQA (6 Cols) -->
+                <div class="lg:col-span-6">
+                    <h4 class="text-white font-bold mb-6 text-xs uppercase tracking-widest">Quick FOQA</h4>
+                    <div class="space-y-3">
+                        <details class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                                <span class="text-sm font-bold text-slate-200">Is the library free to use?</span>
+                                <span class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                            </summary>
+                            <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
+                                Yes, AniClips is a free community-driven project. We do not charge for access to our standard or 4K/RAW library segments.
+                            </div>
+                        </details>
+
+                        <details class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                                <span class="text-sm font-bold text-slate-200">How do I download RAW clips?</span>
+                                <span class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                            </summary>
+                            <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
+                                Open any episode, click on a clip card, and use the "Download Ready" button. You can choose between 'Fast' (standard) or 'HQ' (RAW) depending on availability.
+                            </div>
+                        </details>
+
+                        <details class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                                <span class="text-sm font-bold text-slate-200">What about copyrights of the clips?</span>
+                                <span class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                            </summary>
+                            <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
+                                They are rightfully owned by the respective owners of the anime. We are just an editor community operate on principle of fair use and keeping the fanbase alive. We are industrially not recognised but tolerated as fan Media such as AMV, edit stimulates Blu-ray and merchandise sales. At no point do we monitise from this website nor do our users (you) as youtube claims all the money anyway, going straight to the rightful owners.
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                <p>&copy; 2025 AniClips Library. All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-white transition-colors">Privacy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms</a>
+                    <a href="#" class="hover:text-white transition-colors">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==== DYNAMIC CONTINUOUS READING RECOMMENDATION ENGINE ==== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Get the ID of the current page to exclude it from recommendation cards
+                const currentArticleId = document.querySelector('meta[name="article-id"]')?.getAttribute('content');
+
+                // Read manifest records
+                const response = await fetch('manifest.json');
+                if (!response.ok) throw new Error("Manifest could not be read.");
+                const articles = await response.json();
+
+                // Filter out the active post
+                const remaining = articles.filter(art => art.id !== currentArticleId);
+
+                // Slice down to top 2 relevant recommendations
+                const recommendations = remaining.slice(0, 2);
+
+                const container = document.getElementById('continue-reading-grid');
+                if (recommendations.length > 0) {
+                    container.innerHTML = recommendations.map((art, i) => `
+                        <a href="${art.slug}" class="group relative rounded-xl bg-slate-900/50 border border-slate-800/80 hover:border-blue-500/30 overflow-hidden flex flex-col md:flex-row items-center transition-all duration-300 hover:bg-slate-900 shadow-md">
+                            <div class="w-full md:w-1/3 aspect-[16/10] bg-slate-950 relative overflow-hidden self-stretch shrink-0">
+                                <img src="${art.image}" class="w-full h-full object-cover opacity-50 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500">
+                                <div class="absolute top-2 left-2 bg-slate-900/95 backdrop-blur border border-white/10 text-[8px] text-slate-300 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
+                                    ${art.category}
+                                </div>
+                            </div>
+                            <div class="p-5 flex flex-col justify-center min-w-0 flex-grow">
+                                <div class="text-[9px] font-mono text-slate-500 mb-1">${art.date}</div>
+                                <h4 class="text-sm sm:text-base font-bold text-white leading-snug group-hover:text-blue-400 transition-colors truncate">
+                                    ${art.title}
+                                </h4>
+                                <p class="text-[11px] text-slate-400 leading-normal line-clamp-2 mt-1.5">
+                                    ${art.excerpt}
+                                </p>
+                            </div>
+                        </a>
+                    `).join('');
+                } else {
+                    container.innerHTML = `<p class="col-span-full text-center text-slate-600 text-xs py-8 font-mono">Next Article Cooking...</p>`;
+                }
+
+            } catch (err) {
+                console.error("Failed to run continuous reading index loader:", err);
+            }
+        });
+    </script>
+
+    <!-- ==== SCROLL REVEAL ACTIVATION ENGINE ==== -->
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const reveals = document.querySelectorAll('.reveal');
+            
+            const revealOnScroll = () => {
+                const triggerBottom = window.innerHeight * 0.9;
+                
+                reveals.forEach(reveal => {
+                    const revealTop = reveal.getBoundingClientRect().top;
+                    
+                    if (revealTop < triggerBottom) {
+                        reveal.classList.add('active');
+                    }
+                });
+            };
+
+            // Initial check on load
+            revealOnScroll();
+            
+            // Listen for scroll events
+            window.addEventListener('scroll', revealOnScroll);
+        });
+    </script>
+</body>
+</html>
