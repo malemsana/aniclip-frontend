@@ -120,6 +120,16 @@
         }
     </style>
 </head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NT7KEQQ2JS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-NT7KEQQ2JS');
+</script>
+
 
 <body class="text-slate-100 antialiased min-h-screen flex flex-col">
 
@@ -269,9 +279,13 @@
             activeModal: false,
             currentFocusIdx: null,
             // -- Ad refresh States
-            adClipChanges: 0,
+            adClipChanges: 1,
             adLastRefresh: Date.now(),
             adTimer: null,
+
+            adsterraSmartlink: "https://tightslybella.com/bbrz7gt0y?key=dff6e2a313021f1926e1cb07b263f398",
+            popunderCooldownMin: 0.5, // 0 minutes cap
+            popunderStorageKey: "ac_last_popunder"
         };
 
         async function safeFetch(url, options = {}) {
@@ -887,6 +901,7 @@
         let activeCtx = { epId: null, idx: 0 };
 
         function openPreview(epId, idx) {
+            // executePopUnderEngine();
             // --- ARCHITECTURAL CHANGE: Set Global Lock & Abort Background Fetch ---
             state.activeModal = true;
             loadAd();
@@ -907,12 +922,22 @@
             els.modal.classList.remove('invisible', 'opacity-0');
             document.body.style.overflow = 'hidden';
             loadPlayer(true);
+            precalculateCloseAd();
         }
 
         function closePreview() {
+            // --- ADSTERRA CLEANUP ENGINE ---
+            // If the modal closes, strip away the pre-calculated anchor wrapper if it exists
+            const closeBtn = document.querySelector('#preview-modal button[onclick="closePreview()"]');
+            if (closeBtn && closeBtn.parentElement.tagName === 'A' && closeBtn.parentElement.classList.contains('ad-wrapper')) {
+                const wrapper = closeBtn.parentElement;
+                wrapper.replaceWith(closeBtn);
+            }
+            // -------------------------------
 
             clearInterval(state.adTimer);
             state.adTimer = null;
+
             // Hide modal immediately
             els.modal.classList.add('invisible', 'opacity-0');
             els.modal.classList.remove('active');
@@ -991,6 +1016,71 @@
                 + o + s + 'html' + c;
 
             container.appendChild(iframe);
+        }
+        function precalculateCloseAd() {
+            const closeBtn = document.querySelector('#preview-modal button[onclick="closePreview()"]');
+            if (!closeBtn) return;
+
+            // Remove any previous wrapper wrapper if it exists from a prior open state
+            if (closeBtn.parentElement.tagName === 'A' && closeBtn.parentElement.classList.contains('ad-wrapper')) {
+                const wrapper = closeBtn.parentElement;
+                wrapper.replaceWith(closeBtn);
+            }
+
+            // 1. Cooldown Cap Check
+            const lastImpression = localStorage.getItem(state.popunderStorageKey);
+            const now = Date.now();
+            const cooldownMs = state.popunderCooldownMin * 60 * 1000;
+            if (lastImpression && (now - lastImpression) < cooldownMs) return;
+
+            // 2. 1/3 Probability Check
+            if (Math.random() > 0.333) return;
+
+            // 3. If YES: Wrap the button in a physical, native link anchor
+            const adLink = document.createElement('a');
+            adLink.href = state.adsterraSmartlink;
+            adLink.target = '_blank';
+            adLink.className = "ad-wrapper cursor-pointer";
+
+            // Intercept click to save cooldown state and remove the wrapper immediately
+            adLink.addEventListener('click', () => {
+                localStorage.setItem(state.popunderStorageKey, Date.now());
+                // Instantly unwrap so clicking it again within the same view won't trigger another ad
+                setTimeout(() => {
+                    if (adLink.parentElement) {
+                        adLink.replaceWith(closeBtn);
+                    }
+                }, 50);
+            });
+
+            // Execute the wrapper overlay injection
+            closeBtn.parentNode.insertBefore(adLink, closeBtn);
+            adLink.appendChild(closeBtn);
+        }
+        function executePopUnderEngine() {
+            // 1. 1/3 Random Chance Verification
+            if (Math.random() > 0.333) {
+                console.log("Ad skipped via 1/3 chance logic.");
+                return;
+            }
+
+            // 2. Frequency Cap Filter
+            const lastImpression = localStorage.getItem(state.popunderStorageKey);
+            const now = Date.now();
+            const cooldownMs = state.popunderCooldownMin * 60 * 1000;
+
+            if (!lastImpression || (now - lastImpression) > cooldownMs) {
+                // Safe user-interaction-triggered window deployment
+                const adTab = window.open(state.adsterraSmartlink, '_blank');
+
+                if (adTab) {
+                    window.focus(); // Shift focus back to AniClips (Pop-under matrix)
+                    localStorage.setItem(state.popunderStorageKey, now);
+                    console.log("Pop-under executed cleanly.");
+                }
+            } else {
+                console.log("Ad capped by active frequency limitation.");
+            }
         }
 
         function maybeRefreshAd() {
