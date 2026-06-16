@@ -145,31 +145,24 @@
     <header class="fixed top-0 w-full z-50 glass-nav transition-all duration-300" id="navbar">
         <nav class="container mx-auto px-4 h-16 flex justify-between items-center">
 
-            <!-- LOGO (Corrected Spacing) -->
             <a href="index.html" class="flex items-center gap-3 group z-50">
-                <!-- Icon with Glow -->
-                <div
-                    class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
                     <span class="material-symbols-rounded text-white text-lg">movie</span>
                 </div>
 
-                <!-- TEXT UPDATE: 'tracking-wide' instead of 'tracking-tight' -->
                 <span class="font-black text-xl tracking-wide text-slate-100 group-hover:text-white transition-colors">
                     Ani<span class="text-blue-500">Clips</span>
                 </span>
             </a>
 
-            <!-- SEARCH SECTION -->
             <div class="flex-grow max-w-md mx-2 sm:mx-6 relative group z-50" id="search-wrapper">
                 <div class="relative">
                     <input type="text" id="global-search" oninput="handleGlobalSearch(this.value)"
                         placeholder="Quick search library..." autocomplete="off"
                         class="w-full bg-slate-950/60 border border-slate-800 rounded-lg pl-10 pr-4 py-2 text-xs text-slate-200 placeholder-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:bg-slate-950 outline-none transition-all shadow-inner font-medium">
-                    <span
-                        class="material-symbols-rounded absolute left-3 top-1.5 text-slate-600 text-sm pointer-events-none">search</span>
+                    <span class="material-symbols-rounded absolute left-3 top-1.5 text-slate-600 text-sm pointer-events-none">search</span>
                     <div id="search-spinner" class="absolute right-3 top-1.5 hidden">
-                        <span
-                            class="material-symbols-rounded animate-spin text-blue-500 text-sm">progress_activity</span>
+                        <span class="material-symbols-rounded animate-spin text-blue-500 text-sm">progress_activity</span>
                     </div>
                 </div>
 
@@ -181,16 +174,22 @@
                     </div>
                     <div id="search-results-list" class="max-h-[60vh] overflow-y-auto scrollbar-thin"></div>
                     <div id="search-footer" class="p-2 bg-slate-950/80 border-t border-white/5 hidden">
-                        <button
-                            class="block w-full text-center bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white py-1.5 rounded text-[10px] font-bold transition-colors uppercase tracking-wider">View
-                            all results ›</button>
+                        <button class="block w-full text-center bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white py-1.5 rounded text-[10px] font-bold transition-colors uppercase tracking-wider">
+                            View all results ›
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <div class="hidden sm:flex items-center gap-4">
-                <a href="#browse-genres"
-                    class="text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-wider transition-colors">Collections</a>
+            <div class="hidden sm:flex items-center gap-6">
+                <a href="blogs.html" 
+                   class="text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-wider transition-colors flex items-center gap-1">
+                    <span class="material-symbols-rounded text-sm">edit_note</span> Blogs
+                </a>
+                <a href="#browse-genres" 
+                   class="text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-wider transition-colors">
+                    Collections
+                </a>
             </div>
         </nav>
     </header>
@@ -657,6 +656,7 @@
         document.addEventListener('click', e => { if (document.getElementById('search-wrapper') && !document.getElementById('search-wrapper').contains(e.target)) closeSearch(); });
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSearch(); });
     </script>
+    <!-- ==== FOOTER ==== -->
     <footer class="mt-20 border-t border-white/5 bg-slate-950/80 backdrop-blur-2xl pt-16 pb-8">
         <div class="container mx-auto px-6">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
@@ -664,17 +664,15 @@
                 <!-- Column 1: Brand & About (4 Cols) -->
                 <div class="lg:col-span-4 space-y-6">
                     <a href="/" class="flex items-center gap-3 group">
-                        <div
-                            class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                        <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
                             <span class="material-symbols-rounded text-white text-lg">movie</span>
                         </div>
-                        <span class="font-black text-xl tracking-tight text-slate-100">Ani<span
-                                class="text-blue-500">Clips</span></span>
+                        <span class="font-black text-xl tracking-tight text-slate-100">Ani<span class="text-blue-500">Clips</span></span>
                     </a>
                     <p class="text-slate-400 text-sm leading-relaxed max-w-sm">
                         AniClips is your ultimate destination for high-quality anime moments. We provide a seamless
                         experience for discovering, previewing, and collecting your favorite clips from the world's most
-                        popular series.
+                        popular series.[cite: 1]
                     </p>
                     <div class="flex gap-4">
                         <a target="_blank" href="https://t.me/+QTrHC5GUA9w5NjI9" title="Telegram"
@@ -685,9 +683,6 @@
                             class="w-10 h-10 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#FF4500] hover:border-[#FF4500]/30 transition-all shadow-lg">
                             <i class="fa-brands fa-reddit-alien text-xl"></i>
                         </a>
-                        <!-- <a href="#" title="X (Twitter)" class="w-10 h-10 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:border-white/30 transition-all shadow-lg">
-                            <i class="fa-brands fa-x-twitter text-xl"></i>
-                        </a> -->
                     </div>
                 </div>
 
@@ -697,7 +692,8 @@
                     <ul class="space-y-4 text-slate-400 text-sm">
                         <li><a href="/" class="hover:text-blue-400 transition-colors">Home</a></li>
                         <li><a href="/" class="hover:text-blue-400 transition-colors">Trending</a></li>
-                        <li><a href="/" class="hover:text-blue-400 transition-colors">Collections</a></li>
+                        <li><a href="#browse-genres" class="hover:text-blue-400 transition-colors">Collections</a></li>
+                        <li><a href="blogs.html" class="text-blue-400 hover:text-blue-300 font-medium transition-colors flex items-center gap-1">Blogs <span class="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1 rounded uppercase tracking-widest text-[9px] font-bold">New</span></a></li>
                     </ul>
                 </div>
 
@@ -705,51 +701,33 @@
                 <div class="lg:col-span-6">
                     <h4 class="text-white font-bold mb-6 text-xs uppercase tracking-widest">Quick FOQA</h4>
                     <div class="space-y-3">
-                        <details
-                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
-                            <summary
-                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                        <details class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
                                 <span class="text-sm font-bold text-slate-200">Is the library free to use?</span>
-                                <span
-                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                                <span class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
                             </summary>
                             <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
-                                Yes, AniClips is a free community-driven project. We do not charge for access to our
-                                standard or 4K/RAW library segments.
+                                Yes, AniClips is a free community-driven project. We do not charge for access to our standard or 4K/RAW library segments.[cite: 1]
                             </div>
                         </details>
 
-                        <details
-                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
-                            <summary
-                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                        <details class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
                                 <span class="text-sm font-bold text-slate-200">How do I download RAW clips?</span>
-                                <span
-                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                                <span class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
                             </summary>
                             <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
-                                Open any episode, click on a clip card, and use the "Download Ready" button. You can
-                                choose between 'Fast' (standard) or 'HQ' (RAW) depending on availability.
+                                Open any episode, click on a clip card, and use the "Download Ready" button. You can choose between 'Fast' (standard) or 'HQ' (RAW) depending on availability.[cite: 1]
                             </div>
                         </details>
 
-                        <details
-                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
-                            <summary
-                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
-                                <span class="text-sm font-bold text-slate-200">What about copyrights of the
-                                    clips?</span>
-                                <span
-                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                        <details class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                                <span class="text-sm font-bold text-slate-200">What about copyrights of the clips?</span>
+                                <span class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
                             </summary>
                             <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
-                                They are rightfully owned by the respective owners of the anime. We are just an editor
-                                community operate on principle of fair use and keeping the fanbase alive.
-                                We are industrially not recognised but tolerated as fan Media such as AMV, edit
-                                stimulates
-                                Blu-ray and merchandise sales. At no point do we monitise from this website nor do our
-                                users (you)
-                                as youtube claims all the money anyway, going straight to the rightful owners.
+                                They are rightfully owned by the respective owners of the anime. We are just an editor community operate on principle of fair use and keeping the fanbase alive. We are industrially not recognised but tolerated as fan Media such as AMV, edit stimulates Blu-ray and merchandise sales. At no point do we monitise from this website nor do our users (you) as youtube claims all the money anyway, going straight to the rightful owners.[cite: 1]
                             </div>
                         </details>
                     </div>
@@ -757,8 +735,7 @@
             </div>
 
             <!-- Bottom Bar -->
-            <div
-                class="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+            <div class="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
                 <p>&copy; 2025 AniClips Library. All rights reserved.</p>
                 <div class="flex gap-6">
                     <a href="#" class="hover:text-white transition-colors">Privacy</a>
