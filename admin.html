@@ -42,15 +42,15 @@
                 </div>
                 <div class="h-6 w-px bg-white/10"></div>
                 <div class="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest">
-                    <a href="admin.html" class="text-blue-400 flex items-center gap-2"><span
+                    <a href="admin" class="text-blue-400 flex items-center gap-2"><span
                             class="material-symbols-rounded text-sm">dashboard</span> Main Panel</a>
-                    <a href="production.html"
+                    <a href="production"
                         class="text-slate-500 hover:text-white transition-colors flex items-center gap-2"><span
                             class="material-symbols-rounded text-sm">precision_manufacturing</span> Production</a>
-                    <a href="storage.html"
+                    <a href="storage"
                         class="text-slate-500 hover:text-white transition-colors flex items-center gap-2"><span
                             class="material-symbols-rounded text-sm">database</span> Storage</a>
-                    <a href="ad-dash.html"
+                    <a href="ad-dash"
                         class="text-slate-500 hover:text-white transition-colors flex items-center gap-2"><span
                             class="material-symbols-rounded text-sm">monitoring</span> Ad Revenue</a>
                 </div>
@@ -71,7 +71,8 @@
             </div>
             <div class="stat-tile flex items-center gap-3 px-6 min-w-[160px]">
                 <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
-                    <span class="material-symbols-rounded">download</span></div>
+                    <span class="material-symbols-rounded">download</span>
+                </div>
                 <div class="flex items-baseline gap-2"><span id="stat-downloads"
                         class="text-xl font-black text-white">0</span><span
                         class="text-[9px] font-black text-emerald-500 uppercase tracking-tighter">Downloads</span></div>
@@ -82,9 +83,11 @@
                 <div class="flex items-baseline gap-2"><span id="stat-visits"
                         class="text-xl font-black text-white">0</span><span
                         class="text-[9px] font-black text-purple-500 uppercase tracking-tighter">Visits</span></div>
-                
+
                 <!-- History Trigger -->
-                <button onclick="toggleHistoryModal()" class="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all bg-slate-800 hover:bg-slate-700 p-1.5 rounded-md text-slate-400 hover:text-white" title="View Detailed History">
+                <button onclick="toggleHistoryModal()"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all bg-slate-800 hover:bg-slate-700 p-1.5 rounded-md text-slate-400 hover:text-white"
+                    title="View Detailed History">
                     <span class="material-symbols-rounded text-[16px]">history</span>
                 </button>
             </div>
@@ -96,12 +99,15 @@
     </div>
 
     <!-- History Modal -->
-    <div id="history-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-slate-900 border border-white/10 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden scale-95 transition-transform duration-300" id="history-modal-content">
+    <div id="history-modal"
+        class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-slate-900 border border-white/10 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden scale-95 transition-transform duration-300"
+            id="history-modal-content">
             <div class="p-4 border-b border-white/5 flex items-center justify-between bg-slate-950/50">
                 <div class="flex items-center gap-3">
                     <span class="material-symbols-rounded text-blue-500">analytics</span>
-                    <h2 class="text-[10px] font-black uppercase tracking-widest text-white">System Analytics History</h2>
+                    <h2 class="text-[10px] font-black uppercase tracking-widest text-white">System Analytics History
+                    </h2>
                 </div>
                 <button onclick="toggleHistoryModal()" class="text-slate-500 hover:text-white transition-colors">
                     <span class="material-symbols-rounded">close</span>
@@ -109,7 +115,8 @@
             </div>
             <div class="max-h-[400px] overflow-y-auto">
                 <table class="w-full text-left">
-                    <thead class="bg-slate-950/80 text-[8px] font-black text-slate-500 uppercase sticky top-0 border-b border-white/5">
+                    <thead
+                        class="bg-slate-950/80 text-[8px] font-black text-slate-500 uppercase sticky top-0 border-b border-white/5">
                         <tr>
                             <th class="px-6 py-3">Date</th>
                             <th class="px-6 py-3 text-right">Visits</th>
@@ -187,7 +194,7 @@
         }
 
         async function init() {
-            if (!ADMIN_KEY) { window.location.href = 'auth.html'; return; }
+            if (!ADMIN_KEY) { window.location.href = 'auth'; return; }
             document.getElementById('api-error-banner').classList.add('hidden');
             document.getElementById('lib-body').innerHTML = `<tr><td colspan="3" class="p-20 text-center text-slate-600 text-[10px] font-black uppercase tracking-widest italic animate-pulse">Establishing secure link...</td></tr>`;
 
@@ -236,7 +243,7 @@
                 </td>
                 <td class="px-6 py-4"><span class="text-[10px] font-black text-emerald-400 uppercase">Secure</span></td>
                 <td class="px-6 py-4 text-right">
-                    <a href="edit.html?name=${a.slug || a.name}" class="bg-slate-800 hover:bg-blue-600 text-white px-3 py-1 rounded text-[9px] font-black uppercase transition-all">Edit Metadata</a>
+                    <a href="edit?name=${a.slug || a.name}" class="bg-slate-800 hover:bg-blue-600 text-white px-3 py-1 rounded text-[9px] font-black uppercase transition-all">Edit Metadata</a>
                 </td>
             </tr>
             `).join('');
@@ -276,7 +283,7 @@
             renderTable(tableCache.filter(a => (a.title || '').toLowerCase().includes(q) || (a.slug || a.name || '').toLowerCase().includes(q)));
         }
 
-        function logout() { localStorage.removeItem('aniclip_admin_key'); window.location.href = 'auth.html'; }
+        function logout() { localStorage.removeItem('aniclip_admin_key'); window.location.href = 'auth'; }
 
         window.onload = init;
     </script>

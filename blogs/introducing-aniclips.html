@@ -6,14 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Unique dynamic config parameters for dynamic routing cross-references -->
     <meta name="article-id" content="introducing-aniclips-v4">
-    
+
     <title>Introducing AniClips V4 — Built for Editors | AniClips Blog</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Unified Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <!-- Original Homepage Tailwind Config -->
@@ -30,7 +32,10 @@
 
     <!-- Unified Styles -->
     <style>
-        html { scroll-behavior: smooth; }
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: #020617;
@@ -46,19 +51,26 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .animate-enter {
             animation: fadeIn 0.5s ease-out forwards;
             opacity: 0;
         }
-        
+
         .line-clamp-2 {
             display: -webkit-box;
             -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;  
+            -webkit-box-orient: vertical;
             overflow: hidden;
         }
     </style>
@@ -67,27 +79,32 @@
 <body class="antialiased min-h-screen flex flex-col bg-[#020617] relative selection:bg-blue-600 selection:text-white">
 
     <!-- Subtle Ambient Glows -->
-    <div class="absolute top-0 right-1/4 w-[500px] h-[500px] bg-blue-900/10 rounded-full blur-[150px] pointer-events-none z-0"></div>
+    <div
+        class="absolute top-0 right-1/4 w-[500px] h-[500px] bg-blue-900/10 rounded-full blur-[150px] pointer-events-none z-0">
+    </div>
 
     <!-- ==== PREMIUM GLASS NAVIGATION BAR ==== -->
     <header class="fixed top-0 w-full z-50 glass-nav transition-all duration-300">
         <nav class="container mx-auto px-4 h-16 flex justify-between items-center">
             <!-- LOGO -->
-            <a href="../index.html" class="flex items-center gap-3 group z-50">
-                <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+            <a href="../index" class="flex items-center gap-3 group z-50">
+                <div
+                    class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
                     <span class="material-symbols-rounded text-white text-lg">movie</span>
                 </div>
                 <span class="font-black text-xl tracking-wide text-slate-100 group-hover:text-white transition-colors">
                     Ani<span class="text-blue-500">Clips</span>
                 </span>
-                <span class="ml-2 px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[9px] font-bold text-slate-400 uppercase tracking-widest hidden sm:block">
+                <span
+                    class="ml-2 px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[9px] font-bold text-slate-400 uppercase tracking-widest hidden sm:block">
                     Blog
                 </span>
             </a>
 
             <!-- NAV LINKS -->
             <div class="flex items-center gap-6 z-50">
-                <a href="../blogs.html" class="text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-wider transition-colors flex items-center gap-1">
+                <a href="../blogs"
+                    class="text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-wider transition-colors flex items-center gap-1">
                     <span class="material-symbols-rounded text-sm">arrow_back</span> Back to Blogs
                 </a>
             </div>
@@ -97,10 +114,12 @@
     <!-- ==== ARTICLE HERO ==== -->
     <div class="w-full relative pt-28 pb-12 sm:pt-36 sm:pb-16 px-4 z-10 animate-enter">
         <div class="max-w-4xl mx-auto">
-            
+
             <!-- Breadcrumbs / Meta -->
             <div class="flex flex-wrap items-center gap-3 mb-6">
-                <a href="../blogs.html" class="text-[10px] font-bold text-blue-500 hover:text-blue-400 uppercase tracking-widest transition-colors">Creator Notes</a>
+                <a href="../blogs"
+                    class="text-[10px] font-bold text-blue-500 hover:text-blue-400 uppercase tracking-widest transition-colors">Creator
+                    Notes</a>
                 <span class="w-1 h-1 rounded-full bg-slate-700"></span>
                 <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">February 12, 2026</span>
                 <span class="w-1 h-1 rounded-full bg-slate-700"></span>
@@ -116,12 +135,14 @@
 
             <!-- Subtitle -->
             <p class="text-lg sm:text-xl text-slate-400 font-medium leading-relaxed max-w-3xl mb-10">
-                Why scrubbing timelines, wrestling heavy video files, and opening endless background browser tabs inspired the launch of a frame-accurate clip utility platform.
+                Why scrubbing timelines, wrestling heavy video files, and opening endless background browser tabs
+                inspired the launch of a frame-accurate clip utility platform.
             </p>
 
             <!-- Author Plate -->
             <div class="flex items-center gap-4 border-t border-white/5 pt-6">
-                <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white text-sm shadow-[0_0_10px_rgba(37,99,235,0.3)]">
+                <div
+                    class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white text-sm shadow-[0_0_10px_rgba(37,99,235,0.3)]">
                     PS
                 </div>
                 <div>
@@ -142,13 +163,18 @@
                     Hi, I'm Previous Stomach, the creator of AniClips.
                 </p>
                 <p class="text-base sm:text-lg text-slate-300 leading-relaxed">
-                    If you've ever made anime edits, AMVs, analysis/reviews, breakdowns, or short video clips, you've probably run into the exact same problem that I did.
+                    If you've ever made anime edits, AMVs, analysis/reviews, breakdowns, or short video clips, you've
+                    probably run into the exact same problem that I did.
                 </p>
                 <p class="text-base sm:text-lg text-slate-300 leading-relaxed">
-                    You know the scene you want. You know the exact character. You can literally picture the dynamic movement in your head. But actually finding that scene? <span class="text-white font-semibold">That is the painful part of the pipeline.</span>
+                    You know the scene you want. You know the exact character. You can literally picture the dynamic
+                    movement in your head. But actually finding that scene? <span class="text-white font-semibold">That
+                        is the painful part of the pipeline.</span>
                 </p>
                 <p class="text-base sm:text-lg text-slate-300 leading-relaxed">
-                    You either find yourself downloading giant multi-gigabyte episodes, skipping aimlessly through video timelines for long minutes, opening twenty different high-latency search tabs, or completely giving up and settling for a weaker clip instead. 
+                    You either find yourself downloading giant multi-gigabyte episodes, skipping aimlessly through video
+                    timelines for long minutes, opening twenty different high-latency search tabs, or completely giving
+                    up and settling for a weaker clip instead.
                 </p>
                 <p class="text-base sm:text-lg text-slate-300 leading-relaxed">
                     AniClips was built because I got absolutely tired of dealing with that overhead.
@@ -156,10 +182,12 @@
             </div>
 
             <!-- Quote Block -->
-            <blockquote class="my-10 pl-5 sm:pl-8 py-4 border-l-4 border-blue-500 bg-gradient-to-r from-blue-900/20 to-transparent rounded-r-2xl">
+            <blockquote
+                class="my-10 pl-5 sm:pl-8 py-4 border-l-4 border-blue-500 bg-gradient-to-r from-blue-900/20 to-transparent rounded-r-2xl">
                 <span class="material-symbols-rounded text-blue-500/50 text-4xl block mb-2">movie</span>
                 <p class="text-xl sm:text-2xl italic text-white font-medium leading-relaxed pr-4">
-                    "The goal isn't to replace anime streaming sites. The goal is simple: Help editors find the clips they need faster."
+                    "The goal isn't to replace anime streaming sites. The goal is simple: Help editors find the clips
+                    they need faster."
                 </p>
             </blockquote>
 
@@ -167,43 +195,62 @@
             <div class="space-y-6 pt-6">
                 <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">So, what exactly is AniClips?</h2>
                 <p class="text-base sm:text-lg text-slate-300 leading-relaxed">
-                    AniClips is an anime clip library structured specifically for video editors. Instead of forcing you to download full episodes just to grab a couple of seconds of raw footage, you can browse episodes and grab targeted clips directly from the source.
+                    AniClips is an anime clip library structured specifically for video editors. Instead of forcing you
+                    to download full episodes just to grab a couple of seconds of raw footage, you can browse episodes
+                    and grab targeted clips directly from the source.
                 </p>
             </div>
 
             <!-- Video Split Showcase -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 my-12 items-center bg-slate-900/40 border border-slate-800 p-6 sm:p-8 rounded-2xl">
+            <div
+                class="grid grid-cols-1 md:grid-cols-2 gap-8 my-12 items-center bg-slate-900/40 border border-slate-800 p-6 sm:p-8 rounded-2xl">
                 <div class="space-y-4">
-                    <div class="text-[10px] font-black text-blue-500 tracking-wider uppercase">The Breakthrough Feature</div>
+                    <div class="text-[10px] font-black text-blue-500 tracking-wider uppercase">The Breakthrough Feature
+                    </div>
                     <h3 class="text-xl font-bold text-white leading-tight">The Feature I Wish Other Sites Had</h3>
                     <p class="text-sm text-slate-400 leading-relaxed">
-                        When you open an episode inside AniClips, you don't just get a basic list of generic downloads. You get a clean grid of clip thumbnails.
+                        When you open an episode inside AniClips, you don't just get a basic list of generic downloads.
+                        You get a clean grid of clip thumbnails.
                     </p>
                     <p class="text-sm text-slate-300 leading-relaxed">
-                        And here's the most important part: <strong class="text-blue-400">You can hover over a thumbnail and instantly preview the clip.</strong> No opening a new page, no waiting for a heavy player to initialize, and no download roulette.
+                        And here's the most important part: <strong class="text-blue-400">You can hover over a thumbnail
+                            and instantly preview the clip.</strong> No opening a new page, no waiting for a heavy
+                        player to initialize, and no download roulette.
                     </p>
                 </div>
-                
+
                 <!-- Video Preview Mockup Window (Corrected relative path to assets) -->
                 <div class="w-full relative group">
-                    <div class="absolute -inset-1.5 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition duration-500"></div>
-                    <div class="relative rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl flex flex-col">
-                        <div class="bg-[#0b0f19] px-4 py-2.5 border-b border-slate-800/80 flex items-center justify-between select-none">
+                    <div
+                        class="absolute -inset-1.5 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition duration-500">
+                    </div>
+                    <div
+                        class="relative rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl flex flex-col">
+                        <div
+                            class="bg-[#0b0f19] px-4 py-2.5 border-b border-slate-800/80 flex items-center justify-between select-none">
                             <div class="flex gap-1.5">
                                 <div class="w-2.5 h-2.5 rounded-full bg-red-500/60"></div>
                                 <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/60"></div>
                                 <div class="w-2.5 h-2.5 rounded-full bg-green-500/60"></div>
                             </div>
                             <div class="text-[9px] font-mono text-slate-500 tracking-wider flex items-center gap-1.5">
-                                <span class="material-symbols-rounded text-[11px] text-blue-500 animate-pulse">track_changes</span> hover-preview-demo.mp4
+                                <span
+                                    class="material-symbols-rounded text-[11px] text-blue-500 animate-pulse">track_changes</span>
+                                hover-preview-demo.mp4
                             </div>
                             <div class="w-10"></div>
                         </div>
                         <div class="relative w-full aspect-[576/450] bg-slate-950 overflow-hidden">
                             <!-- Corrected: Path points directly inside the blogs/ subdirectory layout structure -->
-                            <video src="https://cdn.jsdelivr.net/gh/malemsana2/aniclip-frontend@main/blogs/assets/hoverPreview_demo.mp4" autoplay loop muted playsinline class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02] ease-out"></video>
-                            <div class="absolute bottom-3 right-3 bg-slate-950/90 backdrop-blur border border-white/10 text-[9px] font-bold text-slate-300 px-2.5 py-1 rounded-md flex items-center gap-1.5 shadow-lg select-none">
-                                <span class="material-symbols-rounded text-xs text-blue-500 animate-ping">touch_app</span> Instant Hover Preview
+                            <video
+                                src="https://cdn.jsdelivr.net/gh/malemsana2/aniclip-frontend@main/blogs/assets/hoverPreview_demo.mp4"
+                                autoplay loop muted playsinline
+                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02] ease-out"></video>
+                            <div
+                                class="absolute bottom-3 right-3 bg-slate-950/90 backdrop-blur border border-white/10 text-[9px] font-bold text-slate-300 px-2.5 py-1 rounded-md flex items-center gap-1.5 shadow-lg select-none">
+                                <span
+                                    class="material-symbols-rounded text-xs text-blue-500 animate-ping">touch_app</span>
+                                Instant Hover Preview
                             </div>
                         </div>
                     </div>
@@ -213,14 +260,20 @@
             <!-- More Text -->
             <div class="space-y-6">
                 <p class="text-base sm:text-lg text-slate-300 leading-relaxed">
-                    By simply moving your mouse over the dashboard, you can immediately verify scene context. If you are tracking a specific facial expression, reaction, dramatic transition, dialogue moment, or fight sequences, this makes a colossal difference. What normally takes minutes can now be targeted and extracted in seconds.
+                    By simply moving your mouse over the dashboard, you can immediately verify scene context. If you are
+                    tracking a specific facial expression, reaction, dramatic transition, dialogue moment, or fight
+                    sequences, this makes a colossal difference. What normally takes minutes can now be targeted and
+                    extracted in seconds.
                 </p>
                 <h3 class="text-xl sm:text-2xl font-bold text-white tracking-tight pt-4">Not Sure About a Clip?</h3>
                 <p class="text-base sm:text-lg text-slate-300 leading-relaxed">
-                    Sometimes a basic hover preview isn't enough. Maybe you're checking subtitle track alignment. Maybe you're scouring for a specific frame threshold. Or trying to find the exact millisecond a character begins a particular sword strike.
+                    Sometimes a basic hover preview isn't enough. Maybe you're checking subtitle track alignment. Maybe
+                    you're scouring for a specific frame threshold. Or trying to find the exact millisecond a character
+                    begins a particular sword strike.
                 </p>
                 <p class="text-base sm:text-lg text-slate-300 leading-relaxed">
-                    For those situations, you can open the clip and watch it properly inside our focused player before downloading. I wanted users to be able to verify a clip first instead of playing download roulette.
+                    For those situations, you can open the clip and watch it properly inside our focused player before
+                    downloading. I wanted users to be able to verify a clip first instead of playing download roulette.
                 </p>
             </div>
 
@@ -233,20 +286,26 @@
                             <span class="material-symbols-rounded text-blue-500 text-3xl mb-3">bolt</span>
                             <h4 class="text-lg font-bold text-white mb-2">Fast Clip</h4>
                             <p class="text-xs text-slate-400 leading-relaxed mb-4">
-                                Optimized for speed. Downloads instantly and is perfect for mobile video editing apps (Alight Motion, CapCut) or mapping draft tracks.
+                                Optimized for speed. Downloads instantly and is perfect for mobile video editing apps
+                                (Alight Motion, CapCut) or mapping draft tracks.
                             </p>
                         </div>
-                        <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest bg-blue-950/40 py-1 px-2 rounded-md self-start">Instant Download</span>
+                        <span
+                            class="text-[10px] font-mono text-blue-400 uppercase tracking-widest bg-blue-950/40 py-1 px-2 rounded-md self-start">Instant
+                            Download</span>
                     </div>
                     <div class="p-6 rounded-xl border border-slate-800 bg-slate-900/30 flex flex-col justify-between">
                         <div>
                             <span class="material-symbols-rounded text-emerald-500 text-3xl mb-3">hd</span>
                             <h4 class="text-lg font-bold text-white mb-2">High Quality Clip</h4>
                             <p class="text-xs text-slate-400 leading-relaxed mb-4">
-                                Native bitstream file format. Designed for editors who demand absolute pixel clarity for color-grading, complex masking, or large exports.
+                                Native bitstream file format. Designed for editors who demand absolute pixel clarity for
+                                color-grading, complex masking, or large exports.
                             </p>
                         </div>
-                        <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest bg-emerald-950/40 py-1 px-2 rounded-md self-start">Raw/HQ Output</span>
+                        <span
+                            class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest bg-emerald-950/40 py-1 px-2 rounded-md self-start">Raw/HQ
+                            Output</span>
                     </div>
                 </div>
             </div>
@@ -255,25 +314,32 @@
             <div class="space-y-6 pt-6">
                 <h3 class="text-xl sm:text-2xl font-bold text-white tracking-tight">Why I'm Building This</h3>
                 <p class="text-base sm:text-lg text-slate-300 leading-relaxed">
-                    AniClips isn't a project run by a giant company. It is something I have been building because I genuinely believe the tools available to anime editors and AMV creators can be significantly better.
+                    AniClips isn't a project run by a giant company. It is something I have been building because I
+                    genuinely believe the tools available to anime editors and AMV creators can be significantly better.
                 </p>
                 <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-medium">
                     "What would make finding anime clips less annoying?"
                 </p>
                 <p class="text-base sm:text-lg text-slate-300 leading-relaxed">
-                    Sometimes the answer is faster server-side processing. Sometimes it's better navigation systems. Sometimes it's a structural update that allows you to parse the right scene without downloading fifty obsolete videos. That is the exact direction AniClips will continue moving in.
+                    Sometimes the answer is faster server-side processing. Sometimes it's better navigation systems.
+                    Sometimes it's a structural update that allows you to parse the right scene without downloading
+                    fifty obsolete videos. That is the exact direction AniClips will continue moving in.
                 </p>
             </div>
 
             <!-- Thanks Callout -->
             <div class="mt-16 pt-10 border-t border-white/5 space-y-6 text-center">
-                <h2 class="text-2xl font-black text-white italic uppercase tracking-wide">Thank You for Supporting the Library</h2>
+                <h2 class="text-2xl font-black text-white italic uppercase tracking-wide">Thank You for Supporting the
+                    Library</h2>
                 <p class="text-slate-400 text-sm max-w-lg mx-auto">
-                    Whether you have downloaded one clip or hundreds, your support helps me refine the pipeline and understand what editors actually need. There's still a massive road ahead, but for now:
+                    Whether you have downloaded one clip or hundreds, your support helps me refine the pipeline and
+                    understand what editors actually need. There's still a massive road ahead, but for now:
                 </p>
-                <p class="text-lg font-bold text-blue-500 font-mono uppercase tracking-widest mb-6">Welcome to AniClips V4</p>
-                
-                <a href="../index.html" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3.5 rounded-lg shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all hover:-translate-y-0.5">
+                <p class="text-lg font-bold text-blue-500 font-mono uppercase tracking-widest mb-6">Welcome to AniClips
+                    V4</p>
+
+                <a href="../index"
+                    class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3.5 rounded-lg shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all hover:-translate-y-0.5">
                     <span class="material-symbols-rounded">movie</span> Open the V4 Library
                 </a>
             </div>
@@ -286,11 +352,12 @@
             <h3 class="text-base font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
                 <span class="material-symbols-rounded text-blue-500 text-lg">read_more</span> Continue Reading
             </h3>
-            <a href="../blogs.html" class="text-xs text-slate-500 hover:text-white uppercase font-bold tracking-widest transition-colors flex items-center gap-1">
+            <a href="../blogs"
+                class="text-xs text-slate-500 hover:text-white uppercase font-bold tracking-widest transition-colors flex items-center gap-1">
                 All Articles <span class="material-symbols-rounded text-xs">arrow_forward</span>
             </a>
         </div>
-        
+
         <div id="continue-reading-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Dynamic items loaded based on local JSON analysis -->
             <div class="h-48 bg-slate-900/40 rounded-xl border border-slate-800 animate-pulse"></div>
@@ -298,8 +365,8 @@
         </div>
     </section>
 
-    <!-- ==== FOOTER (Copied directly from index.html) ==== -->
-   <!-- ==== FOOTER ==== -->
+    <!-- ==== FOOTER (Copied directly from index) ==== -->
+    <!-- ==== FOOTER ==== -->
     <footer class="mt-20 border-t border-white/5 bg-slate-950/80 backdrop-blur-2xl pt-16 pb-8">
         <div class="container mx-auto px-6">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
@@ -307,10 +374,12 @@
                 <!-- Column 1: Brand & About (4 Cols) -->
                 <div class="lg:col-span-4 space-y-6">
                     <a href="/" class="flex items-center gap-3 group">
-                        <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                        <div
+                            class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
                             <span class="material-symbols-rounded text-white text-lg">movie</span>
                         </div>
-                        <span class="font-black text-xl tracking-tight text-slate-100">Ani<span class="text-blue-500">Clips</span></span>
+                        <span class="font-black text-xl tracking-tight text-slate-100">Ani<span
+                                class="text-blue-500">Clips</span></span>
                     </a>
                     <p class="text-slate-400 text-sm leading-relaxed max-w-sm">
                         AniClips is your ultimate destination for high-quality anime moments. We provide a seamless
@@ -336,7 +405,11 @@
                         <li><a href="/" class="hover:text-blue-400 transition-colors">Home</a></li>
                         <li><a href="/" class="hover:text-blue-400 transition-colors">Trending</a></li>
                         <li><a href="#browse-genres" class="hover:text-blue-400 transition-colors">Collections</a></li>
-                        <li><a href="blogs.html" class="text-blue-400 hover:text-blue-300 font-medium transition-colors flex items-center gap-1">Blogs <span class="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1 rounded uppercase tracking-widest text-[9px] font-bold">New</span></a></li>
+                        <li><a href="blogs"
+                                class="text-blue-400 hover:text-blue-300 font-medium transition-colors flex items-center gap-1">Blogs
+                                <span
+                                    class="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1 rounded uppercase tracking-widest text-[9px] font-bold">New</span></a>
+                        </li>
                     </ul>
                 </div>
 
@@ -344,33 +417,50 @@
                 <div class="lg:col-span-6">
                     <h4 class="text-white font-bold mb-6 text-xs uppercase tracking-widest">Quick FOQA</h4>
                     <div class="space-y-3">
-                        <details class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
-                            <summary class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                        <details
+                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary
+                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
                                 <span class="text-sm font-bold text-slate-200">Is the library free to use?</span>
-                                <span class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                                <span
+                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
                             </summary>
                             <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
-                                Yes, AniClips is a free community-driven project. We do not charge for access to our standard or 4K/RAW library segments.[cite: 1]
+                                Yes, AniClips is a free community-driven project. We do not charge for access to our
+                                standard or 4K/RAW library segments.[cite: 1]
                             </div>
                         </details>
 
-                        <details class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
-                            <summary class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                        <details
+                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary
+                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
                                 <span class="text-sm font-bold text-slate-200">How do I download RAW clips?</span>
-                                <span class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                                <span
+                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
                             </summary>
                             <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
-                                Open any episode, click on a clip card, and use the "Download Ready" button. You can choose between 'Fast' (standard) or 'HQ' (RAW) depending on availability.[cite: 1]
+                                Open any episode, click on a clip card, and use the "Download Ready" button. You can
+                                choose between 'Fast' (standard) or 'HQ' (RAW) depending on availability.[cite: 1]
                             </div>
                         </details>
 
-                        <details class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
-                            <summary class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
-                                <span class="text-sm font-bold text-slate-200">What about copyrights of the clips?</span>
-                                <span class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                        <details
+                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary
+                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                                <span class="text-sm font-bold text-slate-200">What about copyrights of the
+                                    clips?</span>
+                                <span
+                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
                             </summary>
                             <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
-                                They are rightfully owned by the respective owners of the anime. We are just an editor community operate on principle of fair use and keeping the fanbase alive. We are industrially not recognised but tolerated as fan Media such as AMV, edit stimulates Blu-ray and merchandise sales. At no point do we monitise from this website nor do our users (you) as youtube claims all the money anyway, going straight to the rightful owners.[cite: 1]
+                                They are rightfully owned by the respective owners of the anime. We are just an editor
+                                community operate on principle of fair use and keeping the fanbase alive. We are
+                                industrially not recognised but tolerated as fan Media such as AMV, edit stimulates
+                                Blu-ray and merchandise sales. At no point do we monitise from this website nor do our
+                                users (you) as youtube claims all the money anyway, going straight to the rightful
+                                owners.[cite: 1]
                             </div>
                         </details>
                     </div>
@@ -378,7 +468,8 @@
             </div>
 
             <!-- Bottom Bar -->
-            <div class="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+            <div
+                class="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
                 <p>&copy; 2025 AniClips Library. All rights reserved.</p>
                 <div class="flex gap-6">
                     <a href="#" class="hover:text-white transition-colors">Privacy</a>
@@ -438,4 +529,5 @@
         });
     </script>
 </body>
+
 </html>

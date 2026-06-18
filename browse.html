@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AniClips v5 | Official Announcement</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/svg+xml" href="icon.svg">
-    
+
     <!-- Original Homepage Tailwind Config -->
     <script>
         tailwind.config = {
@@ -98,42 +99,51 @@
         .reveal {
             opacity: 0;
             transform: translateY(24px);
-            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
-                        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
             will-change: transform, opacity;
         }
+
         .reveal.active {
             opacity: 1;
             transform: translateY(0);
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NT7KEQQ2JS"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
 
-  gtag('config', 'G-NT7KEQQ2JS');
+    gtag('config', 'G-NT7KEQQ2JS');
 </script>
 
-<body class="antialiased min-h-screen flex flex-col pb-24 bg-[#020617] relative selection:bg-blue-600 selection:text-white">
+<body
+    class="antialiased min-h-screen flex flex-col pb-24 bg-[#020617] relative selection:bg-blue-600 selection:text-white">
 
     <!-- Subtle Ambient Glows -->
-    <div class="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-900/5 rounded-full blur-[120px] pointer-events-none"></div>
-    <div class="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-indigo-950/10 rounded-full blur-[150px] pointer-events-none"></div>
+    <div
+        class="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-900/5 rounded-full blur-[120px] pointer-events-none">
+    </div>
+    <div
+        class="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-indigo-950/10 rounded-full blur-[150px] pointer-events-none">
+    </div>
 
     <!-- 1. PREMIUM GLASS NAVIGATION BAR -->
     <header class="fixed top-0 w-full z-50 glass-nav transition-all duration-300" id="navbar">
         <nav class="container mx-auto px-4 h-16 flex justify-between items-center">
 
             <!-- LOGO -->
-            <a href="index.html" class="flex items-center gap-3 group z-50">
+            <a href="index" class="flex items-center gap-3 group z-50">
                 <!-- Icon with Glow -->
-                <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                <div
+                    class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
                     <span class="material-symbols-rounded text-white text-lg">movie</span>
                 </div>
 
@@ -149,9 +159,11 @@
                     <input type="text" id="global-search" oninput="handleGlobalSearch(this.value)"
                         placeholder="Quick search library..." autocomplete="off"
                         class="w-full bg-slate-950/60 border border-slate-800 rounded-lg pl-10 pr-4 py-2 text-xs text-slate-200 placeholder-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:bg-slate-950 outline-none transition-all shadow-inner font-medium">
-                    <span class="material-symbols-rounded absolute left-3 top-1.5 text-slate-600 text-sm pointer-events-none">search</span>
+                    <span
+                        class="material-symbols-rounded absolute left-3 top-1.5 text-slate-600 text-sm pointer-events-none">search</span>
                     <div id="search-spinner" class="absolute right-3 top-1.5 hidden">
-                        <span class="material-symbols-rounded animate-spin text-blue-500 text-sm">progress_activity</span>
+                        <span
+                            class="material-symbols-rounded animate-spin text-blue-500 text-sm">progress_activity</span>
                     </div>
                 </div>
 
@@ -163,7 +175,8 @@
                     </div>
                     <div id="search-results-list" class="max-h-[60vh] overflow-y-auto scrollbar-thin"></div>
                     <div id="search-footer" class="p-2 bg-slate-950/80 border-t border-white/5 hidden">
-                        <button class="block w-full text-center bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white py-1.5 rounded text-[10px] font-bold transition-colors uppercase tracking-wider">
+                        <button
+                            class="block w-full text-center bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white py-1.5 rounded text-[10px] font-bold transition-colors uppercase tracking-wider">
                             View all results ›
                         </button>
                     </div>
@@ -171,52 +184,63 @@
             </div>
 
             <div class="hidden sm:flex items-center gap-4">
-                <a href="#browse-genres" class="text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-wider transition-colors">Collections</a>
+                <a href="#browse-genres"
+                    class="text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-wider transition-colors">Collections</a>
             </div>
         </nav>
     </header>
 
     <!-- 2. BROWSE HEADER & BACK BUTTON -->
     <header class="max-w-5xl mx-auto w-full px-4 sm:px-8 mt-24 mb-8 flex items-center gap-4">
-        <a href="/" class="w-10 h-10 rounded-full bg-slate-900 border border-white/10 flex items-center justify-center text-white hover:bg-blue-600 hover:border-blue-500 transition-all">
+        <a href="/"
+            class="w-10 h-10 rounded-full bg-slate-900 border border-white/10 flex items-center justify-center text-white hover:bg-blue-600 hover:border-blue-500 transition-all">
             <span class="material-symbols-rounded">arrow_back</span>
         </a>
         <div>
             <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Official Blog</div>
-            <h1 id="page-title" class="text-2xl sm:text-3xl font-black text-white uppercase italic tracking-wide">V5 UPDATE ANNOUNCEMENT</h1>
+            <h1 id="page-title" class="text-2xl sm:text-3xl font-black text-white uppercase italic tracking-wide">V5
+                UPDATE ANNOUNCEMENT</h1>
         </div>
     </header>
 
     <!-- 3. MAIN CONTAINER -->
     <main class="max-w-5xl mx-auto w-full px-4 sm:px-8 flex flex-col items-center">
-        
+
         <!-- Large High-Impact Header Poster (Full Width at Top) -->
         <div class="reveal w-full mb-12" style="animation-delay: 50ms;">
-            <div class="rounded-2xl overflow-hidden bg-slate-950 border border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.8)] hover:border-blue-500/20 transition-all duration-500">
-                <img src="https://i.ibb.co/zT3SwMqJ/Aniclips-5v-announcement-poster.png" alt="AniClips v5 Announcement Poster" class="w-full h-auto object-cover">
+            <div
+                class="rounded-2xl overflow-hidden bg-slate-950 border border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.8)] hover:border-blue-500/20 transition-all duration-500">
+                <img src="https://i.ibb.co/zT3SwMqJ/Aniclips-5v-announcement-poster.png"
+                    alt="AniClips v5 Announcement Poster" class="w-full h-auto object-cover">
             </div>
-            <p class="text-[11px] text-center text-slate-500 font-medium mt-3">AniClips v5.0 — Release Announcement Poster</p>
+            <p class="text-[11px] text-center text-slate-500 font-medium mt-3">AniClips v5.0 — Release Announcement
+                Poster</p>
         </div>
 
         <!-- Editorial Announcement Block (Beautifully centered, focused column for high readability) -->
         <div class="max-w-3xl w-full space-y-16">
-            
+
             <!-- Opening Letter -->
             <section class="reveal space-y-6">
                 <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Hi Editors, Anime lovers!</h2>
                 <p class="text-slate-300 leading-relaxed text-base sm:text-lg">
-                    Today I am excited to announce what <span class="text-blue-400 font-semibold">AniClips v5</span> is bringing to the community.
+                    Today I am excited to announce what <span class="text-blue-400 font-semibold">AniClips v5</span> is
+                    bringing to the community.
                 </p>
                 <p class="text-slate-400 leading-relaxed text-sm sm:text-base">
-                    Right now, AniClips lets you browse clips through anime episodes, preview them, and download the exact moments you need. 
+                    Right now, AniClips lets you browse clips through anime episodes, preview them, and download the
+                    exact moments you need.
                 </p>
                 <p class="text-slate-400 leading-relaxed text-sm sm:text-base">
                     But there is still a major limitation. You can only find a clip if you already know:
                 </p>
                 <ul class="space-y-2 pl-4 border-l border-blue-500/30 text-sm text-slate-300">
-                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> the anime</li>
-                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> the episode</li>
-                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> or where the scene is from</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> the
+                        anime</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> the
+                        episode</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> or
+                        where the scene is from</li>
                 </ul>
                 <p class="text-slate-400 leading-relaxed text-sm sm:text-base">
                     That means if a scene only exists in your memory, finding it becomes difficult.
@@ -227,72 +251,100 @@
             <section class="reveal space-y-6">
                 <h3 class="text-lg font-bold text-slate-300 tracking-wide uppercase text-xs">Maybe you remember...</h3>
                 <div class="space-y-4">
-                    
+
                     <!-- 1. Train Scene -->
-                    <div class="relative overflow-hidden rounded-xl border border-white/10 h-32 sm:h-40 group flex items-center p-6 sm:p-8 transition-colors hover:border-blue-500/30">
+                    <div
+                        class="relative overflow-hidden rounded-xl border border-white/10 h-32 sm:h-40 group flex items-center p-6 sm:p-8 transition-colors hover:border-blue-500/30">
                         <!-- Blur (10%) & Darkened (40% brightness) Background Image -->
                         <div class="absolute inset-0 z-0 transition-transform duration-700 ease-out group-hover:scale-[1.04] bg-cover bg-center"
-                             style="background-image: url('https://i.ibb.co/WmBtsNc/image.png'); filter: blur(3px) brightness(0.4); transform: scale(1.08);">
+                            style="background-image: url('https://i.ibb.co/WmBtsNc/image.png'); filter: blur(3px) brightness(0.4); transform: scale(1.08);">
                         </div>
                         <!-- Linear Gradient for Text Readability -->
-                        <div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/40 to-transparent z-10"></div>
-                        
+                        <div
+                            class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/40 to-transparent z-10">
+                        </div>
+
                         <!-- Text Content on Left -->
                         <div class="relative z-20 max-w-[85%] space-y-1 sm:space-y-2">
-                            <span class="text-[9px] font-black tracking-widest text-blue-400 uppercase">Visual Memory Search</span>
-                            <h4 class="text-sm sm:text-lg font-bold text-white leading-tight group-hover:text-blue-300 transition-colors">a girl leaning on someone in a train</h4>
-                            <p class="text-[11px] text-slate-300 hidden sm:block">Locates exact visual framing from vague situational descriptions</p>
+                            <span class="text-[9px] font-black tracking-widest text-blue-400 uppercase">Visual Memory
+                                Search</span>
+                            <h4
+                                class="text-sm sm:text-lg font-bold text-white leading-tight group-hover:text-blue-300 transition-colors">
+                                a girl leaning on someone in a train</h4>
+                            <p class="text-[11px] text-slate-300 hidden sm:block">Locates exact visual framing from
+                                vague situational descriptions</p>
                         </div>
                     </div>
 
                     <!-- 2. Rainy Scene -->
-                    <div class="relative overflow-hidden rounded-xl border border-white/10 h-32 sm:h-40 group flex items-center p-6 sm:p-8 transition-colors hover:border-blue-500/30">
+                    <div
+                        class="relative overflow-hidden rounded-xl border border-white/10 h-32 sm:h-40 group flex items-center p-6 sm:p-8 transition-colors hover:border-blue-500/30">
                         <!-- Blur (10%) & Darkened (40% brightness) Background Image -->
                         <div class="absolute inset-0 z-0 transition-transform duration-700 ease-out group-hover:scale-[1.04] bg-cover bg-center"
-                             style="background-image: url('https://i.ibb.co/fcpwn0H/image.png'); filter: blur(3px) brightness(0.4); transform: scale(1.08);">
+                            style="background-image: url('https://i.ibb.co/fcpwn0H/image.png'); filter: blur(3px) brightness(0.4); transform: scale(1.08);">
                         </div>
                         <!-- Linear Gradient for Text Readability -->
-                        <div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/40 to-transparent z-10"></div>
-                        
+                        <div
+                            class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/40 to-transparent z-10">
+                        </div>
+
                         <!-- Text Content on Left -->
                         <div class="relative z-20 max-w-[85%] space-y-1 sm:space-y-2">
-                            <span class="text-[9px] font-black tracking-widest text-blue-400 uppercase">Atmospheric Search</span>
-                            <h4 class="text-sm sm:text-lg font-bold text-white leading-tight group-hover:text-blue-300 transition-colors">a quiet rainy scene</h4>
-                            <p class="text-[11px] text-slate-300 hidden sm:block">Analyzes weather states, color palettes, and environmental moods</p>
+                            <span class="text-[9px] font-black tracking-widest text-blue-400 uppercase">Atmospheric
+                                Search</span>
+                            <h4
+                                class="text-sm sm:text-lg font-bold text-white leading-tight group-hover:text-blue-300 transition-colors">
+                                a quiet rainy scene</h4>
+                            <p class="text-[11px] text-slate-300 hidden sm:block">Analyzes weather states, color
+                                palettes, and environmental moods</p>
                         </div>
                     </div>
 
                     <!-- 3. Broken Katana -->
-                    <div class="relative overflow-hidden rounded-xl border border-white/10 h-32 sm:h-40 group flex items-center p-6 sm:p-8 transition-colors hover:border-blue-500/30">
+                    <div
+                        class="relative overflow-hidden rounded-xl border border-white/10 h-32 sm:h-40 group flex items-center p-6 sm:p-8 transition-colors hover:border-blue-500/30">
                         <!-- Blur (10%) & Darkened (40% brightness) Background Image -->
                         <div class="absolute inset-0 z-0 transition-transform duration-700 ease-out group-hover:scale-[1.04] bg-cover bg-center"
-                             style="background-image: url('https://i.ibb.co/psMP3kL/kimetsu-no-yaiba-tanjiro-vs-rui-wallpaper-2304x768-103.jpg'); filter: blur(3px) brightness(0.4); transform: scale(1.08);">
+                            style="background-image: url('https://i.ibb.co/psMP3kL/kimetsu-no-yaiba-tanjiro-vs-rui-wallpaper-2304x768-103.jpg'); filter: blur(3px) brightness(0.4); transform: scale(1.08);">
                         </div>
                         <!-- Linear Gradient for Text Readability -->
-                        <div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/40 to-transparent z-10"></div>
-                        
+                        <div
+                            class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/40 to-transparent z-10">
+                        </div>
+
                         <!-- Text Content on Left -->
                         <div class="relative z-20 max-w-[85%] space-y-1 sm:space-y-2">
-                            <span class="text-[9px] font-black tracking-widest text-blue-400 uppercase">Action & Frame Search</span>
-                            <h4 class="text-sm sm:text-lg font-bold text-white leading-tight group-hover:text-blue-300 transition-colors">a broken katana during a fight</h4>
-                            <p class="text-[11px] text-slate-300 hidden sm:block">Detects key action moments, object damage, and weapon states</p>
+                            <span class="text-[9px] font-black tracking-widest text-blue-400 uppercase">Action & Frame
+                                Search</span>
+                            <h4
+                                class="text-sm sm:text-lg font-bold text-white leading-tight group-hover:text-blue-300 transition-colors">
+                                a broken katana during a fight</h4>
+                            <p class="text-[11px] text-slate-300 hidden sm:block">Detects key action moments, object
+                                damage, and weapon states</p>
                         </div>
                     </div>
 
                     <!-- 4. Dialogue Scene -->
-                    <div class="relative overflow-hidden rounded-xl border border-white/10 h-32 sm:h-40 group flex items-center p-6 sm:p-8 transition-colors hover:border-blue-500/30">
+                    <div
+                        class="relative overflow-hidden rounded-xl border border-white/10 h-32 sm:h-40 group flex items-center p-6 sm:p-8 transition-colors hover:border-blue-500/30">
                         <!-- Blur (10%) & Darkened (40% brightness) Background Image -->
                         <div class="absolute inset-0 z-0 transition-transform duration-700 ease-out group-hover:scale-[1.04] bg-cover bg-center"
-                             style="background-image: url('https://i.ibb.co/WN7XSrh4/image.png'); filter: blur(3px) brightness(0.4); transform: scale(1.08);">
+                            style="background-image: url('https://i.ibb.co/WN7XSrh4/image.png'); filter: blur(3px) brightness(0.4); transform: scale(1.08);">
                         </div>
                         <!-- Linear Gradient for Text Readability -->
-                        <div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/40 to-transparent z-10"></div>
-                        
+                        <div
+                            class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/40 to-transparent z-10">
+                        </div>
+
                         <!-- Text Content on Left -->
                         <div class="relative z-20 max-w-[85%] space-y-1 sm:space-y-2">
-                            <span class="text-[9px] font-black tracking-widest text-blue-400 uppercase">Transcript & Subtitle Search</span>
-                            <h4 class="text-sm sm:text-lg font-bold text-white leading-tight group-hover:text-blue-300 transition-colors">a dialogue that stayed in your head for years</h4>
-                            <p class="text-[11px] text-slate-300 hidden sm:block">Matches exact subtitle phrases and spoken words in real-time</p>
+                            <span class="text-[9px] font-black tracking-widest text-blue-400 uppercase">Transcript &
+                                Subtitle Search</span>
+                            <h4
+                                class="text-sm sm:text-lg font-bold text-white leading-tight group-hover:text-blue-300 transition-colors">
+                                a dialogue that stayed in your head for years</h4>
+                            <p class="text-[11px] text-slate-300 hidden sm:block">Matches exact subtitle phrases and
+                                spoken words in real-time</p>
                         </div>
                     </div>
 
@@ -301,7 +353,8 @@
                     But you don't remember the episode. Sometimes not even the anime itself.
                 </p>
                 <p class="text-white text-base sm:text-lg font-medium leading-relaxed">
-                    So with <span class="text-blue-400 font-semibold">v5</span>, we want to change how anime clips are discovered completely.
+                    So with <span class="text-blue-400 font-semibold">v5</span>, we want to change how anime clips are
+                    discovered completely.
                 </p>
             </section>
 
@@ -328,7 +381,8 @@
                 <p class="text-slate-400 leading-relaxed text-sm sm:text-base">
                     Describe a scene naturally using your own words and instantly get matching visual clips.
                 </p>
-                <div class="bg-slate-900/30 border border-white/5 rounded-xl p-4 space-y-1.5 text-xs text-slate-400 italic">
+                <div
+                    class="bg-slate-900/30 border border-white/5 rounded-xl p-4 space-y-1.5 text-xs text-slate-400 italic">
                     <p class="font-bold text-slate-300 uppercase tracking-wide text-[10px] not-italic">Examples:</p>
                     <p>"A loving couple in a train"</p>
                     <p>"Girl leans on the boy"</p>
@@ -343,7 +397,8 @@
                 <div class="text-[10px] font-black text-blue-500 tracking-wider uppercase">Feature 03</div>
                 <h4 class="text-xl font-bold text-white">Search by dialogue</h4>
                 <p class="text-slate-400 leading-relaxed text-sm sm:text-base">
-                    Yes. Real dialogue search across our entire library. Not just the ultra-famous edits, but every spoken sentence indexed.
+                    Yes. Real dialogue search across our entire library. Not just the ultra-famous edits, but every
+                    spoken sentence indexed.
                 </p>
                 <div class="bg-slate-900/30 border border-white/5 rounded-xl p-4 space-y-2 text-xs text-slate-400">
                     <p class="font-bold text-slate-300 uppercase tracking-wide text-[10px]">Examples:</p>
@@ -375,11 +430,13 @@
                 <div class="space-y-3 pl-4 border-l border-slate-700 text-sm text-slate-300">
                     <div>
                         <p class="font-bold text-white">Multi-Clip Downloads:</p>
-                        <p class="text-xs text-slate-400 mt-1">Download current clip, previous clip, and next clip all together at once. Because editors usually never need only one clip.</p>
+                        <p class="text-xs text-slate-400 mt-1">Download current clip, previous clip, and next clip all
+                            together at once. Because editors usually never need only one clip.</p>
                     </div>
                     <div>
                         <p class="font-bold text-white">Extreme Optimization:</p>
-                        <p class="text-xs text-slate-400 mt-1">Smoother previews, instant hover playback, faster page loads, and a lighter browser footprint.</p>
+                        <p class="text-xs text-slate-400 mt-1">Smoother previews, instant hover playback, faster page
+                            loads, and a lighter browser footprint.</p>
                     </div>
                 </div>
             </section>
@@ -390,10 +447,12 @@
                     The goal is simple:
                 </div>
                 <p class="text-xl sm:text-2xl font-light text-blue-400 leading-normal">
-                    You think of a moment from memory <span class="text-white font-semibold">&rarr; AniClips finds the exact clip.</span>
+                    You think of a moment from memory <span class="text-white font-semibold">&rarr; AniClips finds the
+                        exact clip.</span>
                 </p>
                 <p class="text-sm text-slate-500 leading-relaxed">
-                    Not just famous scenes. Not just trending edits. But even small, intimate moments that people normally forget.
+                    Not just famous scenes. Not just trending edits. But even small, intimate moments that people
+                    normally forget.
                 </p>
             </section>
 
@@ -414,13 +473,13 @@
         // Smooth scroll reveal implementation
         window.addEventListener('DOMContentLoaded', () => {
             const reveals = document.querySelectorAll('.reveal');
-            
+
             const revealOnScroll = () => {
                 const triggerBottom = window.innerHeight * 0.9;
-                
+
                 reveals.forEach(reveal => {
                     const revealTop = reveal.getBoundingClientRect().top;
-                    
+
                     if (revealTop < triggerBottom) {
                         reveal.classList.add('active');
                     }
@@ -429,7 +488,7 @@
 
             // Initial check on load
             revealOnScroll();
-            
+
             // Listen for scroll events
             window.addEventListener('scroll', revealOnScroll);
         });
@@ -508,7 +567,7 @@
             try {
                 // Ensure search database is decompressed and ready in-memory
                 await ensureSearchDatabase();
-                
+
                 if (!searchDatabase) {
                     list.innerHTML = `<div class="p-4 text-xs text-slate-500 text-center">Unable to load Search Index.</div>`;
                     footer.classList.add('hidden');
@@ -559,7 +618,7 @@
                     list.innerHTML = displayResults.map(item => {
                         const title = item.title || item.name || "Unknown Anime";
                         const sub = item.genre || (Array.isArray(item.genres) ? item.genres.join(', ') : '') || "Anime Series";
-                        const link = `anime.html?name=${encodeURIComponent(item.name || item.title)}`;
+                        const link = `anime?name=${encodeURIComponent(item.name || item.title)}`;
                         return `
                             <a href="${link}" class="block p-3 hover:bg-slate-900 border-b border-white/5 transition-all text-left">
                                 <span class="text-xs font-bold text-white block">${title}</span>
@@ -591,4 +650,5 @@
         });
     </script>
 </body>
+
 </html>

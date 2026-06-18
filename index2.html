@@ -128,7 +128,7 @@
         <nav class="container mx-auto px-4 h-16 flex justify-between items-center">
 
             <!-- LOGO (Corrected Spacing) -->
-            <a href="index.html" class="flex items-center gap-3 group z-50">
+            <a href="index" class="flex items-center gap-3 group z-50">
                 <!-- Icon with Glow -->
                 <div
                     class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
@@ -220,7 +220,7 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <!-- Action -->
-                <a href="browse.html?tag=Action"
+                <a href="browse?tag=Action"
                     class="group relative h-36 rounded-xl overflow-hidden border border-slate-800 hover:border-blue-500/50 transition-all cursor-pointer shadow-lg">
                     <img src="https://images4.alphacoders.com/937/937357.png"
                         class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
@@ -231,7 +231,7 @@
                     </div>
                 </a>
                 <!-- Romance -->
-                <a href="browse.html?tag=Romance"
+                <a href="browse?tag=Romance"
                     class="group relative h-36 rounded-xl overflow-hidden border border-slate-800 hover:border-pink-500/50 transition-all cursor-pointer shadow-lg">
                     <img src="https://images7.alphacoders.com/132/1325305.jpeg"
                         class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
@@ -242,7 +242,7 @@
                     </div>
                 </a>
                 <!-- Scenery -->
-                <a href="browse.html?tag=Scenery"
+                <a href="browse?tag=Scenery"
                     class="group relative h-36 rounded-xl overflow-hidden border border-slate-800 hover:border-emerald-500/50 transition-all cursor-pointer shadow-lg">
                     <img src="https://images8.alphacoders.com/545/545905.jpg"
                         class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
@@ -253,7 +253,7 @@
                     </div>
                 </a>
                 <!-- Dark -->
-                <a href="browse.html?tag=Dark"
+                <a href="browse?tag=Dark"
                     class="group relative h-36 rounded-xl overflow-hidden border border-slate-800 hover:border-purple-500/50 transition-all cursor-pointer shadow-lg">
                     <img src="https://images.alphacoders.com/114/1149479.jpg"
                         class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-100 grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700">
@@ -264,7 +264,7 @@
                     </div>
                 </a>
                 <!-- Fight -->
-                <a href="browse.html?tag=Fight"
+                <a href="browse?tag=Fight"
                     class="group relative h-36 rounded-xl overflow-hidden border border-slate-800 hover:border-red-500/50 transition-all cursor-pointer shadow-lg">
                     <img src="https://images3.alphacoders.com/133/1337489.png"
                         class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
@@ -275,7 +275,7 @@
                     </div>
                 </a>
                 <!-- 4K/Raw -->
-                <a href="browse.html?tag=4K"
+                <a href="browse?tag=4K"
                     class="group relative h-36 rounded-xl overflow-hidden border border-slate-800 hover:border-cyan-500/50 transition-all cursor-pointer shadow-lg">
                     <img src="https://images5.alphacoders.com/131/1311029.jpeg"
                         class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
@@ -391,7 +391,7 @@
                             <h1 class="text-3xl md:text-5xl font-black text-white leading-[0.9] tracking-tighter mb-4 drop-shadow-2xl text-shadow">${anime.title || anime.name}</h1>
                             <p class="text-slate-100 text-xs md:text-sm font-medium leading-relaxed line-clamp-2 max-w-xl mb-6 drop-shadow-md text-shadow-sm">${anime.description || 'Raw clips available.'}</p>
                             <div class="flex gap-3">
-                                <a href="anime.html?name=${encodeURIComponent(anime.name)}" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-black px-6 py-3 rounded shadow-lg transition-all flex items-center gap-2 hover:-translate-y-0.5"><span class="material-symbols-rounded text-lg">play_arrow</span> OPEN CLIPS</a>
+                                <a href="anime?name=${encodeURIComponent(anime.name)}" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-black px-6 py-3 rounded shadow-lg transition-all flex items-center gap-2 hover:-translate-y-0.5"><span class="material-symbols-rounded text-lg">play_arrow</span> OPEN CLIPS</a>
                                 <button class="px-4 py-3 border border-white/20 hover:bg-white/10 text-slate-200 hover:text-white rounded text-xs font-bold transition-colors">+ MY LIST</button>
                             </div>
                         </div>
@@ -494,7 +494,7 @@
         // --- 4. SHARED RENDERERS ---
         function renderRow(list, elementId) {
             document.getElementById(elementId).innerHTML = list.map(anime => `
-                <a href="anime.html?name=${encodeURIComponent(anime.name)}" class="snap-start flex-shrink-0 w-32 sm:w-40 group cursor-pointer block">
+                <a href="anime?name=${encodeURIComponent(anime.name)}" class="snap-start flex-shrink-0 w-32 sm:w-40 group cursor-pointer block">
                     <div class="relative w-full aspect-[4/3] rounded bg-slate-900 border border-slate-800/50 overflow-hidden shadow-sm"><img src="${anime.poster_url}" loading="lazy" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"></div>
                     <div class="mt-2 px-1"><h3 class="text-[10px] sm:text-xs font-bold text-slate-300 leading-tight truncate group-hover:text-white transition-colors">${anime.title || anime.name}</h3><p class="text-[8px] text-slate-600 font-mono mt-0.5 uppercase tracking-wide">Updated</p></div>
                 </a>`).join('');
@@ -503,7 +503,7 @@
         function renderGrid(list, elementId, append = false) {
             const html = list.map((anime, i) => `
                 <div class="animate-enter" style="animation-delay: ${Math.min(i * 30, 800)}ms">
-                    <a href="anime.html?name=${encodeURIComponent(anime.name)}" class="group relative block w-full">
+                    <a href="anime?name=${encodeURIComponent(anime.name)}" class="group relative block w-full">
                         <div class="relative aspect-[4/3] rounded bg-slate-900 border border-white/5 overflow-hidden shadow-sm group-hover:shadow-blue-900/20 group-hover:border-blue-500/30 transition-all">
                             <img src="${anime.poster_url}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 opacity-80 group-hover:opacity-100">
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-80"></div>
@@ -615,7 +615,7 @@
                         document.getElementById('search-footer').classList.add('hidden');
                     } else {
                         list.innerHTML = matches.map(a => `
-                            <a href="anime.html?name=${encodeURIComponent(a.name)}" class="flex items-center gap-3 p-2.5 hover:bg-slate-800/50 transition-colors border-b border-white/5 last:border-0 group">
+                            <a href="anime?name=${encodeURIComponent(a.name)}" class="flex items-center gap-3 p-2.5 hover:bg-slate-800/50 transition-colors border-b border-white/5 last:border-0 group">
                                 <div class="w-16 aspect-[4/3] bg-slate-900 rounded overflow-hidden shrink-0 border border-white/10 group-hover:border-blue-500/40 transition-all"><img src="${a.poster_url}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"></div>
                                 <div class="flex-grow min-w-0"><h4 class="text-sm font-bold text-slate-200 group-hover:text-blue-400 truncate transition-colors">${a.title_english || a.title || a.name}</h4><div class="flex items-center gap-2 mt-1"><span class="text-[9px] font-mono bg-blue-600/20 text-blue-300 px-1 rounded border border-blue-500/20">SERIES</span></div></div>
                                 <span class="material-symbols-rounded text-slate-600 group-hover:text-blue-400 -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all text-lg">chevron_right</span>

@@ -302,7 +302,7 @@
         };
 
         window.onload = async () => {
-            if (!state.animeSlug) { window.location.href = 'index.html'; return; }
+            if (!state.animeSlug) { window.location.href = 'index'; return; }
             try {
                 const [anime, episodes] = await Promise.all([
                     safeFetch(`/animes/${state.animeSlug}`),
@@ -1054,7 +1054,7 @@
                         <li><a href="/" class="hover:text-blue-400 transition-colors">Home</a></li>
                         <li><a href="/" class="hover:text-blue-400 transition-colors">Trending</a></li>
                         <li><a href="#browse-genres" class="hover:text-blue-400 transition-colors">Collections</a></li>
-                        <li><a href="blogs.html"
+                        <li><a href="blogs"
                                 class="text-blue-400 hover:text-blue-300 font-medium transition-colors flex items-center gap-1">Blogs
                                 <span
                                     class="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1 rounded uppercase tracking-widest text-[9px] font-bold">New</span></a>

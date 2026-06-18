@@ -53,7 +53,7 @@ def build_sitemap(items):
         url = SubElement(urlset, "url")
 
         loc = SubElement(url, "loc")
-        loc.text = f"{SITE_URL}/anime.html?name={name}"
+        loc.text = f"{SITE_URL}/anime?name={name}"
 
         lastmod = SubElement(url, "lastmod")
         lastmod.text = today

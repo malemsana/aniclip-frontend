@@ -77,7 +77,7 @@
     <!-- HEADER -->
     <nav class="sticky top-0 h-14 border-b border-white/5 flex items-center px-6 bg-slate-950/80 backdrop-blur z-40">
         <div class="flex items-center gap-4">
-            <a href="admin.html"
+            <a href="admin"
                 class="w-8 h-8 rounded-full hover:bg-white/5 flex items-center justify-center text-slate-500 hover:text-white transition-all">
                 <span class="material-symbols-rounded">arrow_back</span>
             </a>
@@ -128,29 +128,39 @@
                 </div>
                 <!-- Lifetime Stats -->
                 <div class="mt-4 grid grid-cols-2 gap-2">
-                    <div class="bg-slate-950/50 p-3 rounded-lg border border-white/5 flex flex-col items-center justify-center text-center">
+                    <div
+                        class="bg-slate-950/50 p-3 rounded-lg border border-white/5 flex flex-col items-center justify-center text-center">
                         <span class="material-symbols-rounded text-purple-500 mb-1 text-xl">visibility</span>
                         <span id="lifetime-visits" class="text-sm font-black text-white">0</span>
-                        <span class="text-[8px] uppercase tracking-widest text-slate-500 font-bold mt-1">Lifetime Visits</span>
+                        <span class="text-[8px] uppercase tracking-widest text-slate-500 font-bold mt-1">Lifetime
+                            Visits</span>
                     </div>
-                    <div class="bg-slate-950/50 p-3 rounded-lg border border-white/5 flex flex-col items-center justify-center text-center">
+                    <div
+                        class="bg-slate-950/50 p-3 rounded-lg border border-white/5 flex flex-col items-center justify-center text-center">
                         <span class="material-symbols-rounded text-emerald-500 mb-1 text-xl">download</span>
                         <span id="lifetime-downloads" class="text-sm font-black text-white">0</span>
-                        <span class="text-[8px] uppercase tracking-widest text-slate-500 font-bold mt-1">Lifetime Downloads</span>
+                        <span class="text-[8px] uppercase tracking-widest text-slate-500 font-bold mt-1">Lifetime
+                            Downloads</span>
                     </div>
                     <!-- Warm Backup -->
-                    <div class="bg-slate-950/50 p-3 rounded-lg border border-white/5 flex flex-col items-center justify-center text-center">
+                    <div
+                        class="bg-slate-950/50 p-3 rounded-lg border border-white/5 flex flex-col items-center justify-center text-center">
                         <span class="material-symbols-rounded text-blue-400 mb-1 text-xl">cloud_sync</span>
                         <span class="text-sm font-black text-white leading-tight">
-                            <span id="warm-backup-count">0</span><span class="text-slate-500 text-[10px] font-bold">/<span id="warm-backup-total">?</span></span>
+                            <span id="warm-backup-count">0</span><span
+                                class="text-slate-500 text-[10px] font-bold">/<span
+                                    id="warm-backup-total">?</span></span>
                         </span>
-                        <span class="text-[8px] uppercase tracking-widest text-slate-500 font-bold mt-1">Warm Backup</span>
+                        <span class="text-[8px] uppercase tracking-widest text-slate-500 font-bold mt-1">Warm
+                            Backup</span>
                     </div>
                     <!-- Cold Backup — dims when not backed up, highlights when done -->
-                    <div id="cold-backup-cell" class="bg-slate-950/50 p-3 rounded-lg border border-white/5 flex flex-col items-center justify-center text-center opacity-30 transition-opacity duration-300">
+                    <div id="cold-backup-cell"
+                        class="bg-slate-950/50 p-3 rounded-lg border border-white/5 flex flex-col items-center justify-center text-center opacity-30 transition-opacity duration-300">
                         <span class="material-symbols-rounded text-amber-400 mb-1 text-xl">archive</span>
                         <span id="cold-backup-parts" class="text-sm font-black text-white">—</span>
-                        <span class="text-[8px] uppercase tracking-widest text-slate-500 font-bold mt-1">Cold Backup</span>
+                        <span class="text-[8px] uppercase tracking-widest text-slate-500 font-bold mt-1">Cold
+                            Backup</span>
                     </div>
                 </div>
             </div>
@@ -359,7 +369,7 @@
         function stopPreview(el) { const v = el.querySelector('video'); if (v) v.pause(); }
 
         async function init() {
-            if (!ADMIN_KEY) window.location.href = 'auth.html';
+            if (!ADMIN_KEY) window.location.href = 'auth';
             if (slug) {
                 await loadSeriesMetadata();
                 await loadEpisodes();
@@ -383,7 +393,7 @@
                 document.getElementById('anime-featured').checked = anime.is_featured || false;
                 document.getElementById('poster-preview').src = anime.poster_url || 'https://placehold.co/300x400?text=No+Poster';
                 document.getElementById('page-title').innerText = `Editing: ${anime.title || anime.name}`;
-                
+
                 // Populate Hot-Merged Stats
                 if (document.getElementById('lifetime-visits')) {
                     document.getElementById('lifetime-visits').innerText = (anime.visit_count || 0).toLocaleString();
@@ -654,7 +664,7 @@
                     headers: { 'Authorization': `Bearer ${ADMIN_KEY}` }
                 });
                 if (res.ok) {
-                    window.location.href = 'admin.html';
+                    window.location.href = 'admin';
                 } else {
                     alert("Failed to delete series.");
                 }
