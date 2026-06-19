@@ -238,7 +238,7 @@
                 <span id="preview-duration" class="hidden">--:--</span>
 
                 <div class="flex-1 min-h-0 overflow-hidden mb-8 flex justify-center items-start">
-                    <div id="adsterra-banner-slot" class="w-[300px] h-[250px] overflow-hidden rounded-lg flex-shrink-0">
+                    <div id="kadam-banner-slot" class="w-[300px] h-[250px] overflow-hidden rounded-lg flex-shrink-0">
                     </div>
                 </div>
 
@@ -713,8 +713,8 @@
         function openPreview(epId, idx) {
             state.activeModal = true;
 
-            // FIRE ADSTERRA 300x250 BANNER
-            loadAdsterraBanner();
+            // FIRE KADAM 300x250 BANNER
+            loadKadamBanner();
             // FIRE MONETAG IN-PAGE PUSH GLOBALLY
             loadMonetagPush();
 
@@ -775,9 +775,9 @@
             }, 200);
         }
 
-        // --- AD TYPE 2: SECURE ADSTERRA BANNER INJECTION ---
-        function loadAdsterraBanner() {
-            const container = document.getElementById('adsterra-banner-slot');
+        // --- AD TYPE 2: SECURE KADAM BANNER INJECTION ---
+        function loadKadamBanner() {
+            const container = document.getElementById('kadam-banner-slot');
             if (!container) return;
             container.innerHTML = '';
 
@@ -790,17 +790,19 @@
 
             const o = String.fromCharCode(60); const c = String.fromCharCode(62); const s = '/';
 
-            // We inject a silent catch block at the top of the iframe so Adsterra doesn't crash itself upon failing to redirect
+            // We inject a silent catch block at the top of the iframe so Kadam doesn't crash itself upon failing to redirect
             iframe.srcdoc = o + '!DOCTYPE html' + c
                 + o + 'html' + c
                 + o + 'head' + c
                 + o + 'script' + c + 'window.onerror = function(){ return true; };' + o + s + 'script' + c
                 + o + s + 'head' + c
                 + o + 'body style="margin:0;padding:0;overflow:hidden"' + c
-                + o + 'script type="text/javascript"' + c
-                + 'atOptions={key:"33d80cd41181a61e5f567fc01f4eec71",format:"iframe",height:250,width:300,params:{}};'
+                + o + 'div class="tBgAyy425572"' + c + o + s + 'div' + c
+                + o + 'script' + c
+                + 'window.k_init = window.k_init || [];'
+                + 'k_init.push({id: "tBgAyy425572", type: "bn", domain: "hdbkome.com", refresh: false, next: 0});'
                 + o + s + 'script' + c
-                + o + 'script type="text/javascript" src="https://www.highperformanceformat.com/33d80cd41181a61e5f567fc01f4eec71/invoke.js"' + c
+                + o + 'script type="text/javascript" async charset="utf-8" data-cfasync="false" src="https://hdbkome.com/400n872q.js"' + c
                 + o + s + 'script' + c
                 + o + s + 'body' + c
                 + o + s + 'html' + c;
@@ -851,7 +853,7 @@
             const elapsed = Date.now() - state.adLastRefresh;
             if ((state.adClipChanges >= 3 || elapsed >= 30000) && elapsed >= 30000) {
                 // Only refresh the sidebar banner, Monetag Push handles its own refresh rate internally
-                loadAdsterraBanner();
+                loadKadamBanner();
                 state.adClipChanges = 0;
                 state.adLastRefresh = Date.now();
             }
