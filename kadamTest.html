@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kadam Ad Integration Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            900: '#0f172a',
+                            950: '#020617'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            background-image: radial-gradient(circle at 50% 30%, #1e3a8a 0%, transparent 60%);
+            background-attachment: fixed;
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="w-full max-w-md bg-slate-900/60 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-2xl text-center">
+        <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(37,99,235,0.4)]">
+            <span class="text-white font-bold text-xl">K</span>
+        </div>
+        <h1 class="text-2xl font-black text-white mb-2">Kadam Banner Test</h1>
+        <p class="text-slate-400 text-sm mb-6">
+            Testing the sandboxed Kadam 300x250 banner ad implementation.
+        </p>
+
+        <!-- Test Slot -->
+        <div class="flex justify-center items-center mb-6">
+            <div id="kadam-banner-slot" class="w-[300px] h-[250px] bg-slate-950 border border-slate-800 rounded-lg flex items-center justify-center overflow-hidden">
+                <span class="text-xs text-slate-600 font-mono">Ad slot ready...</span>
+            </div>
+        </div>
+
+        <button onclick="loadKadamBanner()" class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-all shadow-lg active:scale-95">
+            Load / Refresh Ad
+        </button>
+    </div>
+
+    <script>
+        function loadKadamBanner() {
+            const container = document.getElementById('kadam-banner-slot');
+            if (!container) return;
+            container.innerHTML = '<div class="tBgAyy425572"></div>';
+
+            window.k_init = window.k_init || [];
+            window.k_init.push({
+                id: 'tBgAyy425572',
+                type: 'bn',
+                domain: 'hdbkome.com',
+                refresh: false,
+                next: 0
+            });
+            
+            // Load script if not already present
+            if (!document.getElementById('kadam-script')) {
+                var s = document.createElement('script');
+                s.id = 'kadam-script';
+                s.setAttribute('async', true);
+                s.setAttribute('charset', 'utf-8');
+                s.setAttribute('data-cfasync', false);
+                s.src = 'https://hdbkome.com/400n872q.js'; 
+                document.head && document.head.appendChild(s);
+            }
+        }
+
+        // Auto load on start
+        window.onload = loadKadamBanner;
+    </script>
+</body>
+</html>

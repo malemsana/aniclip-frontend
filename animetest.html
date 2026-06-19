@@ -779,35 +779,27 @@
         function loadKadamBanner() {
             const container = document.getElementById('kadam-banner-slot');
             if (!container) return;
-            container.innerHTML = '';
+            container.innerHTML = '<div class="tBgAyy425572"></div>';
 
-            const iframe = document.createElement('iframe');
-            iframe.width = '300';
-            iframe.height = '250';
-            iframe.style.border = 'none';
-            // We specifically OMIT 'allow-same-origin'. This hard-blocks page redirects.
-            iframe.sandbox = 'allow-scripts allow-popups allow-popups-to-escape-sandbox';
-
-            const o = String.fromCharCode(60); const c = String.fromCharCode(62); const s = '/';
-
-            // We inject a silent catch block at the top of the iframe so Kadam doesn't crash itself upon failing to redirect
-            iframe.srcdoc = o + '!DOCTYPE html' + c
-                + o + 'html' + c
-                + o + 'head' + c
-                + o + 'script' + c + 'window.onerror = function(){ return true; };' + o + s + 'script' + c
-                + o + s + 'head' + c
-                + o + 'body style="margin:0;padding:0;overflow:hidden"' + c
-                + o + 'div class="tBgAyy425572"' + c + o + s + 'div' + c
-                + o + 'script' + c
-                + 'window.k_init = window.k_init || [];'
-                + 'k_init.push({id: "tBgAyy425572", type: "bn", domain: "hdbkome.com", refresh: false, next: 0});'
-                + o + s + 'script' + c
-                + o + 'script type="text/javascript" async charset="utf-8" data-cfasync="false" src="https://hdbkome.com/400n872q.js"' + c
-                + o + s + 'script' + c
-                + o + s + 'body' + c
-                + o + s + 'html' + c;
-
-            container.appendChild(iframe);
+            window.k_init = window.k_init || [];
+            window.k_init.push({
+                id: 'tBgAyy425572',
+                type: 'bn',
+                domain: 'hdbkome.com',
+                refresh: false,
+                next: 0
+            });
+            
+            // Load script if not already present
+            if (!document.getElementById('kadam-script')) {
+                var s = document.createElement('script');
+                s.id = 'kadam-script';
+                s.setAttribute('async', true);
+                s.setAttribute('charset', 'utf-8');
+                s.setAttribute('data-cfasync', false);
+                s.src = 'https://hdbkome.com/400n872q.js'; 
+                document.head && document.head.appendChild(s);
+            }
         }
 
         // --- AD TYPE 3: MONETAG IN-PAGE PUSH NOTIFICATIONS ---
