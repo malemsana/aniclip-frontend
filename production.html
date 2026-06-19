@@ -288,6 +288,7 @@
                         <div id="dot-1" class="step-dot w-2 h-2 rounded-full active"></div>
                         <div id="dot-2" class="step-dot w-2 h-2 rounded-full"></div>
                         <div id="dot-3" class="step-dot w-2 h-2 rounded-full"></div>
+                        <div id="dot-4" class="step-dot w-2 h-2 rounded-full"></div>
                     </div>
                     <h2 id="modal-title" class="text-xs font-black text-white uppercase tracking-widest">Search Anime
                     </h2>
@@ -310,20 +311,89 @@
                 <div id="search-results" class="grid grid-cols-2 gap-3 overflow-y-auto pr-2"></div>
             </div>
 
+            <!-- Step 2: Edit Info -->
             <div id="step-2" class="hidden p-8 flex flex-col h-full overflow-hidden">
+                <div class="flex gap-8 h-full overflow-hidden pb-4">
+                    <!-- Left: Metadata Fields -->
+                    <div class="w-2/3 flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar">
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Primary Title</label>
+                            <input type="text" id="edit-title" class="input-dark" placeholder="Anime Title">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">English Title</label>
+                                <input type="text" id="edit-title-english" class="input-dark" placeholder="English Title">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Japanese Title</label>
+                                <input type="text" id="edit-title-japanese" class="input-dark" placeholder="Japanese Title">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Poster URL</label>
+                                <input type="text" id="edit-poster-url" class="input-dark" placeholder="https://example.com/poster.jpg" oninput="updatePosterPreview()">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Episode Count</label>
+                                <input type="number" id="edit-episodes" class="input-dark" placeholder="12" min="1">
+                            </div>
+                        </div>
+                        <div class="flex-grow flex flex-col min-h-[120px]">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Synopsis / Description</label>
+                            <textarea id="edit-description" class="input-dark flex-grow resize-none" placeholder="Enter series description..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Right: Live Poster Preview -->
+                    <div class="w-1/3 flex flex-col items-center justify-center bg-slate-950/40 rounded-2xl border border-white/5 p-6 relative">
+                        <div class="absolute top-4 left-4 flex items-center gap-2">
+                            <span class="material-symbols-rounded text-blue-500 text-sm">visibility</span>
+                            <span class="text-[9px] uppercase text-slate-400 font-black tracking-widest">Poster Preview</span>
+                        </div>
+                        <div class="w-48 h-72 rounded-2xl overflow-hidden bg-slate-900 border border-white/10 shadow-xl relative aspect-[2/3] group mt-4 flex items-center justify-center">
+                            <img id="edit-poster-preview" src="" class="w-full h-full object-cover hidden" />
+                            <div id="edit-poster-placeholder" class="w-full h-full flex flex-col items-center justify-center text-slate-600 gap-2">
+                                <span class="material-symbols-rounded text-3xl">image</span>
+                                <span class="text-[9px] font-black uppercase tracking-wider">No Image</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer buttons for Step 2 -->
+                <div class="border-t border-white/5 pt-4 mt-auto flex justify-between shrink-0">
+                    <button onclick="setStep(1)" class="px-6 py-2.5 rounded-xl font-black text-[10px] text-slate-500 hover:text-white uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-2">
+                        <span class="material-symbols-rounded text-sm">arrow_back</span> Back
+                    </button>
+                    <button onclick="saveAndGoToStep3()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2">
+                        Continue <span class="material-symbols-rounded text-sm">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Source Discovery -->
+            <div id="step-3" class="hidden p-8 flex flex-col h-full overflow-hidden">
                 <div class="flex gap-3 mb-6 shrink-0">
                     <input type="text" id="torrent-search-input" onkeydown="if(event.key==='Enter') fetchTorrents()"
                         class="input-dark flex-grow" placeholder="Search for magnets (e.g. Solo Leveling S01)...">
                     <button onclick="fetchTorrents()"
                         class="bg-blue-600 hover:bg-blue-500 transition-colors px-10 rounded-xl font-black text-[10px] uppercase tracking-widest">Re-Scrape</button>
                 </div>
-                <div id="torrent-results" class="space-y-3 overflow-y-auto pr-2"></div>
+                <div id="torrent-results" class="space-y-3 overflow-y-auto pr-2 flex-grow mb-4"></div>
+                <div class="border-t border-white/5 pt-4 mt-auto flex justify-between shrink-0">
+                    <button onclick="setStep(2)" class="px-6 py-2.5 rounded-xl font-black text-[10px] text-slate-500 hover:text-white uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-2">
+                        <span class="material-symbols-rounded text-sm">arrow_back</span> Back to Info
+                    </button>
+                </div>
             </div>
 
-            <div id="step-3" class="hidden p-8 flex flex-col h-full overflow-hidden">
+            <!-- Step 4: Selection Bridge -->
+            <div id="step-4" class="hidden p-8 flex flex-col h-full overflow-hidden">
                 <div class="flex justify-between items-center mb-6 pb-6 border-b border-white/5">
                     <div class="flex items-center gap-4">
-                        <button onclick="setStep(2)"
+                        <button onclick="setStep(3)"
                             class="text-[10px] font-black text-slate-500 hover:text-white uppercase tracking-widest transition-colors flex items-center gap-2 mr-4">
                             <span class="material-symbols-rounded">arrow_back</span> Source Settings
                         </button>
@@ -453,13 +523,53 @@
         }
 
         function setStep(n) {
-            [1, 2, 3].forEach(i => {
-                document.getElementById(`step-${i}`).classList.toggle('hidden', i !== n);
+            [1, 2, 3, 4].forEach(i => {
+                const el = document.getElementById(`step-${i}`);
+                if (el) el.classList.toggle('hidden', i !== n);
                 const dot = document.getElementById(`dot-${i}`);
-                dot.className = `step-dot w-2 h-2 rounded-full ${i === n ? 'active' : (i < n ? 'bg-blue-900' : 'bg-slate-700')}`;
+                if (dot) {
+                    dot.className = `step-dot w-2 h-2 rounded-full ${i === n ? 'active' : (i < n ? 'bg-blue-900' : 'bg-slate-700')}`;
+                }
             });
-            const titles = ["Discover Series", "Source Discovery", "Selection Bridge"];
+            const titles = ["Discover Series", "Edit Info", "Source Discovery", "Selection Bridge"];
             document.getElementById('modal-title').innerText = titles[n - 1];
+        }
+
+        function updatePosterPreview() {
+            const url = document.getElementById('edit-poster-url').value.trim();
+            const previewImg = document.getElementById('edit-poster-preview');
+            const placeholder = document.getElementById('edit-poster-placeholder');
+            if (url) {
+                previewImg.src = url;
+                previewImg.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            } else {
+                previewImg.src = "";
+                previewImg.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+            }
+        }
+
+        function saveAndGoToStep3() {
+            if (!selectedAnime) return;
+            selectedAnime.title = document.getElementById('edit-title').value.trim();
+            selectedAnime.title_english = document.getElementById('edit-title-english').value.trim();
+            selectedAnime.title_japanese = document.getElementById('edit-title-japanese').value.trim();
+            
+            if (!selectedAnime.images) selectedAnime.images = { jpg: {} };
+            if (!selectedAnime.images.jpg) selectedAnime.images.jpg = {};
+            selectedAnime.images.jpg.large_image_url = document.getElementById('edit-poster-url').value.trim();
+            selectedAnime.images.jpg.small_image_url = document.getElementById('edit-poster-url').value.trim();
+            
+            const epsVal = parseInt(document.getElementById('edit-episodes').value);
+            selectedAnime.episodes = isNaN(epsVal) ? null : epsVal;
+            selectedAnime.synopsis = document.getElementById('edit-description').value.trim();
+            
+            // Sync the search input for step 3 torrent scraping
+            document.getElementById('torrent-search-input').value = selectedAnime.title;
+            
+            setStep(3);
+            fetchTorrents();
         }
 
         async function searchJikan() {
@@ -541,9 +651,17 @@
                 title_japanese: item.title_japanese || item.title,
                 synopsis: item.synopsis || ""
             };
-            document.getElementById('torrent-search-input').value = selectedAnime.title;
+            
+            // Populate step 2 fields
+            document.getElementById('edit-title').value = selectedAnime.title || "";
+            document.getElementById('edit-title-english').value = selectedAnime.title_english || "";
+            document.getElementById('edit-title-japanese').value = selectedAnime.title_japanese || "";
+            document.getElementById('edit-poster-url').value = selectedAnime.images?.jpg?.large_image_url || selectedAnime.images?.jpg?.small_image_url || "";
+            document.getElementById('edit-episodes').value = selectedAnime.episodes || "";
+            document.getElementById('edit-description').value = selectedAnime.synopsis || "";
+            
+            updatePosterPreview();
             setStep(2);
-            fetchTorrents();
         }
 
         async function fetchTorrents() {
@@ -573,7 +691,7 @@
         function selectTorrent(id, magnet) {
             selectedMagnet = magnet;
             window._selectedTorrentId = id;
-            setStep(3);
+            setStep(4);
             initMappingBridge();
         }
 
@@ -768,7 +886,7 @@
                         title_japanese: selectedAnime.title_japanese,
                         slug: selectedAnime.title.toLowerCase().replace(/[^a-z0-9]+/g, '_'),
                         poster_url: selectedAnime.images.jpg.large_image_url,
-                        description: "",
+                        description: selectedAnime.synopsis || "",
                         source_magnet: selectedMagnet,
                         mappings: mappings
                     }),
