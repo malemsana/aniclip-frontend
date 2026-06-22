@@ -350,6 +350,7 @@
             loadRecentRow();
             loadTrendingGrid();
             setupInfiniteScroll();
+            initDelayedMonetagPush();
         };
 
         // --- 1. DATA FETCHERS ---
@@ -660,6 +661,27 @@
 
         document.addEventListener('click', e => { if (document.getElementById('search-wrapper') && !document.getElementById('search-wrapper').contains(e.target)) closeSearch(); });
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSearch(); });
+
+        // Ads
+        // --- AD TYPE 3: MONETAG IN-PAGE PUSH NOTIFICATIONS (45s DELAY) ---
+        function initDelayedMonetagPush() {
+            // Wait 45,000 milliseconds (45 seconds) after page load completes
+            setTimeout(() => {
+                // Prevent duplicate injections if called again
+                if (document.getElementById('monetag-push-script')) return;
+
+                console.log("⏱️ 45s reached: Injecting In-Page Push tracking tag.");
+
+                const pushScript = document.createElement('script');
+                pushScript.id = 'monetag-push-script';
+                pushScript.dataset.zone = "11187388"; // Your specific Homepage Zone ID
+                pushScript.src = 'https://nap5k.com/tag.min.js';
+                pushScript.async = true;
+
+                // Append directly to body to allow the native floating engine to overlay the UI
+                document.body.appendChild(pushScript);
+            }, 45000);
+        }
     </script>
     <!-- ==== FOOTER ==== -->
     <footer class="mt-20 border-t border-white/5 bg-slate-950/80 backdrop-blur-2xl pt-16 pb-8">
