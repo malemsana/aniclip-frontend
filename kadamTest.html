@@ -49,6 +49,11 @@
         <button onclick="loadKadamBanner()" class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-all shadow-lg active:scale-95">
             Load / Refresh Ad
         </button>
+
+        <div class="mt-6 text-left">
+            <h3 class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Kadam Debug Log</h3>
+            <pre id="debug-log" class="text-[10px] bg-slate-950 p-3 rounded border border-slate-800 font-mono text-slate-400 overflow-x-auto max-h-40">No logs yet...</pre>
+        </div>
     </div>
 
     <script>
@@ -79,7 +84,15 @@
         }
 
         // Auto load on start
-        window.onload = loadKadamBanner;
+        window.onload = () => {
+            loadKadamBanner();
+            setInterval(() => {
+                const debugLog = document.getElementById('debug-log');
+                if (debugLog && window.logKdm) {
+                    debugLog.textContent = JSON.stringify(window.logKdm, null, 2);
+                }
+            }, 500);
+        };
     </script>
 </body>
 </html>
