@@ -1,5 +1,18 @@
 [
   {
+    "id": "how-to-find-anime-clips-2026",
+    "title": "How to Find Anime Clips for Editing in 2026",
+    "slug": "how-to-find-anime-clips-for-editing-in-2026",
+    "date": "July 9, 2026",
+    "readTime": "8 min read",
+    "category": "Editing Guides",
+    "excerpt": "Learn where anime editors actually get their clips in 2026. Compare torrents, scene packs, clip libraries and discover the fastest workflow for AMVs, TikTok edits and YouTube video essays.",
+    "image": "https://raw.githubusercontent.com/malemsana2/aniclip-frontend/main/blogs/assets/find-clips.webp",
+    "author": "Previous Stomach",
+    "authorTitle": "Creator • AniClips",
+    "featured": false
+  },
+  {
     "id": "introducing-aniclips-v5",
     "title": "AniClips v5: The Future of Visual Memory Search",
     "slug": "aniclips-v5-announcement",
@@ -20,7 +33,7 @@
     "readTime": "4 min read",
     "category": "Creator Notes",
     "excerpt": "Why scrubbing timelines, wrestling heavy video files, and opening endless background browser tabs inspired the launch of a frame-accurate clip utility platform.",
-    "image": "https://cdn.jsdelivr.net/gh/malemsana2/aniclip-frontend@main/blogs/assets/aniclips-v4-blogposter.webp",
+    "image": "https://raw.githubusercontent.com/malemsana2/aniclip-frontend/main/blogs/assets/aniclips-v4-blogposter.webp",
     "author": "Previous Stomach",
     "authorTitle": "Creator & Lead Dev",
     "featured": false

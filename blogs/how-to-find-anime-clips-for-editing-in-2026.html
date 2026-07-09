@@ -4,50 +4,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Unique dynamic config parameters for dynamic routing cross-references -->
-    <meta name="article-id" content="how-to-find-anime-clips">
 
-    <title>How to Find & Prep Anime Raws for Editing | AniClips Blog</title>
+    <!-- Article ID -->
+    <meta name="article-id" content="how-to-find-anime-clips-2026">
+
+    <!-- SEO -->
+    <title>How to Find Anime Clips for Editing in 2026 | The Complete Guide | AniClips Blog</title>
+
+    <meta name="description"
+        content="Learn where anime editors actually get their clips in 2026. Compare torrents, scene packs, clip libraries and discover the fastest workflow for AMVs, TikTok edits and YouTube video essays.">
+
+    <meta name="keywords"
+        content="anime clips, anime editing, anime raws, anime scene packs, anime clips download, AMV editing, anime edits, anime editor resources">
+
+    <meta property="og:title" content="How to Find Anime Clips for Editing in 2026">
+    <meta property="og:description"
+        content="Everything anime editors need to know about finding high-quality clips quickly and efficiently.">
+    <meta property="og:type" content="article">
 
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Unified Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
+
     <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-    <!-- Original Homepage Tailwind Config -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { gray: { 900: '#0f172a', 950: '#020617' }, brand: { 500: '#3b82f6', 600: '#2563eb' } },
-                    animation: { 'fade-in': 'fadeIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards' }
+                    colors: {
+                        gray: {
+                            900: '#0f172a',
+                            950: '#020617'
+                        },
+                        brand: {
+                            500: '#3b82f6',
+                            600: '#2563eb'
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn .7s cubic-bezier(0.16,1,0.3,1) forwards'
+                    }
                 }
             }
         }
     </script>
 
-    <!-- Unified Styles -->
     <style>
         html {
             scroll-behavior: smooth;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #020617;
+            background: #020617;
             color: #f1f5f9;
+            font-family: 'Inter', sans-serif;
             overflow-x: hidden;
         }
 
-        /* Glass Nav */
         .glass-nav {
-            background: rgba(2, 6, 23, 0.85);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(2, 6, 23, .85);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
         }
 
         @keyframes fadeIn {
@@ -63,7 +85,7 @@
         }
 
         .animate-enter {
-            animation: fadeIn 0.5s ease-out forwards;
+            animation: fadeIn .55s ease-out forwards;
             opacity: 0;
         }
 
@@ -73,553 +95,2394 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+
+        article p {
+            line-height: 1.85;
+        }
+
+        article strong {
+            color: white;
+        }
     </style>
 </head>
 
-<body class="antialiased min-h-screen flex flex-col bg-[#020617] relative selection:bg-blue-600 selection:text-white">
+<body class="min-h-screen antialiased bg-[#020617] selection:bg-blue-600 selection:text-white">
 
-    <!-- Subtle Ambient Glows -->
     <div
-        class="absolute top-0 right-1/4 w-[500px] h-[500px] bg-blue-900/10 rounded-full blur-[150px] pointer-events-none z-0">
+        class="absolute top-0 right-1/3 w-[520px] h-[520px] rounded-full bg-blue-900/10 blur-[170px] pointer-events-none">
     </div>
 
-    <!-- ==== PREMIUM GLASS NAVIGATION BAR ==== -->
-    <header class="fixed top-0 w-full z-50 glass-nav transition-all duration-300">
+    <!-- ================= NAVIGATION ================= -->
+
+    <header class="fixed top-0 w-full z-50 glass-nav">
+
         <nav class="container mx-auto px-4 h-16 flex justify-between items-center">
-            <!-- LOGO -->
-            <a href="../index" class="flex items-center gap-3 group z-50">
+
+            <a href="../index" class="flex items-center gap-3 group">
+
                 <div
-                    class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
-                    <span class="material-symbols-rounded text-white text-lg">movie</span>
+                    class="w-9 h-9 rounded-lg bg-blue-600 flex justify-center items-center group-hover:bg-blue-500 transition shadow-[0_0_15px_rgba(37,99,235,.45)]">
+
+                    <span class="material-symbols-rounded text-white">
+                        movie
+                    </span>
+
                 </div>
-                <span class="font-black text-xl tracking-wide text-slate-100 group-hover:text-white transition-colors">
+
+                <span class="font-black text-xl">
                     Ani<span class="text-blue-500">Clips</span>
                 </span>
+
                 <span
-                    class="ml-2 px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[9px] font-bold text-slate-400 uppercase tracking-widest hidden sm:block">
+                    class="hidden sm:block ml-2 px-2 py-0.5 rounded border border-white/10 bg-white/5 text-[9px] uppercase tracking-widest text-slate-400 font-bold">
                     Blog
                 </span>
+
             </a>
 
-            <!-- NAV LINKS -->
-            <div class="flex items-center gap-6 z-50">
-                <a href="../blogs"
-                    class="text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-wider transition-colors flex items-center gap-1">
-                    <span class="material-symbols-rounded text-sm">arrow_back</span> Back to Blogs
-                </a>
-            </div>
+            <a href="../blogs"
+                class="flex items-center gap-1 uppercase text-[10px] tracking-widest font-bold text-slate-400 hover:text-white transition">
+
+                <span class="material-symbols-rounded text-sm">
+                    arrow_back
+                </span>
+
+                Back to Blogs
+
+            </a>
+
         </nav>
+
     </header>
 
-    <!-- ==== ARTICLE HERO ==== -->
-    <div class="w-full relative pt-28 pb-12 sm:pt-36 sm:pb-16 px-4 z-10 animate-enter">
+    <!-- ================= HERO ================= -->
+
+    <section class="pt-32 pb-16 px-4 relative z-10 animate-enter">
+
         <div class="max-w-4xl mx-auto">
 
-            <!-- Breadcrumbs / Meta -->
-            <div class="flex flex-wrap items-center gap-3 mb-6">
-                <a href="../blogs"
-                    class="text-[10px] font-bold text-blue-500 hover:text-blue-400 uppercase tracking-widest transition-colors">Editing
-                    Guides</a>
-                <span class="w-1 h-1 rounded-full bg-slate-700"></span>
-                <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">July 2, 2026</span>
-                <span class="w-1 h-1 rounded-full bg-slate-700"></span>
-                <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                    <span class="material-symbols-rounded text-[12px]">schedule</span> 6 min read
+            <div class="flex flex-wrap items-center gap-3 mb-7">
+
+                <span class="uppercase text-blue-500 text-[10px] tracking-widest font-black">
+                    Editing Guides
                 </span>
+
+                <span class="w-1 h-1 rounded-full bg-slate-700"></span>
+
+                <span class="uppercase text-[10px] tracking-wider text-slate-500">
+                    July 2026
+                </span>
+
+                <span class="w-1 h-1 rounded-full bg-slate-700"></span>
+
+                <span class="uppercase text-[10px] tracking-wider text-slate-500 flex items-center gap-1">
+
+                    <span class="material-symbols-rounded text-xs">
+                        schedule
+                    </span>
+
+                    8 min read
+
+                </span>
+
             </div>
 
-            <!-- Title -->
-            <h1 class="text-3xl sm:text-5xl md:text-6xl font-black text-white leading-[1.1] tracking-tight mb-6">
-                The Ultimate Guide to Sourcing & Prepping Anime Raws
+            <h1 class="text-4xl md:text-6xl font-black leading-[1.08] tracking-tight mb-8">
+
+                How to Find Anime Clips for Editing in 2026
+
             </h1>
 
-            <!-- Subtitle -->
-            <p class="text-lg sm:text-xl text-slate-400 font-medium leading-relaxed max-w-3xl mb-10">
-                Stop playing download roulette. Master the technical ways to find clean footage, strip soft subtitles,
-                remux containers, and streamline your workflow.
+            <p class="text-xl text-slate-400 leading-relaxed max-w-3xl">
+
+                Every anime editor eventually runs into the same problem: you remember the scene perfectly, but you have
+                absolutely no idea which episode it's from.
+
+                Maybe it's a two-second reaction, a sword clash, or a character smiling before everything goes wrong.
+
+                This guide compares every major way creators source anime clips in 2026—from torrents and scene packs to
+                searchable clip libraries—so you can spend less time hunting for footage and more time actually editing.
+
             </p>
 
-            <!-- Author Plate -->
-            <div class="flex items-center gap-4 border-t border-white/5 pt-6">
-                <div
-                    class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white text-sm shadow-[0_0_10px_rgba(37,99,235,0.3)]">
+            <div class="flex items-center gap-4 border-t border-white/5 mt-12 pt-6">
+
+                <div class="w-11 h-11 rounded-full bg-blue-600 flex justify-center items-center font-bold shadow-lg">
+
                     PS
+
                 </div>
+
                 <div>
-                    <p class="text-sm font-bold text-white">Previous Stomach</p>
-                    <p class="text-[10px] text-slate-500 uppercase tracking-wider">Creator & Lead Developer</p>
+
+                    <div class="font-bold">
+
+                        Previous Stomach
+
+                    </div>
+
+                    <div class="uppercase text-[10px] tracking-widest text-slate-500">
+
+                        Creator • AniClips
+
+                    </div>
+
                 </div>
+
             </div>
 
         </div>
-    </div>
 
-    <!-- ==== MAIN ARTICLE CONTENT ==== -->
-    <main class="max-w-3xl mx-auto w-full px-4 pb-12 z-10 animate-enter" style="animation-delay: 150ms;">
+    </section>
+
+    <!-- ================= ARTICLE ================= -->
+
+    <main class="max-w-3xl mx-auto px-4 pb-24 animate-enter">
+
         <article class="space-y-10">
-            <!-- Text Content -->
-            <div class="space-y-6">
-                <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-medium">
-                    Whether you are editing a high-velocity AMV, a quick TikTok, or a deep-dive analytical video essay,
-                    your entire project relies on one thing: <span class="text-white font-semibold">the quality of your
-                        source material.</span>
-                </p>
-                <p class="text-base sm:text-lg text-slate-300 leading-relaxed">
-                    Every editor knows the pain of finding the perfect scene, only to realize it has massive hardcoded
-                    subtitles, giant TV network logos, or looks like it was heavily compressed by an unoptimized player.
-                </p>
-                <p class="text-base sm:text-lg text-slate-300 leading-relaxed">
-                    To create clean, professional-looking content, you need <strong>Raws</strong>—pristine anime footage
-                    with no subtitles, text, or pre-applied edits. In this comprehensive guide, we will break down the
-                    exact methods creators use to find raw footage, the technical math behind video data wrappers, and
-                    how to maximize timeline efficiency.
-                </p>
-            </div>
 
-            <!-- Quote Block -->
-            <blockquote
-                class="my-10 pl-5 sm:pl-8 py-4 border-l-4 border-blue-500 bg-gradient-to-r from-blue-900/20 to-transparent rounded-r-2xl">
-                <span class="material-symbols-rounded text-blue-500/50 text-4xl block mb-2">construction</span>
-                <p class="text-xl sm:text-2xl italic text-white font-medium leading-relaxed pr-4">
-                    "Great editing starts with smart asset management. Sourcing structural assets shouldn't take longer
-                    than cooking the timeline itself."
+            <section class="space-y-6">
+
+                <p class="text-lg text-slate-300">
+
+                    Ten years ago, most editors simply downloaded an entire episode, opened Premiere Pro, searched
+                    through the timeline, exported a few seconds, and deleted the video afterwards.
+
+                    Surprisingly, many people still work this way.
+
                 </p>
+
+                <p class="text-lg text-slate-300">
+
+                    The problem isn't that downloading an episode is difficult.
+
+                    <strong>The problem is finding the right moment.</strong>
+
+                    Modern anime episodes are around twenty-four minutes long. If you're creating short-form content,
+                    your final edit might only use three or four seconds from that entire episode.
+
+                </p>
+
+                <p class="text-lg text-slate-300">
+
+                    Multiply that by twenty different scenes across multiple series and suddenly you've spent more time
+                    searching than editing.
+
+                    That's why experienced editors have gradually developed different workflows depending on the kind of
+                    content they're making.
+
+                </p>
+
+            </section>
+
+            <blockquote
+                class="border-l-4 border-blue-500 pl-7 py-5 rounded-r-2xl bg-gradient-to-r from-blue-900/20 to-transparent">
+
+                <span class="material-symbols-rounded text-blue-500/40 text-4xl mb-2 block">
+                    lightbulb
+                </span>
+
+                <p class="text-2xl italic leading-relaxed">
+
+                    Great editing isn't just about transitions or effects.
+
+                    It's about being able to find exactly the footage you need before your creative momentum disappears.
+
+                </p>
+
             </blockquote>
 
-            <!-- Sourcing Methods Blueprint -->
-            <div class="space-y-6 pt-6">
-                <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Part 1: The Blueprint — 4 Sourcing
-                    Methods</h2>
-                <p class="text-base sm:text-lg text-slate-300 leading-relaxed">
-                    Different video formats require completely different approaches to clip sourcing. Depending on the
-                    scale of your timeline, your ideal destination shifts:
+            <section class="space-y-8">
+
+                <h2 class="text-3xl font-black">
+
+                    Step 1 — Decide What You're Editing
+
+                </h2>
+
+                <p class="text-slate-300 text-lg">
+
+                    Before downloading anything, decide what type of project you're making. Different editing styles
+                    benefit from completely different sources.
+
                 </p>
 
-                <div class="space-y-6 mt-4">
-                    <div class="border-l-2 border-slate-800 pl-4 py-1">
-                        <h4 class="text-white font-bold text-base">Method 1: Torrent Indexing (Best for Full
-                            Mastertracks & Essays)</h4>
-                        <p class="text-sm text-slate-400 mt-1 leading-relaxed">
-                            If you need maximum quality control for a long-form analysis project, torrent indexers like
-                            <strong>Nyaa.si</strong> remain the community standard. Look for releases tagged with <span
-                                class="text-blue-400 font-mono">[Raw]</span> or untagged multi-subtitle tracks from
-                            encoding groups like SubsPlease or Erai-raws. The biggest bottleneck? You must download a
-                            massive 300MB to 3GB+ file for an entire episode just to grab a 3-second sequence, draining
-                            storage fast.
+                <div class="grid md:grid-cols-2 gap-6">
+
+                    <div class="rounded-xl border border-slate-800 bg-slate-900/40 p-6">
+
+                        <h3 class="font-bold text-xl mb-3">
+
+                            Shorts & TikTok Editors
+
+                        </h3>
+
+                        <p class="text-slate-400">
+
+                            Usually need very short reaction shots, emotional moments, fights and memes.
+
+                            Speed matters much more than downloading pristine Blu-ray quality.
+
                         </p>
+
                     </div>
 
-                    <div class="border-l-2 border-slate-800 pl-4 py-1">
-                        <h4 class="text-white font-bold text-base">Method 2: Social Media & Discord Scene Packs (Best
-                            for Vertical Edits)</h4>
-                        <p class="text-sm text-slate-400 mt-1 leading-relaxed">
-                            For shorts-centric creators on TikTok or Reels, searching platforms like Instagram or editor
-                            Discord servers for tags like <span class="text-blue-400 font-mono">#scenepack</span> or
-                            Twixtor distributions yields shared Mega/Google Drive links. While convenient, these links
-                            decay quickly due to copyright takedowns, and files are often pre-filtered or heavily
-                            color-graded, reducing your creative color-correction range.
+                    <div class="rounded-xl border border-slate-800 bg-slate-900/40 p-6">
+
+                        <h3 class="font-bold text-xl mb-3">
+
+                            AMV Editors
+
+                        </h3>
+
+                        <p class="text-slate-400">
+
+                            Prefer longer action scenes with the highest possible quality because effects,
+                            color grading and masking reveal compression artifacts quickly.
+
                         </p>
+
                     </div>
 
-                    <div class="border-l-2 border-slate-800 pl-4 py-1">
-                        <h4 class="text-white font-bold text-base">Method 3: Curated Aesthetic Directories (Best for
-                            Visual AMVs)</h4>
-                        <p class="text-sm text-slate-400 mt-1 leading-relaxed">
-                            Websites like <strong>Animeclips.online</strong> simplify the extraction process by
-                            hand-selecting visually spectacular fight highlights and grouping them into static folders.
-                            However, because they prioritize visual fireworks, they lack structural narrative
-                            elements—such as conversational tracks, character reactions, and dialogue beats needed for
-                            analytical essays. They also run a single heavy, high-bitrate video engine for both previews
-                            and delivery, which can trigger performance lag on limited data packets.
+                    <div class="rounded-xl border border-slate-800 bg-slate-900/40 p-6">
+
+                        <h3 class="font-bold text-xl mb-3">
+
+                            YouTube Essay Creators
+
+                        </h3>
+
+                        <p class="text-slate-400">
+
+                            Often need dialogue scenes, reactions and character interactions rather than explosions.
+
+                            Being able to locate specific conversations becomes more important than raw quality.
+
                         </p>
+
                     </div>
 
-                    <div class="border-l-2 border-slate-800 pl-4 py-1">
-                        <h4 class="text-white font-bold text-base">Method 4: Optimized Narrative Utilities (Best for
-                            Fast Timelines & Shorts)</h4>
-                        <p class="text-sm text-slate-400 mt-1 leading-relaxed">
-                            This is precisely why we engineered the <strong>AniClips.site V4 Engine</strong>. Instead of
-                            dealing with giant archive downloads or blind folder lists, we built a frame-accurate
-                            utility that presents episodes as deep, cleanly indexed clip grids. You can identify the
-                            exact narrative sequence you need and isolate it right through the web container layout.
+                    <div class="rounded-xl border border-slate-800 bg-slate-900/40 p-6">
+
+                        <h3 class="font-bold text-xl mb-3">
+
+                            Meme Editors
+
+                        </h3>
+
+                        <p class="text-slate-400">
+
+                            Speed wins every time.
+
+                            Waiting ten minutes to download an episode just to grab one facial expression usually isn't
+                            worth it.
+
                         </p>
+
                     </div>
-                </div>
-            </div>
 
-            <!-- Technical Pipeline Deep Dive Section -->
-            <div class="space-y-6 pt-8 border-t border-white/5">
-                <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Part 2: The Technical Blueprint —
-                    Prepping Raws</h2>
-                <p class="text-base sm:text-lg text-slate-300 leading-relaxed">
-                    Downloading your assets is only the first step. If you want your editor timeline to run seamlessly
-                    without rendering lag or dropped frames, you need to manage the underlying asset wrappers correctly.
-                </p>
-
-                <h3 class="text-lg font-bold text-white pt-2 flex items-center gap-2"><span
-                        class="material-symbols-rounded text-blue-500">token</span> 1. The .mkv vs. .mp4 Container
-                    Solution</h3>
-                <p class="text-sm sm:text-base text-slate-400 leading-relaxed">
-                    Most high-quality raws sourced from torrent distribution rings are packed in <span
-                        class="text-slate-200 font-mono">.mkv</span> wrappers. Unfortunately, major editing software
-                    like Adobe Premiere Pro and After Effects do not natively support this file format, causing critical
-                    import errors.
-                </p>
-                <p class="text-sm sm:text-base text-slate-400 leading-relaxed">
-                    Do not pass the file through a heavy conversion engine—re-encoding destroys visual data. Instead,
-                    use a utility like <strong>Shutter Encoder</strong> or <strong>OBS Studio</strong> to <strong
-                        class="text-blue-400">Remux</strong> the track into an <span
-                        class="text-slate-200 font-mono">.mp4</span> container. Remuxing swaps the external digital
-                    container metadata layer instantly without changing a single pixel of the internal raw video
-                    bitstream.
-                </p>
-
-                <h3 class="text-lg font-bold text-white pt-2 flex items-center gap-2"><span
-                        class="material-symbols-rounded text-blue-500">subtitles_off</span> 2. Stripping Soft Subtitles
-                    Correctly</h3>
-                <p class="text-sm sm:text-base text-slate-400 leading-relaxed">
-                    If your clip has soft subtitles embedded, they aren't baked onto the screen yet. Before dragging the
-                    track into your project, pass it through an open tool like <strong>Handbrake</strong> or
-                    <strong>VLC</strong> to extract the isolated clean video channel, discarding the text tracks
-                    entirely to avoid frame cropping later on.
-                </p>
-            </div>
-
-            <!-- Dual Engine Performance Feature Split -->
-            <div
-                class="grid grid-cols-1 md:grid-cols-2 gap-8 my-12 items-center bg-slate-900/40 border border-slate-800 p-6 sm:p-8 rounded-2xl">
-                <div class="space-y-4">
-                    <div class="text-[10px] font-black text-blue-500 tracking-wider uppercase">Data-Saving Architecture
-                    </div>
-                    <h3 class="text-xl font-bold text-white leading-tight">Eliminating the Data & Preview Bottleneck
-                    </h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">
-                        Traditional clip sourcing forces you to rely on blind clicks, pulling files down before seeing
-                        if they align with your timeline markers.
-                    </p>
-                    <p class="text-sm text-slate-300 leading-relaxed">
-                        Inside the **AniClips V4 architecture**, we fixed this with <span
-                            class="text-blue-400 font-semibold">Instant Hover Scrubbing</span>. Moving your cursor
-                        across a clip thumbnail queries a hyper-optimized web preview stream instantly, letting you
-                        verify action parameters without loading a single high-bitrate asset.
-                    </p>
                 </div>
 
-                <!-- Video Preview Mockup Window -->
-                <div class="w-full relative group">
-                    <div
-                        class="absolute -inset-1.5 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition duration-500">
-                    </div>
-                    <div
-                        class="relative rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl flex flex-col">
-                        <div
-                            class="bg-[#0b0f19] px-4 py-2.5 border-b border-slate-800/80 flex items-center justify-between select-none">
-                            <div class="flex gap-1.5">
-                                <div class="w-2.5 h-2.5 rounded-full bg-red-500/60"></div>
-                                <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/60"></div>
-                                <div class="w-2.5 h-2.5 rounded-full bg-green-500/60"></div>
-                            </div>
-                            <div class="text-[9px] font-mono text-slate-500 tracking-wider flex items-center gap-1.5">
-                                <span
-                                    class="material-symbols-rounded text-[11px] text-blue-500 animate-pulse">track_changes</span>
-                                hover-preview-demo.mp4
-                            </div>
-                            <div class="w-10"></div>
+            </section>
+
+            <section class="space-y-6">
+
+                <h2 class="text-3xl font-black">
+
+                    Step 2 — Where Do Editors Actually Get Anime Clips?
+
+                </h2>
+
+                <p class="text-lg text-slate-300">
+
+                    There isn't one perfect source.
+
+                    Every method has strengths, weaknesses and an ideal use case.
+
+                    Let's compare the four workflows you'll see most often in 2026.
+
+                </p>
+                <div class="space-y-16 mt-12">
+
+                    <!-- ================= METHOD 1 ================= -->
+
+                    <section class="space-y-6">
+
+                        <div>
+
+                            <span class="uppercase text-[10px] tracking-widest font-black text-blue-500">
+
+                                Method 01
+
+                            </span>
+
+                            <h3 class="text-2xl font-black mt-2">
+
+                                Torrents & Blu-ray Raws
+
+                            </h3>
+
                         </div>
-                        <div class="relative w-full aspect-[576/450] bg-slate-950 overflow-hidden">
-                            <video src="assets/hoverPreview_demo.mp4" autoplay loop muted playsinline
-                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02] ease-out"></video>
+
+                        <p class="text-lg text-slate-300">
+
+                            If you've ever wondered where experienced AMV editors get incredibly clean footage, the
+                            answer
+                            is usually torrents.
+
+                            Sites like <strong>Nyaa.si</strong> have become the community standard because many releases
+                            originate from Blu-ray discs or high-quality streaming sources before being re-encoded
+                            multiple
+                            times across the internet.
+
+                        </p>
+
+                        <p class="text-slate-400">
+
+                            The biggest advantage is quality.
+
+                            If you're planning heavy color grading, motion blur, masking or visual effects, starting
+                            with
+                            cleaner footage gives noticeably better results.
+
+                        </p>
+
+                        <div class="rounded-xl bg-slate-900/40 border border-slate-800 p-6">
+
+                            <h4 class="font-bold text-white mb-4">
+
+                                Best For
+
+                            </h4>
+
+                            <ul class="space-y-3 text-slate-300">
+
+                                <li>✔ High quality AMVs</li>
+                                <li>✔ YouTube projects</li>
+                                <li>✔ Long editing sessions</li>
+                                <li>✔ Editors who archive footage locally</li>
+
+                            </ul>
+
+                        </div>
+
+                        <div class="rounded-xl border border-red-500/20 bg-red-950/10 p-6">
+
+                            <h4 class="font-bold text-red-300 mb-4">
+
+                                The downside
+
+                            </h4>
+
+                            <p class="text-slate-300">
+
+                                Imagine you only need a two-second reaction from Episode 19.
+
+                                You'll often download a 1–3 GB episode, wait for it to finish, import it into your
+                                editor,
+                                search through twenty-four minutes of footage, export two seconds, then delete the
+                                episode.
+
+                                The workflow works—but it's slow.
+
+                            </p>
+
+                        </div>
+
+                        <!-- Screenshot -->
+
+                        <div class="relative group">
+
                             <div
-                                class="absolute bottom-3 right-3 bg-slate-950/90 backdrop-blur border border-white/10 text-[9px] font-bold text-slate-300 px-2.5 py-1 rounded-md flex items-center gap-1.5 shadow-lg select-none">
-                                <span
-                                    class="material-symbols-rounded text-xs text-blue-500 animate-ping">touch_app</span>
-                                Instant Hover Preview
+                                class="absolute -inset-1 rounded-xl blur bg-gradient-to-r from-blue-600/10 to-indigo-600/10 opacity-30">
+                            </div>
+
+                            <div class="relative rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
+
+                                <div
+                                    class="bg-[#0b0f19] px-4 py-2 border-b border-slate-800 flex justify-between items-center">
+
+                                    <div class="flex gap-2">
+
+                                        <div class="w-2 h-2 rounded-full bg-red-500/70"></div>
+                                        <div class="w-2 h-2 rounded-full bg-yellow-500/70"></div>
+                                        <div class="w-2 h-2 rounded-full bg-green-500/70"></div>
+
+                                    </div>
+
+                                    <span class="text-[9px] tracking-widest text-slate-500 uppercase">
+
+                                        nyaa.si
+
+                                    </span>
+
+                                    <div class="w-8"></div>
+
+                                </div>
+
+                                <img src="assets/nyaa.webp" class="w-full aspect-video object-cover"
+                                    alt="Torrent website">
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- ================= METHOD 2 ================= -->
+
+                    <section class="space-y-6">
+
+                        <div>
+
+                            <span class="uppercase text-[10px] tracking-widest font-black text-blue-500">
+
+                                Method 02
+
+                            </span>
+
+                            <h3 class="text-2xl font-black mt-2">
+
+                                Scene Packs & Discord Communities
+
+                            </h3>
+
+                        </div>
+
+                        <p class="text-lg text-slate-300">
+
+                            If you're mostly creating TikToks, Instagram Reels or YouTube Shorts, chances are you've
+                            already
+                            downloaded a scene pack.
+
+                            These are collections of clips shared by editors through Discord servers, Telegram groups,
+                            Google Drive folders or Mega links.
+
+                        </p>
+
+                        <p class="text-slate-300">
+
+                            Scene packs are popular because someone has already done the work of cutting interesting
+                            moments
+                            from episodes.
+
+                            Instead of downloading twenty-four minutes of footage, you might only download twenty
+                            seconds.
+
+                        </p>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+
+                            <div class="rounded-xl bg-slate-900/40 border border-slate-800 p-6">
+
+                                <h4 class="font-bold mb-3">
+
+                                    Advantages
+
+                                </h4>
+
+                                <ul class="space-y-2 text-slate-400">
+
+                                    <li>✔ Fast downloads</li>
+                                    <li>✔ Ready for editing</li>
+                                    <li>✔ Great for quick edits</li>
+                                    <li>✔ No searching through episodes</li>
+
+                                </ul>
+
+                            </div>
+
+                            <div class="rounded-xl bg-slate-900/40 border border-slate-800 p-6">
+
+                                <h4 class="font-bold mb-3">
+
+                                    Drawbacks
+
+                                </h4>
+
+                                <ul class="space-y-2 text-slate-400">
+
+                                    <li>✘ Links disappear frequently</li>
+                                    <li>✘ Limited scene selection</li>
+                                    <li>✘ Often pre-color graded</li>
+                                    <li>✘ Difficult to find older anime</li>
+
+                                </ul>
+
+                            </div>
+
+                        </div>
+
+                        <p class="text-slate-400">
+
+                            One important thing to remember is that scene packs only contain what another editor thought
+                            was
+                            useful.
+
+                            If you're looking for an obscure conversation or a tiny reaction shot, there's a good chance
+                            it
+                            simply isn't included.
+
+                        </p>
+
+                        <div class="relative group">
+
+                            <div
+                                class="absolute -inset-1 rounded-xl blur bg-gradient-to-r from-blue-600/10 to-indigo-600/10 opacity-30">
+                            </div>
+
+                            <div class="relative rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
+
+                                <div class="bg-[#0b0f19] px-4 py-2 border-b border-slate-800 flex justify-between">
+
+                                    <div class="flex gap-2">
+
+                                        <div class="w-2 h-2 rounded-full bg-red-500/70"></div>
+                                        <div class="w-2 h-2 rounded-full bg-yellow-500/70"></div>
+                                        <div class="w-2 h-2 rounded-full bg-green-500/70"></div>
+
+                                    </div>
+
+                                    <span class="text-[9px] uppercase tracking-widest text-slate-500">
+
+                                        Telegram Scene Packs
+
+                                    </span>
+
+                                    <div class="w-8"></div>
+
+                                </div>
+
+                                <img src="assets/telegram-scenepack.webp" class="w-full aspect-video object-cover"
+                                    alt="Scene Packs">
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- ================= METHOD 3 ================= -->
+
+                    <section class="space-y-6">
+
+                        <div>
+
+                            <span class="uppercase text-[10px] tracking-widest font-black text-blue-500">
+
+                                Method 03
+
+                            </span>
+
+                            <h3 class="text-2xl font-black mt-2">
+
+                                Curated Anime Clip Websites
+
+                            </h3>
+
+                        </div>
+
+                        <p class="text-lg text-slate-300">
+
+                            Some websites focus on collecting visually impressive moments from popular anime.
+
+                            Instead of hosting full episodes, they organize folders containing fights,
+                            transformations, emotional scenes and other fan favorites.
+
+                        </p>
+
+                        <p class="text-slate-300">
+
+                            These websites are excellent when inspiration matters more than precision.
+
+                            If you simply need "cool anime fights" or "beautiful animation," you'll probably find
+                            something
+                            quickly.
+
+                        </p>
+
+                        <p class="text-slate-300">
+
+                            However, if you're trying to recreate a specific scene you remember from an episode, these
+                            collections can become frustrating because they rarely include every conversation, reaction
+                            or
+                            transition.
+
+                        </p>
+
+                        <div class="rounded-xl border border-yellow-500/20 bg-yellow-950/10 p-6">
+
+                            <h4 class="font-bold text-yellow-300 mb-3">
+
+                                Good for discovering.
+
+                                Not always good for searching.
+
+                            </h4>
+
+                            <p class="text-slate-300">
+
+                                Think of these sites like an art gallery.
+
+                                You'll discover amazing clips—but only the ones someone decided to display.
+
+                            </p>
+
+                        </div>
+
+                        <div class="relative group">
+
+                            <div
+                                class="absolute -inset-1 rounded-xl blur bg-gradient-to-r from-blue-600/10 to-indigo-600/10 opacity-30">
+                            </div>
+
+                            <div class="relative rounded-xl overflow-hidden border border-slate-800">
+
+                                <div class="bg-[#0b0f19] px-4 py-2 border-b border-slate-800 flex justify-between">
+
+                                    <div class="flex gap-2">
+
+                                        <div class="w-2 h-2 rounded-full bg-red-500/70"></div>
+                                        <div class="w-2 h-2 rounded-full bg-yellow-500/70"></div>
+                                        <div class="w-2 h-2 rounded-full bg-green-500/70"></div>
+
+                                    </div>
+
+                                    <span class="uppercase text-[9px] tracking-widest text-slate-500">
+
+                                        animeclips.online
+
+                                    </span>
+
+                                    <div class="w-8"></div>
+
+                                </div>
+
+                                <img src="assets/animeclips-online.webp" class="w-full aspect-video object-cover"
+                                    alt="Anime clip website">
+
+                            </div>
+
+                        </div>
+
+                        <div class="space-y-4 pt-6 border-t border-white/5">
+
+                            <h4 class="font-bold text-white text-base">
+
+                                Examples of Curated Platforms:
+
+                            </h4>
+
+                            <ul class="space-y-4 text-slate-300 pl-5 border-l border-blue-500/30">
+
+                                <li>
+                                    <strong class="text-white">Sakugabooru</strong> (Best for specific action sequences and looking up specific animators)
+                                </li>
+
+                                <li>
+                                    <strong class="text-white">AnimeClips.online</strong> (Best for pre-cut, short editing clips)
+                                </li>
+
+                                <li>
+                                    <strong class="text-white">RingwitdaClips / RingwitdaTwixtor</strong> (Best for high-quality velocity and slow-motion scenes)
+                                </li>
+
+                                <li>
+                                    <strong class="text-white">Comby Raws</strong> (Best for finding community-curated Mega/Google Drive folders)
+                                </li>
+
+                            </ul>
+
+                        </div>
+
+                    </section>
+                    <!-- ================= METHOD 4 ================= -->
+
+                    <section class="space-y-6">
+
+                        <div>
+
+                            <span class="uppercase text-[10px] tracking-widest font-black text-blue-500">
+
+                                Method 04
+
+                            </span>
+
+                            <h3 class="text-2xl font-black mt-2">
+
+                                Searchable Clip Libraries
+
+                            </h3>
+
+                        </div>
+
+                        <p class="text-lg text-slate-300">
+
+                            During the last few years a different workflow has slowly become popular among editors.
+                            Instead of downloading entire episodes or browsing random folders, searchable clip libraries
+                            organize episodes into hundreds of small previewable clips.
+
+                        </p>
+
+                        <p class="text-lg text-slate-300">
+
+                            The goal isn't necessarily higher quality.
+
+                            The goal is eliminating the time spent searching.
+
+                            Rather than remembering <em>Season 2 Episode 14 at 18:37</em>, you simply browse the
+                            episode,
+                            preview clips instantly and download only the few seconds you actually need.
+
+                        </p>
+
+                        <p class="text-lg text-slate-300">
+
+                            This approach is particularly useful for YouTube creators, meme editors and anyone who edits
+                            several different anime every week.
+
+                        </p>
+
+                        <div class="rounded-xl border border-blue-500/20 bg-blue-950/10 p-6">
+
+                            <h4 class="font-bold text-blue-300 mb-4">
+
+                                Example Workflow
+
+                            </h4>
+
+                            <ol class="space-y-3 text-slate-300 list-decimal pl-5">
+
+                                <li>Open the anime.</li>
+                                <li>Choose the episode.</li>
+                                <li>Hover previews until you recognize the scene.</li>
+                                <li>Download only that clip.</li>
+                                <li>Continue editing immediately.</li>
+
+                            </ol>
+
+                        </div>
+
+                        <p class="text-slate-400">
+
+                            This is exactly the problem we built AniClips to solve.
+                            Rather than replacing torrents or scene packs, it complements them by making scene discovery
+                            dramatically faster.
+
+                        </p>
+
+                        <div class="relative group">
+
+                            <div
+                                class="absolute -inset-1 rounded-xl blur bg-gradient-to-r from-blue-600/20 to-indigo-600/20 opacity-40">
+                            </div>
+
+                            <div class="relative rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
+
+                                <div
+                                    class="bg-[#0b0f19] px-4 py-2 border-b border-slate-800 flex justify-between items-center">
+
+                                    <div class="flex gap-2">
+
+                                        <div class="w-2 h-2 rounded-full bg-red-500/70"></div>
+                                        <div class="w-2 h-2 rounded-full bg-yellow-500/70"></div>
+                                        <div class="w-2 h-2 rounded-full bg-green-500/70"></div>
+
+                                    </div>
+
+                                    <span class="uppercase text-[9px] tracking-widest text-slate-500">
+
+                                        AniClips Library
+
+                                    </span>
+
+                                    <div class="w-8"></div>
+
+                                </div>
+
+                                <img src="assets/aniclips-large.webp" class="w-full aspect-video object-cover"
+                                    alt="AniClips">
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <!-- ================= ANICLIPS VS ANIMECLIPS.ONLINE ================= -->
+
+                    <section class="space-y-8 pt-10 border-t border-white/5 animate-enter">
+
+                        <h2 class="text-3xl font-black">
+
+                            AniClips vs AnimeClips.online: Which One Is Better?
+
+                        </h2>
+
+                        <p class="text-lg text-slate-300">
+
+                            At first glance, these two websites look very similar. Both are built for anime editors, but
+                            they solve different problems.
+
+                        </p>
+
+                        <!-- Screenshots Side-by-Side -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+                            <!-- AnimeClips.online Mockup -->
+                            <div class="relative group w-full">
+                                <div class="absolute -inset-1 bg-gradient-to-r from-blue-600/5 to-indigo-600/5 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-500"></div>
+                                <div class="relative rounded-xl overflow-hidden border border-slate-800 bg-slate-950 flex flex-col">
+                                    <div class="bg-[#0b0f19] px-4 py-2 border-b border-slate-800 flex justify-between items-center select-none">
+                                        <div class="flex gap-1.5">
+                                            <div class="w-2 h-2 rounded-full bg-red-500/60"></div>
+                                            <div class="w-2 h-2 rounded-full bg-yellow-500/60"></div>
+                                            <div class="w-2 h-2 rounded-full bg-green-500/60"></div>
+                                        </div>
+                                        <div class="text-[9px] font-mono text-slate-500 tracking-wider">animeclips.online</div>
+                                        <div class="w-10"></div>
+                                    </div>
+                                    <div class="relative overflow-hidden aspect-video">
+                                        <img src="assets/animeclips-online.webp" alt="AnimeClips.online screenshot" class="w-full h-full object-cover">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- AniClips Mockup -->
+                            <div class="relative group w-full">
+                                <div class="absolute -inset-1 bg-gradient-to-r from-blue-600/5 to-indigo-600/5 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-500"></div>
+                                <div class="relative rounded-xl overflow-hidden border border-slate-800 bg-slate-950 flex flex-col">
+                                    <div class="bg-[#0b0f19] px-4 py-2 border-b border-slate-800 flex justify-between items-center select-none">
+                                        <div class="flex gap-1.5">
+                                            <div class="w-2 h-2 rounded-full bg-red-500/60"></div>
+                                            <div class="w-2 h-2 rounded-full bg-yellow-500/60"></div>
+                                            <div class="w-2 h-2 rounded-full bg-green-500/60"></div>
+                                        </div>
+                                        <div class="text-[9px] font-mono text-slate-500 tracking-wider">aniclips.site</div>
+                                        <div class="w-10"></div>
+                                    </div>
+                                    <div class="relative overflow-hidden aspect-video">
+                                        <img src="assets/aniclips-large.webp" alt="AniClips screenshot" class="w-full h-full object-cover">
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Two Tailored Download Options Cards -->
-            <div class="space-y-6 pt-6">
-                <h3 class="text-xl sm:text-2xl font-bold text-white tracking-tight">Our Dual Download Engine Blueprint
-                </h3>
-                <p class="text-base sm:text-lg text-slate-300 leading-relaxed">
-                    By decoupling our delivery framework into two distinct file layers, you can choose the exact speed
-                    and data footprint required for the task at hand:
-                </p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
-                    <div class="p-6 rounded-xl border border-slate-800 bg-slate-900/30 flex flex-col justify-between">
-                        <div>
-                            <span class="material-symbols-rounded text-blue-500 text-3xl mb-3">bolt</span>
-                            <h4 class="text-lg font-bold text-white mb-2">Fast Clip (Lite Mode)</h4>
-                            <p class="text-xs text-slate-400 leading-relaxed mb-4">
-                                Optimized for speed and low data utilization. Because this lightweight clip stream
-                                caches locally in your browser frame while you preview, hitting download saves it to
-                                your drive instantly. Ideal for CapCut, Alight Motion, or drafting rough tracks.
-                            </p>
+                        <p class="text-lg text-slate-300">
+
+                            <strong>AnimeClips.online</strong> focuses on curation. Instead of clipping every episode, it
+                            hand-picks memorable fights, transformations, emotional scenes, and other highlights. With
+                            roughly 200 anime and an estimated 6,000–10,000 carefully selected clips, it's a great place
+                            to quickly browse visually impressive moments.
+
+                        </p>
+
+                        <p class="text-lg text-slate-300">
+
+                            <strong>AniClips</strong> takes a different approach.
+
+                        </p>
+
+                        <p class="text-lg text-slate-300">
+
+                            Instead of asking <em>"Which scenes should we upload?"</em>, we ask <em>"What if editors
+                                need a scene nobody thought to save?"</em>
+
+                        </p>
+
+                        <p class="text-lg text-slate-300">
+
+                            Rather than selecting only highlights, entire episodes are divided into clips. As of July
+                            2026, the library contains 203,878 clips across more than 100 anime, allowing editors to
+                            find dialogue, reactions, transitions, and quieter moments that are often missing from curated
+                            collections.
+
+                        </p>
+
+                        <p class="text-lg text-slate-300 font-medium">
+
+                            Neither approach is universally better—they simply suit different workflows.
+
+                        </p>
+
+                        <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/20">
+
+                            <table class="w-full text-sm">
+
+                                <thead>
+
+                                    <tr class="border-b border-slate-800 bg-slate-900/50 uppercase text-xs tracking-widest text-slate-400 font-bold">
+                                        <th class="p-4 text-left">Feature</th>
+                                        <th class="p-4 text-left">AnimeClips.online</th>
+                                        <th class="p-4 text-left">AniClips</th>
+                                    </tr>
+
+                                </thead>
+
+                                <tbody class="divide-y divide-slate-800 text-slate-300">
+
+                                    <tr>
+                                        <td class="p-4 font-bold text-white">Library style</td>
+                                        <td class="p-4">Hand-picked highlights</td>
+                                        <td class="p-4">Entire episodes divided into clips</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="p-4 font-bold text-white">Approximate library size</td>
+                                        <td class="p-4">6,000–10,000 clips</td>
+                                        <td class="p-4">203,878 clips (July 2026)</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="p-4 font-bold text-white">Anime available</td>
+                                        <td class="p-4">~200</td>
+                                        <td class="p-4">100+</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="p-4 font-bold text-white">Best for</td>
+                                        <td class="p-4">AMVs, fights, visually impressive moments</td>
+                                        <td class="p-4">Shorts, memes, video essays, reactions, dialogue, and finding specific scenes</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="p-4 font-bold text-white">Strength</td>
+                                        <td class="p-4 text-slate-400">Curated, cinematic moments</td>
+                                        <td class="p-4 text-blue-400">Broad episode coverage and scene discovery</td>
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
                         </div>
-                        <span
-                            class="text-[10px] font-mono text-blue-400 uppercase tracking-widest bg-blue-950/40 py-1 px-2 rounded-md self-start">Instant
-                            Download</span>
-                    </div>
-                    <div class="p-6 rounded-xl border border-slate-800 bg-slate-900/30 flex flex-col justify-between">
-                        <div>
-                            <span class="material-symbols-rounded text-emerald-500 text-3xl mb-3">hd</span>
-                            <h4 class="text-lg font-bold text-white mb-2">High Quality (HQ Raw Master)</h4>
-                            <p class="text-xs text-slate-400 leading-relaxed mb-4">
-                                Pristine, uncompressed native video bitstreams. Engineered specifically for desktop
-                                workflows requiring deep pixel density for complex motion masking, rotoscoping, and
-                                precision color grading.
-                            </p>
+
+                        <p class="text-lg text-slate-300">
+
+                            If you're creating an action-focused AMV, a curated library may already contain exactly what
+                            you need.
+
+                        </p>
+
+                        <p class="text-lg text-slate-300">
+
+                            If you're trying to find a particular conversation, facial expression, reaction shot, or a
+                            moment you remember but can't quite place, a full-episode clip library usually gives you a
+                            much better chance of finding it.
+
+                        </p>
+
+                    </section>
+
+                    <!-- ================= REAL WORLD EXAMPLES ================= -->
+
+                    <section class="space-y-8 pt-10 border-t border-white/5">
+
+                        <h2 class="text-3xl font-black">
+
+                            Which Method Should You Use?
+
+                        </h2>
+
+                        <p class="text-lg text-slate-300">
+
+                            Instead of asking <strong>"Which source is best?"</strong>, ask
+                            <strong>"Which source is best for this project?"</strong>
+
+                            Here are a few real examples.
+
+                        </p>
+
+                        <div class="space-y-6">
+
+                            <div class="rounded-xl border border-slate-800 bg-slate-900/40 p-6">
+
+                                <h3 class="font-bold text-xl mb-3">
+
+                                    Scenario 1
+
+                                </h3>
+
+                                <p class="text-slate-300">
+
+                                    You're making a TikTok edit of Gojo.
+
+                                    You only need five reaction shots.
+
+                                </p>
+
+                                <p class="text-slate-400 mt-3">
+
+                                    Downloading five complete episodes would waste both time and storage.
+
+                                    A searchable clip library or scene pack is usually the faster choice.
+
+                                </p>
+
+                            </div>
+
+                            <div class="rounded-xl border border-slate-800 bg-slate-900/40 p-6">
+
+                                <h3 class="font-bold text-xl mb-3">
+
+                                    Scenario 2
+
+                                </h3>
+
+                                <p class="text-slate-300">
+
+                                    You're creating a cinematic AMV with heavy effects.
+
+                                </p>
+
+                                <p class="text-slate-400 mt-3">
+
+                                    Start from Blu-ray raws or high-quality torrent releases.
+
+                                    You'll have much cleaner footage to work with throughout the edit.
+
+                                </p>
+
+                            </div>
+
+                            <div class="rounded-xl border border-slate-800 bg-slate-900/40 p-6">
+
+                                <h3 class="font-bold text-xl mb-3">
+
+                                    Scenario 3
+
+                                </h3>
+
+                                <p class="text-slate-300">
+
+                                    You're making a YouTube video explaining a character.
+
+                                </p>
+
+                                <p class="text-slate-400 mt-3">
+
+                                    You'll probably need dialogue scenes, facial expressions,
+                                    reaction shots and quiet conversations—not just fight scenes.
+
+                                    This is where searchable libraries become significantly faster
+                                    than random scene packs.
+
+                                </p>
+
+                            </div>
+
                         </div>
-                        <span
-                            class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest bg-emerald-950/40 py-1 px-2 rounded-md self-start">Raw/HQ
-                            Output</span>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Comparative Sourcing Summary Matrix -->
-            <div class="space-y-6 pt-6">
-                <h3 class="text-xl sm:text-2xl font-bold text-white tracking-tight">Sourcing Cheat Sheet: Selecting Your
-                    Fit</h3>
-                <div class="overflow-x-auto border border-slate-800 rounded-xl bg-slate-900/20">
-                    <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr
-                                class="border-b border-slate-800 bg-slate-900/50 text-slate-400 font-bold text-xs uppercase tracking-wider">
-                                <th class="p-4">Sourcing Vector</th>
-                                <th class="p-4">Ideal Format Target</th>
-                                <th class="p-4">Visual Quality</th>
-                                <th class="p-4">Speed & Data Overhead</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-800/60 text-slate-300">
-                            <tr>
-                                <td class="p-4 font-bold text-white">Full Torrenting (Nyaa)</td>
-                                <td class="p-4">Long Video Essays</td>
-                                <td class="p-4">Max Blu-Ray Quality</td>
-                                <td class="p-4 text-slate-400">Slow (Heavy storage overhead)</td>
-                            </tr>
-                            <tr>
-                                <td class="p-4 font-bold text-white">Social Scene Packs</td>
-                                <td class="p-4">Character Shorts</td>
-                                <td class="p-4">Variable / Pre-Filtered</td>
-                                <td class="p-4 text-slate-400">Medium (Prone to link decay)</td>
-                            </tr>
-                            <tr>
-                                <td class="p-4 font-bold text-white">Curated Directories</td>
-                                <td class="p-4">Action Montage AMVs</td>
-                                <td class="p-4">Single High Profile</td>
-                                <td class="p-4 text-slate-400">Medium (Heavy preview burden)</td>
-                            </tr>
-                            <tr class="bg-blue-950/10">
-                                <td class="p-4 font-bold text-blue-400">AniClips Utility Engine</td>
-                                <td class="p-4 font-medium">Shorts, Essays, Fast Timelines</td>
-                                <td class="p-4 text-emerald-400 font-medium">Dual Option (Fast/HQ)</td>
-                                <td class="p-4 font-bold text-blue-400">Instant (Cached Engine)</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                    </section>
 
-            <!-- Conclusion Block -->
-            <div class="mt-16 pt-10 border-t border-white/5 space-y-6 text-center">
-                <h2 class="text-2xl font-black text-white italic uppercase tracking-wide">Optimize Your Creative
-                    Workspace</h2>
-                <p class="text-slate-400 text-sm max-w-lg mx-auto">
-                    Stop spending more time fighting media wrappers and dead links than actually designing edits. Match
-                    the right sourcing engine to your timeline scale and keep your focus on execution.
-                </p>
-                <p class="text-lg font-bold text-blue-500 font-mono uppercase tracking-widest mb-6">Built for editors,
-                    by editors.</p>
 
-                <a href="../index"
-                    class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3.5 rounded-lg shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all hover:-translate-y-0.5">
-                    <span class="material-symbols-rounded">movie</span> Open the V4 Library
-                </a>
-            </div>
+
+
+
+                    <!-- ================= TIPS ================= -->
+
+                    <section class="space-y-8 pt-10 border-t border-white/5">
+
+                        <h2 class="text-3xl font-black">
+
+                            7 Tips That Save Editors Hours
+
+                        </h2>
+
+                        <div class="space-y-5">
+
+                            <div>
+
+                                <h3 class="font-bold text-xl mb-2">
+
+                                    1. Don't download before you're sure.
+
+                                </h3>
+
+                                <p class="text-slate-400">
+
+                                    Preview footage whenever possible.
+
+                                    A five-second preview can save downloading gigabytes of video.
+
+                                </p>
+
+                            </div>
+
+                            <div>
+
+                                <h3 class="font-bold text-xl mb-2">
+
+                                    2. Keep a folder of reusable reaction clips.
+
+                                </h3>
+
+                                <p class="text-slate-400">
+
+                                    Many editors repeatedly use similar expressions like laughing,
+                                    crying, surprise or anger.
+
+                                    Building your own library saves time on future projects.
+
+                                </p>
+
+                            </div>
+
+                            <div>
+
+                                <h3 class="font-bold text-xl mb-2">
+
+                                    3. Organize clips by emotion—not anime.
+
+                                </h3>
+
+                                <p class="text-slate-400">
+
+                                    Searching "happy", "rage", "running" or "crying"
+                                    becomes much easier than remembering episode numbers.
+
+                                </p>
+
+                            </div>
+
+                            <div>
+
+                                <h3 class="font-bold text-xl mb-2">
+
+                                    4. Bookmark useful episodes.
+
+                                </h3>
+
+                                <p class="text-slate-400">
+
+                                    Some episodes are packed with memorable scenes.
+
+                                    Keep a list—you'll revisit them surprisingly often.
+
+                                </p>
+
+                            </div>
+
+                            <div>
+
+                                <h3 class="font-bold text-xl mb-2">
+
+                                    5. Don't rely on social media uploads.
+
+                                </h3>
+
+                                <p class="text-slate-400">
+
+                                    Videos uploaded to TikTok, Instagram and X are usually compressed
+                                    several times.
+
+                                    Whenever possible, start from the original source.
+
+                                </p>
+
+                            </div>
+
+                            <div>
+
+                                <h3 class="font-bold text-xl mb-2">
+
+                                    6. Save timestamps while watching anime.
+
+                                </h3>
+
+                                <p class="text-slate-400">
+
+                                    If a scene catches your attention, write it down immediately.
+
+                                    Your future self will thank you.
+
+                                </p>
+
+                            </div>
+
+                            <div>
+
+                                <h3 class="font-bold text-xl mb-2">
+
+                                    7. Spend less time hunting, more time creating.
+
+                                </h3>
+
+                                <p class="text-slate-400">
+
+                                    The best workflow isn't necessarily the one with the highest video quality.
+
+                                    It's the one that lets you stay creative without constantly interrupting
+                                    your editing session.
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+
+
+
+                    <!-- ================= COMPARISON TABLE ================= -->
+
+                    <section class="space-y-8 pt-10 border-t border-white/5">
+
+                        <h2 class="text-3xl font-black">
+
+                            Quick Comparison
+
+                        </h2>
+
+                        <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/20">
+
+                            <table class="w-full">
+
+                                <thead>
+
+                                    <tr
+                                        class="border-b border-slate-800 bg-slate-900/50 uppercase text-xs tracking-widest text-slate-400">
+
+                                        <th class="p-4 text-left">
+
+                                            Method
+
+                                        </th>
+
+                                        <th class="p-4">
+
+                                            Quality
+
+                                        </th>
+
+                                        <th class="p-4">
+
+                                            Speed
+
+                                        </th>
+
+                                        <th class="p-4">
+
+                                            Best For
+
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+                                <tbody class="divide-y divide-slate-800">
+
+                                    <tr>
+
+                                        <td class="p-4 font-bold">
+
+                                            Torrents
+
+                                        </td>
+
+                                        <td class="p-4">
+
+                                            ⭐⭐⭐⭐⭐
+
+                                        </td>
+
+                                        <td class="p-4">
+
+                                            ⭐⭐
+
+                                        </td>
+
+                                        <td class="p-4 text-slate-400">
+
+                                            AMVs & Long Projects
+
+                                        </td>
+
+                                    </tr>
+
+                                    <tr>
+
+                                        <td class="p-4 font-bold">
+
+                                            Scene Packs
+
+                                        </td>
+
+                                        <td class="p-4">
+
+                                            ⭐⭐⭐
+
+                                        </td>
+
+                                        <td class="p-4">
+
+                                            ⭐⭐⭐⭐
+
+                                        </td>
+
+                                        <td class="p-4 text-slate-400">
+
+                                            Shorts
+
+                                        </td>
+
+                                    </tr>
+
+                                    <tr>
+
+                                        <td class="p-4 font-bold">
+
+                                            Clip Websites
+
+                                        </td>
+
+                                        <td class="p-4">
+
+                                            ⭐⭐⭐⭐
+
+                                        </td>
+
+                                        <td class="p-4">
+
+                                            ⭐⭐⭐
+
+                                        </td>
+
+                                        <td class="p-4 text-slate-400">
+
+                                            Inspiration
+
+                                        </td>
+
+                                    </tr>
+
+                                    <tr class="bg-blue-950/20">
+
+                                        <td class="p-4 font-bold text-blue-400">
+
+                                            AniClips
+
+                                        </td>
+
+                                        <td class="p-4">
+
+                                            ⭐⭐⭐⭐☆
+
+                                        </td>
+
+                                        <td class="p-4 text-blue-400 font-bold">
+
+                                            ⭐⭐⭐⭐⭐
+
+                                        </td>
+
+                                        <td class="p-4">
+
+                                            Finding Specific Scenes
+
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </section>
+
+                    <!-- ================= COMMON MISTAKES ================= -->
+
+                    <section class="space-y-8 pt-10 border-t border-white/5">
+
+                        <h2 class="text-3xl font-black">
+
+                            Common Mistakes New Editors Make
+
+                        </h2>
+
+                        <p class="text-lg text-slate-300">
+
+                            Everyone starts somewhere, but these mistakes can easily add hours to your workflow.
+                            Avoiding them won't magically make your edits better, but it will let you spend more time
+                            creating instead of troubleshooting.
+
+                        </p>
+
+                        <div class="space-y-5">
+
+                            <div class="rounded-xl border border-slate-800 bg-slate-900/40 p-6">
+
+                                <h3 class="font-bold text-lg text-red-300">
+
+                                    ❌ Downloading entire seasons "just in case"
+
+                                </h3>
+
+                                <p class="text-slate-400 mt-3">
+
+                                    Many beginners download twenty or thirty gigabytes of footage because they think
+                                    they'll
+                                    eventually use it.
+
+                                    In reality, most of those files are never opened again.
+
+                                    Download only what your current project needs.
+
+                                </p>
+
+                            </div>
+
+                            <div class="rounded-xl border border-slate-800 bg-slate-900/40 p-6">
+
+                                <h3 class="font-bold text-lg text-red-300">
+
+                                    ❌ Only searching YouTube
+
+                                </h3>
+
+                                <p class="text-slate-400 mt-3">
+
+                                    YouTube uploads are excellent for discovering scenes, but they're usually
+                                    compressed,
+                                    cropped or edited.
+
+                                    Once you know what you're looking for, try finding the original source instead.
+
+                                </p>
+
+                            </div>
+
+                            <div class="rounded-xl border border-slate-800 bg-slate-900/40 p-6">
+
+                                <h3 class="font-bold text-lg text-red-300">
+
+                                    ❌ Ignoring organization
+
+                                </h3>
+
+                                <p class="text-slate-400 mt-3">
+
+                                    If your Downloads folder contains files named
+                                    "clip1.mp4", "clip2.mp4" and "new_final_final.mp4",
+                                    you'll eventually waste more time searching your own PC than searching the internet.
+
+                                </p>
+
+                            </div>
+
+                            <div class="rounded-xl border border-slate-800 bg-slate-900/40 p-6">
+
+                                <h3 class="font-bold text-lg text-red-300">
+
+                                    ❌ Assuming every project needs Blu-ray quality
+
+                                </h3>
+
+                                <p class="text-slate-400 mt-3">
+
+                                    If you're uploading a short meme to social media,
+                                    viewers probably won't notice the difference between a massive Blu-ray file and a
+                                    good
+                                    quality web source.
+
+                                    Match the source to the project.
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+
+
+
+                    <!-- ================= WHY SEARCH IS HARD ================= -->
+
+                    <section class="space-y-8 pt-10 border-t border-white/5">
+
+                        <h2 class="text-3xl font-black">
+
+                            Why Finding Anime Scenes Is Surprisingly Difficult
+
+                        </h2>
+
+                        <p class="text-lg text-slate-300">
+
+                            Here's something interesting.
+
+                        </p>
+
+                        <p class="text-lg text-slate-300">
+
+                            Most people don't remember anime by episode numbers.
+
+                            They remember moments.
+
+                        </p>
+
+                        <div class="rounded-xl border border-slate-800 bg-slate-900/40 p-8">
+
+                            <ul class="space-y-4 text-lg">
+
+                                <li>
+
+                                    "That scene where Gojo smiled."
+
+                                </li>
+
+                                <li>
+
+                                    "The moment Levi spun through the air."
+
+                                </li>
+
+                                <li>
+
+                                    "The speech before the final battle."
+
+                                </li>
+
+                                <li>
+
+                                    "That funny reaction everyone uses."
+
+                                </li>
+
+                            </ul>
+
+                        </div>
+
+                        <p class="text-lg text-slate-300">
+
+                            Almost nobody remembers:
+
+                        </p>
+
+                        <div class="rounded-xl border border-blue-500/20 bg-blue-950/10 p-8">
+
+                            <ul class="space-y-4 text-lg">
+
+                                <li>
+
+                                    Season 2
+
+                                </li>
+
+                                <li>
+
+                                    Episode 17
+
+                                </li>
+
+                                <li>
+
+                                    14 minutes 36 seconds
+
+                                </li>
+
+                            </ul>
+
+                        </div>
+
+                        <p class="text-lg text-slate-300">
+
+                            That's exactly why searching for anime clips often feels harder than editing them.
+
+                            Humans naturally remember emotions, actions and memorable moments—not timestamps.
+
+                        </p>
+
+                    </section>
+
+
+
+
+
+                    <!-- ================= WHY WE BUILT ANICLIPS ================= -->
+
+                    <section class="space-y-8 pt-10 border-t border-white/5">
+
+                        <h2 class="text-3xl font-black">
+
+                            Why We Built AniClips
+
+                        </h2>
+
+                        <p class="text-lg text-slate-300">
+
+                            While editing anime videos ourselves, we kept running into the same bottleneck.
+
+                        </p>
+
+                        <p class="text-lg text-slate-300">
+
+                            Finding footage often took longer than editing the footage.
+
+                        </p>
+
+                        <p class="text-lg text-slate-300">
+
+                            Downloading entire episodes wasn't difficult.
+
+                            Waiting wasn't difficult.
+
+                            Organizing files wasn't difficult.
+
+                        </p>
+
+                        <p class="text-lg text-slate-300 font-semibold text-white">
+
+                            Repeating that process hundreds of times was.
+
+                        </p>
+
+                        <p class="text-lg text-slate-300">
+
+                            So instead of creating another folder of random clips, we tried solving the actual problem:
+                            helping editors recognize scenes faster.
+
+                        </p>
+
+                        <div class="grid md:grid-cols-2 gap-6 my-8">
+
+                            <div class="rounded-xl border border-slate-800 bg-slate-900/40 p-6">
+
+                                <span class="material-symbols-rounded text-blue-500 text-3xl mb-3">
+
+                                    visibility
+
+                                </span>
+
+                                <h3 class="font-bold text-xl mb-3">
+
+                                    Instant Preview
+
+                                </h3>
+
+                                <p class="text-slate-400">
+
+                                    Hover over clips and immediately recognize the scene before downloading anything.
+
+                                </p>
+
+                            </div>
+
+                            <div class="rounded-xl border border-slate-800 bg-slate-900/40 p-6">
+
+                                <span class="material-symbols-rounded text-blue-500 text-3xl mb-3">
+
+                                    download
+
+                                </span>
+
+                                <h3 class="font-bold text-xl mb-3">
+
+                                    Download Only What You Need
+
+                                </h3>
+
+                                <p class="text-slate-400">
+
+                                    Instead of downloading a complete episode,
+                                    grab the few seconds that actually appear in your timeline.
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div
+                            class="rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-950/30 to-slate-900/40 p-8">
+
+                            <h3 class="text-2xl font-black mb-5">
+
+                                The idea is simple.
+
+                            </h3>
+
+                            <p class="text-lg text-slate-300">
+
+                                Use torrents when you need maximum quality.
+
+                            </p>
+
+                            <p class="text-lg text-slate-300">
+
+                                Use scene packs when you need popular edits quickly.
+
+                            </p>
+
+                            <p class="text-lg text-slate-300">
+
+                                Use curated websites when you're looking for inspiration.
+
+                            </p>
+
+                            <p class="text-xl font-bold text-white mt-5">
+
+                                Use AniClips when your biggest problem is simply finding the scene.
+
+                            </p>
+
+                        </div>
+
+                    </section>
+
+
+
+
+
+                    <!-- ================= FAQ ================= -->
+
+                    <section class="space-y-8 pt-12 border-t border-white/5">
+
+                        <h2 class="text-3xl font-black">
+
+                            Frequently Asked Questions
+
+                        </h2>
+
+                        <div class="space-y-4">
+
+                            <details class="group rounded-xl bg-slate-900/40 border border-slate-800">
+
+                                <summary class="cursor-pointer list-none p-5 flex justify-between items-center">
+
+                                    <span class="font-bold">
+
+                                        Where do most anime editors get their clips?
+
+                                    </span>
+
+                                    <span class="material-symbols-rounded group-open:rotate-180 transition">
+
+                                        expand_more
+
+                                    </span>
+
+                                </summary>
+
+                                <div class="px-5 pb-5 text-slate-400">
+
+                                    It depends on the project.
+
+                                    Many experienced editors download Blu-ray raws through torrent releases,
+                                    while short-form creators often rely on scene packs or searchable clip
+                                    libraries to save time.
+
+                                </div>
+
+                            </details>
+
+                            <details class="group rounded-xl bg-slate-900/40 border border-slate-800">
+
+                                <summary class="cursor-pointer list-none p-5 flex justify-between items-center">
+
+                                    <span class="font-bold">
+
+                                        What's the fastest way to find a specific anime scene?
+
+                                    </span>
+
+                                    <span class="material-symbols-rounded group-open:rotate-180 transition">
+
+                                        expand_more
+
+                                    </span>
+
+                                </summary>
+
+                                <div class="px-5 pb-5 text-slate-400">
+
+                                    If you already know the episode, browse previews instead of downloading the
+                                    entire video first.
+
+                                    If you don't even know which episode the scene came from,
+                                    searchable clip libraries are usually the quickest option.
+
+                                </div>
+
+                            </details>
+
+                            <details class="group rounded-xl bg-slate-900/40 border border-slate-800">
+
+                                <summary class="cursor-pointer list-none p-5 flex justify-between items-center">
+
+                                    <span class="font-bold">
+
+                                        Are scene packs enough for professional editing?
+
+                                    </span>
+
+                                    <span class="material-symbols-rounded group-open:rotate-180 transition">
+
+                                        expand_more
+
+                                    </span>
+
+                                </summary>
+
+                                <div class="px-5 pb-5 text-slate-400">
+
+                                    They're excellent for quick edits,
+                                    but they usually contain only selected moments.
+
+                                    For larger projects you'll eventually need access to complete episodes or
+                                    higher quality sources.
+
+                                </div>
+
+                            </details>
+
+                            <details class="group rounded-xl bg-slate-900/40 border border-slate-800">
+
+                                <summary class="cursor-pointer list-none p-5 flex justify-between items-center">
+
+                                    <span class="font-bold">
+
+                                        Is there one perfect method?
+
+                                    </span>
+
+                                    <span class="material-symbols-rounded group-open:rotate-180 transition">
+
+                                        expand_more
+
+                                    </span>
+
+                                </summary>
+
+                                <div class="px-5 pb-5 text-slate-400">
+
+                                    No.
+
+                                    Most experienced editors actually combine several workflows depending on what
+                                    they're creating.
+
+                                </div>
+
+                            </details>
+
+                        </div>
+
+                    </section>
+
+
+
+
+
+                    <!-- ================= CONCLUSION ================= -->
+
+                    <section class="text-center space-y-8 pt-16 border-t border-white/5">
+
+                        <h2 class="text-4xl font-black">
+
+                            Spend Less Time Searching.
+
+                            <br>
+
+                            Spend More Time Editing.
+
+                        </h2>
+
+                        <p class="max-w-2xl mx-auto text-lg text-slate-400">
+
+                            Every workflow in this guide has its place.
+
+                            Torrents deliver outstanding quality.
+
+                            Scene packs are incredibly convenient.
+
+                            Curated websites help with inspiration.
+
+                            Searchable clip libraries remove the frustration of hunting through episodes.
+
+                        </p>
+
+                        <p class="max-w-2xl mx-auto text-lg text-slate-300">
+
+                            The best editors don't limit themselves to one source.
+
+                            They simply choose the right tool for the job.
+
+                        </p>
+
+                        <a href="../index"
+                            class="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 transition shadow-[0_0_25px_rgba(37,99,235,.35)] font-bold">
+
+                            <span class="material-symbols-rounded">
+
+                                movie
+
+                            </span>
+
+                            Explore AniClips
+
+                        </a>
+
+                    </section>
+
         </article>
+
     </main>
 
-    <!-- ==== DYNAMIC DUAL-CROSS REFERENCE (Continue Reading Segment) ==== -->
-    <section class="max-w-5xl mx-auto w-full px-4 pt-12 pb-24 border-t border-white/5 z-10">
-        <div class="flex items-center justify-between mb-8">
-            <h3 class="text-base font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-                <span class="material-symbols-rounded text-blue-500 text-lg">read_more</span> Continue Reading
+    <!-- ================= CONTINUE READING ================= -->
+
+    <section class="max-w-5xl mx-auto w-full px-4 pt-16 pb-24 border-t border-white/5">
+
+        <div class="flex justify-between items-center mb-8">
+
+            <h3 class="flex items-center gap-2 text-base font-extrabold uppercase tracking-wider">
+
+                <span class="material-symbols-rounded text-blue-500">
+
+                    auto_stories
+
+                </span>
+
+                Continue Reading
+
             </h3>
+
             <a href="../blogs"
-                class="text-xs text-slate-500 hover:text-white uppercase font-bold tracking-widest transition-colors flex items-center gap-1">
-                All Articles <span class="material-symbols-rounded text-xs">arrow_forward</span>
+                class="uppercase tracking-widest text-xs font-bold text-slate-500 hover:text-white transition">
+
+                All Articles →
+
             </a>
+
         </div>
 
         <div id="continue-reading-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Dynamic items loaded based on local JSON analysis -->
-            <div class="h-48 bg-slate-900/40 rounded-xl border border-slate-800 animate-pulse"></div>
-            <div class="h-48 bg-slate-900/40 rounded-xl border border-slate-800 animate-pulse"></div>
+
+            <div class="h-48 rounded-xl border border-slate-800 bg-slate-900/40 animate-pulse">
+
+            </div>
+
+            <div class="h-48 rounded-xl border border-slate-800 bg-slate-900/40 animate-pulse">
+
+            </div>
+
         </div>
+
     </section>
 
-    <!-- ==== FOOTER ==== -->
-    <footer class="mt-20 border-t border-white/5 bg-slate-950/80 backdrop-blur-2xl pt-16 pb-8">
+
+
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer class="border-t border-white/5 bg-slate-950/80 backdrop-blur-xl pt-16 pb-8">
+
         <div class="container mx-auto px-6">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
 
-                <!-- Column 1: Brand & About -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+
+                <!-- Brand -->
+
                 <div class="lg:col-span-4 space-y-6">
-                    <a href="/" class="flex items-center gap-3 group">
-                        <div
-                            class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
-                            <span class="material-symbols-rounded text-white text-lg">movie</span>
+
+                    <a href="/" class="flex items-center gap-3">
+
+                        <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center shadow-lg">
+
+                            <span class="material-symbols-rounded text-white">
+
+                                movie
+
+                            </span>
+
                         </div>
-                        <span class="font-black text-xl tracking-tight text-slate-100">Ani<span
-                                class="text-blue-500">Clips</span></span>
+
+                        <span class="font-black text-xl">
+
+                            Ani<span class="text-blue-500">
+
+                                Clips
+
+                            </span>
+
+                        </span>
+
                     </a>
-                    <p class="text-slate-400 text-sm leading-relaxed max-w-sm">
-                        AniClips is your ultimate destination for high-quality anime moments. We provide a seamless
-                        experience for discovering, previewing, and collecting your favorite clips from the world's most
-                        popular series.
+
+                    <p class="text-slate-400 leading-relaxed text-sm max-w-sm">
+
+                        AniClips is a searchable anime clip library designed for editors,
+                        content creators and AMV makers.
+
+                        Browse episodes, preview scenes instantly and download only the clips
+                        you actually need.
+
                     </p>
+
                     <div class="flex gap-4">
-                        <a target="_blank" href="https://t.me/+QTrHC5GUA9w5NjI9" title="Telegram"
-                            class="w-10 h-10 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#26A5E4] hover:border-[#26A5E4]/30 transition-all shadow-lg">
+
+                        <a href="https://t.me/+QTrHC5GUA9w5NjI9" target="_blank"
+                            class="w-10 h-10 rounded-xl bg-slate-900 border border-white/5 flex items-center justify-center hover:text-[#26A5E4] transition">
+
                             <i class="fa-brands fa-telegram text-xl"></i>
+
                         </a>
-                        <a target="_blank" href="https://www.reddit.com/r/aniclips_site/" title="Reddit"
-                            class="w-10 h-10 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#FF4500] hover:border-[#FF4500]/30 transition-all shadow-lg">
+
+                        <a href="https://www.reddit.com/r/aniclips_site/" target="_blank"
+                            class="w-10 h-10 rounded-xl bg-slate-900 border border-white/5 flex items-center justify-center hover:text-[#ff4500] transition">
+
                             <i class="fa-brands fa-reddit-alien text-xl"></i>
+
                         </a>
+
                     </div>
+
                 </div>
 
-                <!-- Column 2: Navigation -->
+
+
+
+
+                <!-- Navigation -->
+
                 <div class="lg:col-span-2">
-                    <h4 class="text-white font-bold mb-6 text-xs uppercase tracking-widest">Library</h4>
-                    <ul class="space-y-4 text-slate-400 text-sm">
-                        <li><a href="/" class="hover:text-blue-400 transition-colors">Home</a></li>
-                        <li><a href="/" class="hover:text-blue-400 transition-colors">Trending</a></li>
-                        <li><a href="#browse-genres" class="hover:text-blue-400 transition-colors">Collections</a></li>
-                        <li><a href="blogs"
-                                class="text-blue-400 hover:text-blue-300 font-medium transition-colors flex items-center gap-1">Blogs
-                                <span
-                                    class="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1 rounded uppercase tracking-widest font-bold">New</span></a>
+
+                    <h4 class="uppercase tracking-widest text-xs font-bold mb-6">
+
+                        Explore
+
+                    </h4>
+
+                    <ul class="space-y-4 text-sm text-slate-400">
+
+                        <li>
+
+                            <a href="/" class="hover:text-blue-400 transition">
+
+                                Home
+
+                            </a>
+
                         </li>
+
+                        <li>
+
+                            <a href="/" class="hover:text-blue-400 transition">
+
+                                Trending
+
+                            </a>
+
+                        </li>
+
+                        <li>
+
+                            <a href="../blogs" class="hover:text-blue-400 transition">
+
+                                Blog
+
+                            </a>
+
+                        </li>
+
+                        <li>
+
+                            <a href="/" class="hover:text-blue-400 transition">
+
+                                Library
+
+                            </a>
+
+                        </li>
+
                     </ul>
+
                 </div>
 
-                <!-- Column 3: Collapsible FOQA -->
+
+
+
+
+                <!-- FAQ -->
+
                 <div class="lg:col-span-6">
-                    <h4 class="text-white font-bold mb-6 text-xs uppercase tracking-widest">Quick FOQA</h4>
+
+                    <h4 class="uppercase tracking-widest text-xs font-bold mb-6">
+
+                        Quick Questions
+
+                    </h4>
+
                     <div class="space-y-3">
-                        <details
-                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
-                            <summary
-                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
-                                <span class="text-sm font-bold text-slate-200">Is the library free to use?</span>
-                                <span
-                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+
+                        <details class="group rounded-xl bg-slate-900/50 border border-white/5">
+
+                            <summary class="cursor-pointer list-none flex justify-between items-center p-4">
+
+                                <span class="font-bold">
+
+                                    Is AniClips free?
+
+                                </span>
+
+                                <span class="material-symbols-rounded group-open:rotate-180 transition">
+
+                                    expand_more
+
+                                </span>
+
                             </summary>
-                            <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
-                                Yes, AniClips is a free community-driven project. We do not charge for access to our
-                                standard or 4K/RAW library segments.
+
+                            <div class="px-4 pb-4 text-sm text-slate-400">
+
+                                Yes.
+
+                                The library is free to browse and download.
+
                             </div>
+
                         </details>
 
-                        <details
-                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
-                            <summary
-                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
-                                <span class="text-sm font-bold text-slate-200">How do I download RAW clips?</span>
-                                <span
-                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                        <details class="group rounded-xl bg-slate-900/50 border border-white/5">
+
+                            <summary class="cursor-pointer list-none flex justify-between items-center p-4">
+
+                                <span class="font-bold">
+
+                                    Can I download clips without downloading the whole episode?
+
+                                </span>
+
+                                <span class="material-symbols-rounded group-open:rotate-180 transition">
+
+                                    expand_more
+
+                                </span>
+
                             </summary>
-                            <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
-                                Open any episode, click on a clip card, and use the "Download Ready" button. You can
-                                choose between 'Fast' (standard) or 'HQ' (RAW) depending on availability.
+
+                            <div class="px-4 pb-4 text-sm text-slate-400">
+
+                                Yes.
+
+                                That's exactly what AniClips was designed for.
+
+                                Browse the episode, preview clips, then download only the
+                                moments you need.
+
                             </div>
+
                         </details>
 
-                        <details
-                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
-                            <summary
-                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
-                                <span class="text-sm font-bold text-slate-200">What about copyrights of the
-                                    clips?</span>
-                                <span
-                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                        <details class="group rounded-xl bg-slate-900/50 border border-white/5">
+
+                            <summary class="cursor-pointer list-none flex justify-between items-center p-4">
+
+                                <span class="font-bold">
+
+                                    Why not just download the whole episode?
+
+                                </span>
+
+                                <span class="material-symbols-rounded group-open:rotate-180 transition">
+
+                                    expand_more
+
+                                </span>
+
                             </summary>
-                            <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
-                                They are rightfully owned by the respective owners of the anime. We are just an editor
-                                community operate on principle of fair use and keeping the fanbase alive. We are
-                                industrially not recognised but tolerated as fan Media such as AMV, edit stimulates
-                                Blu-ray and merchandise sales. At no point do we monitise from this website nor do our
-                                users (you) as youtube claims all the money anyway, going straight to the rightful
-                                owners.
+
+                            <div class="px-4 pb-4 text-sm text-slate-400">
+
+                                If you only need a few seconds,
+                                downloading gigabytes of footage every time quickly becomes
+                                slow, repetitive and storage intensive.
+
                             </div>
+
                         </details>
+
+                        <details class="group rounded-xl bg-slate-900/50 border border-white/5">
+
+                            <summary class="cursor-pointer list-none flex justify-between items-center p-4">
+
+                                <span class="font-bold">
+
+                                    Will more anime be added?
+
+                                </span>
+
+                                <span class="material-symbols-rounded group-open:rotate-180 transition">
+
+                                    expand_more
+
+                                </span>
+
+                            </summary>
+
+                            <div class="px-4 pb-4 text-sm text-slate-400">
+
+                                New series are added regularly as the library continues to
+                                expand.
+
+                            </div>
+
+                        </details>
+
                     </div>
+
                 </div>
+
             </div>
 
-            <!-- Bottom Bar -->
+
+
+
+
+            <!-- Bottom -->
+
             <div
-                class="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
-                <p>&copy; 2025 AniClips Library. All rights reserved.</p>
+                class="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] uppercase tracking-widest text-slate-500">
+
+                <p>
+
+                    © 2026 AniClips Library
+
+                </p>
+
                 <div class="flex gap-6">
-                    <a href="#" class="hover:text-white transition-colors">Privacy</a>
-                    <a href="#" class="hover:text-white transition-colors">Terms</a>
-                    <a href="#" class="hover:text-white transition-colors">Contact</a>
+
+                    <a href="#" class="hover:text-white transition">
+
+                        Privacy
+
+                    </a>
+
+                    <a href="#" class="hover:text-white transition">
+
+                        Terms
+
+                    </a>
+
+                    <a href="#" class="hover:text-white transition">
+
+                        Contact
+
+                    </a>
+
                 </div>
+
             </div>
+
         </div>
+
     </footer>
 
-    <!-- ==== DYNAMIC CONTINUOUS READING RECOMMENDATION ENGINE ==== -->
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const currentArticleId = document.querySelector('meta[name="article-id"]')?.getAttribute('content');
 
-                const response = await fetch('manifest.json');
-                if (!response.ok) throw new Error("Manifest could not be read.");
+
+
+
+    <!-- ================= CONTINUE READING SCRIPT ================= -->
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", async () => {
+
+            try {
+
+                const currentArticleId =
+                    document.querySelector('meta[name="article-id"]')
+                        ?.getAttribute("content");
+
+                const response = await fetch("manifest.json");
+
+                if (!response.ok)
+                    throw new Error("Manifest not found.");
+
                 const articles = await response.json();
 
-                const remaining = articles.filter(art => art.id !== currentArticleId);
-                const recommendations = remaining.slice(0, 2);
+                const recommendations =
+                    articles
+                        .filter(article => article.id !== currentArticleId)
+                        .slice(0, 2);
 
-                const container = document.getElementById('continue-reading-grid');
-                if (recommendations.length > 0) {
-                    container.innerHTML = recommendations.map((art, i) => `
-                        <a href="${art.slug}" class="group relative rounded-xl bg-slate-900/50 border border-slate-800/80 hover:border-blue-500/30 overflow-hidden flex flex-col md:flex-row items-center transition-all duration-300 hover:bg-slate-900 shadow-md">
-                            <div class="w-full md:w-1/3 aspect-[16/10] bg-slate-950 relative overflow-hidden self-stretch shrink-0">
-                                <img src="${art.image}" class="w-full h-full object-cover opacity-50 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500">
-                                <div class="absolute top-2 left-2 bg-slate-900/95 backdrop-blur border border-white/10 text-[8px] text-slate-300 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
-                                    ${art.category}
-                                </div>
-                            </div>
-                            <div class="p-5 flex flex-col justify-center min-w-0 flex-grow">
-                                <div class="text-[9px] font-mono text-slate-500 mb-1">${art.date}</div>
-                                <h4 class="text-sm sm:text-base font-bold text-white leading-snug group-hover:text-blue-400 transition-colors truncate">
-                                    ${art.title}
-                                </h4>
-                                <p class="text-[11px] text-slate-400 leading-normal line-clamp-2 mt-1.5">
-                                    ${art.excerpt}
-                                </p>
-                            </div>
-                        </a>
-                    `).join('');
-                } else {
-                    container.innerHTML = `<p class="col-span-full text-center text-slate-600 text-xs py-8 font-mono">Next Article Cooking...</p>`;
+                const container =
+                    document.getElementById("continue-reading-grid");
+
+                if (!recommendations.length) {
+
+                    container.innerHTML =
+                        `<p class="text-center text-slate-600 col-span-full py-8">
+                            More articles coming soon...
+                        </p>`;
+
+                    return;
+
                 }
 
-            } catch (err) {
-                console.error("Failed to run continuous reading index loader:", err);
+                container.innerHTML = recommendations.map(article => `
+
+                    <a href="${article.slug}"
+                        class="group rounded-xl overflow-hidden border border-slate-800 bg-slate-900/40 hover:border-blue-500/40 transition">
+
+                        <div class="aspect-[16/10] overflow-hidden">
+
+                            <img src="${article.image}"
+                                class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+
+                        </div>
+
+                        <div class="p-5">
+
+                            <div
+                                class="uppercase tracking-widest text-[9px] text-blue-400 font-bold">
+
+                                ${article.category}
+
+                            </div>
+
+                            <h4
+                                class="font-bold text-lg mt-2 group-hover:text-blue-400 transition">
+
+                                ${article.title}
+
+                            </h4>
+
+                            <p
+                                class="text-sm text-slate-400 mt-3 line-clamp-2">
+
+                                ${article.excerpt}
+
+                            </p>
+
+                        </div>
+
+                    </a>
+
+                `).join("");
+
             }
+
+            catch (error) {
+
+                console.error(error);
+
+            }
+
         });
+
     </script>
+
 </body>
 
 </html>
