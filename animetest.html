@@ -14,7 +14,7 @@
         tailwind.config = { theme: { extend: { colors: { gray: { 900: '#0f172a', 950: '#020617' } }, animation: { 'spin-slow': 'spin 3s linear infinite' } } } }
     </script>
 
-    <script src="https://3nbf4.com/sdk.js" data-zone="11112598" data-sdk="show_11112598"></script>
+    <!-- Vignette Ad loaded dynamically on demand -->
 
     <style>
         html {
@@ -238,7 +238,8 @@
                 <span id="preview-duration" class="hidden">--:--</span>
 
                 <div class="flex-1 min-h-0 overflow-hidden mb-8 flex justify-center items-start">
-                    <div id="kadam-banner-slot" class="w-[300px] h-[250px] overflow-hidden rounded-lg flex-shrink-0">
+                    <div id="adsterra-banner-slot" class="w-[300px] h-[250px] overflow-hidden rounded-lg flex-shrink-0">
+                        <div id="container-57d2b16d41ebda7ec2475422aae2ada3"></div>
                     </div>
                 </div>
 
@@ -251,10 +252,37 @@
         const API_URL = 'https://aniclip-backend.onrender.com/api';
         const WINDOW_PADDING = 1;
 
-        // Ad Initialization
-        const runAdSdk = window.show_11112598 || null;
-        if (runAdSdk) {
-            runAdSdk({ type: 'preload' }).catch((err) => console.log("Preload deferred"));
+        // Fallback priority level:
+        // 1: jsDelivr -> GitHub -> Proxy (Starts at jsDelivr, falls back to GitHub, then Proxy)
+        // 2: GitHub -> Proxy (Bypasses jsDelivr; starts at GitHub, falls back to Proxy)
+        // 3: Proxy (Only uses Proxy/CDN)
+        const FALLBACK_LEVEL = 2;
+
+        // Ad Initialization - Load Vignette on demand
+        function loadVignetteOnDemand() {
+            return new Promise((resolve) => {
+                if (window.show_11218638) {
+                    resolve(window.show_11218638);
+                    return;
+                }
+                const s = document.createElement('script');
+                s.dataset.zone = '11218638';
+                s.src = 'https://n6wxm.com/vignette.min.js';
+                s.onload = () => {
+                    let checkInterval = setInterval(() => {
+                        if (window.show_11218638) {
+                            clearInterval(checkInterval);
+                            resolve(window.show_11218638);
+                        }
+                    }, 50);
+                    setTimeout(() => {
+                        clearInterval(checkInterval);
+                        resolve(window.show_11218638 || null);
+                    }, 3000);
+                };
+                s.onerror = () => resolve(null);
+                (document.body || document.documentElement).appendChild(s);
+            });
         }
 
         const state = {
@@ -514,9 +542,48 @@
             }
         };
 
-        const getFallbackUrl = (cdnUrl) => {
-            if (cdnUrl && cdnUrl.includes('cdn.jsdelivr.net/gh/')) return cdnUrl.replace('cdn.jsdelivr.net/gh/', 'raw.githubusercontent.com/').replace('@', '/');
-            return cdnUrl;
+        const getJsDelivrUrl = (url) => {
+            if (!url) return "";
+            if (url.includes('cdn.jsdelivr.net/gh/')) {
+                return url;
+            }
+            if (url.includes('raw.githubusercontent.com/')) {
+                const parts = url.split('raw.githubusercontent.com/');
+                if (parts.length > 1) {
+                    const subParts = parts[1].split('/');
+                    if (subParts.length >= 3) {
+                        const owner = subParts[0];
+                        const repo = subParts[1];
+                        const branch = subParts[2];
+                        const path = subParts.slice(3).join('/');
+                        return `https://cdn.jsdelivr.net/gh/${owner}/${repo}@${branch}/${path}`;
+                    }
+                }
+            }
+            return url;
+        };
+
+        const getGitHubUrl = (url) => {
+            if (!url) return "";
+            if (url.includes('cdn.jsdelivr.net/gh/')) {
+                return url
+                    .replace('cdn.jsdelivr.net/gh/', 'raw.githubusercontent.com/')
+                    .replace('@', '/'); // jsDelivr uses @ for versions/branches, GitHub uses /
+            }
+            return url;
+        };
+
+        const getProxyUrl = (url, clipId, type) => {
+            if (!state.animeSlug || !clipId) return null;
+            let resolvedVariant = 'hq';
+            if (type === 'image') {
+                resolvedVariant = 'thumbnail';
+            } else if (url.includes('_prev.bin') || url.includes('preview')) {
+                resolvedVariant = 'preview';
+            } else if (url.includes('_hover.bin') || url.includes('hover')) {
+                resolvedVariant = 'hover';
+            }
+            return `https://cdn.aniclips.site/asset/${state.animeSlug}/${clipId}/${resolvedVariant}`;
         };
 
         const DecryptionManager = {
@@ -600,29 +667,77 @@
                 const parts = clipId.split('-');
                 const epCrypto = await getEpisodeCrypto(parts[0], parts[1]);
                 const clipIv = await deriveClipIV(epCrypto.ivSeed, clipId);
-                let currentUrl = url; let response; let attempt = 0;
-                const maxAttempts = type === 'image' ? 2 : 3;
+
+                // Build the fallback URL chain based on the manual toggle configuration
+                let urlChain = [];
+                const jsDelivrUrl = getJsDelivrUrl(url);
+                const gitHubUrl = getGitHubUrl(url);
+                const proxyUrl = getProxyUrl(url, clipId, type);
+
+                const isGDriveOrTelegram = url.startsWith('gd=') || url.includes('gd=') || url.includes('aniclips.site');
+
+                if (isGDriveOrTelegram) {
+                    if (url.startsWith('gd=')) {
+                        if (proxyUrl) urlChain.push(proxyUrl);
+                    } else {
+                        urlChain.push(url);
+                    }
+                } else {
+                    if (FALLBACK_LEVEL === 1) {
+                        if (jsDelivrUrl) urlChain.push(jsDelivrUrl);
+                        if (gitHubUrl) urlChain.push(gitHubUrl);
+                        if (proxyUrl) urlChain.push(proxyUrl);
+                    } else if (FALLBACK_LEVEL === 2) {
+                        if (gitHubUrl) urlChain.push(gitHubUrl);
+                        if (proxyUrl) urlChain.push(proxyUrl);
+                    } else if (FALLBACK_LEVEL === 3) {
+                        if (proxyUrl) urlChain.push(proxyUrl);
+                    }
+
+                    // Fallback to original URL if the chain is empty
+                    if (urlChain.length === 0) {
+                        urlChain.push(url);
+                    }
+                }
+
+                // If it's a clip (video) and the primary is jsDelivr, retry the primary request once before falling back
+                if (type !== 'image' && urlChain[0] && urlChain[0].includes('cdn.jsdelivr.net/gh/')) {
+                    urlChain.splice(1, 0, urlChain[0]); // insert primary URL retry at index 1
+                }
+
+                let response;
+                let attempt = 0;
+                const maxAttempts = urlChain.length;
+
                 while (attempt < maxAttempts) {
+                    const currentUrl = urlChain[attempt];
                     const timeoutMs = type === 'image' ? 1500 : 10000;
+
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
                     const abortHandler = () => controller.abort();
                     if (abortSignal) abortSignal.addEventListener('abort', abortHandler);
+
                     try {
                         response = await fetch(currentUrl, { signal: controller.signal });
                         clearTimeout(timeoutId);
                         if (abortSignal) abortSignal.removeEventListener('abort', abortHandler);
+
                         if (response.ok) break;
                     } catch (e) {
                         clearTimeout(timeoutId);
                         if (abortSignal) abortSignal.removeEventListener('abort', abortHandler);
-                        if (abortSignal && abortSignal.aborted) throw new DOMException("Aborted by system", "AbortError");
+
+                        if (abortSignal && abortSignal.aborted) {
+                            throw new DOMException("Aborted by system", "AbortError");
+                        }
                     }
+
                     attempt++;
-                    if (type === 'image') { if (attempt === 1) currentUrl = getFallbackUrl(url); }
-                    else { if (attempt === 2) currentUrl = getFallbackUrl(url); }
                 }
-                if (!response || !response.ok) throw new Error(`HTTP fetch failed`);
+
+                if (!response || !response.ok) throw new Error(`HTTP fetch failed after ${maxAttempts} attempts`);
                 const contentLength = +response.headers.get('Content-Length');
                 const reader = response.body.getReader();
                 let receivedLength = 0; let chunks = [];
@@ -713,10 +828,16 @@
         function openPreview(epId, idx) {
             state.activeModal = true;
 
-            // FIRE KADAM 300x250 BANNER
-            loadKadamBanner();
+            // FIRE ADSTERRA NATIVE BANNER
+            // loadAdsterraNativeAd();
             // FIRE MONETAG IN-PAGE PUSH GLOBALLY
             loadMonetagPush();
+            // Preload the Vignette ad on demand when opening preview modal
+            loadVignetteOnDemand().then(runAdSdk => {
+                if (runAdSdk) {
+                    runAdSdk({ type: 'preload' }).catch((err) => console.log("Vignette preload deferred"));
+                }
+            });
 
             state.adClipChanges = 0;
             state.adLastRefresh = Date.now();
@@ -775,31 +896,23 @@
             }, 200);
         }
 
-        // --- AD TYPE 2: SECURE KADAM BANNER INJECTION ---
-        function loadKadamBanner() {
-            const container = document.getElementById('kadam-banner-slot');
+        // --- AD TYPE 2: SECURE ADSTERRA NATIVE BANNER INJECTION ---
+        function loadAdsterraNativeAd() {
+            // Commented out to prevent page hijacking
+            /*
+            const container = document.getElementById('container-57d2b16d41ebda7ec2475422aae2ada3');
             if (!container) return;
-            container.innerHTML = '<div class="tBgAyy425572"></div>';
 
-            window.k_init = window.k_init || [];
-            window.k_init.push({
-                id: 'tBgAyy425572',
-                type: 'bn',
-                domain: 'hdbkome.com',
-                refresh: false,
-                next: 0
-            });
-            
             // Load script if not already present
-            if (!document.getElementById('kadam-script')) {
+            if (!document.getElementById('adsterra-native-script')) {
                 var s = document.createElement('script');
-                s.id = 'kadam-script';
-                s.setAttribute('async', true);
-                s.setAttribute('charset', 'utf-8');
+                s.id = 'adsterra-native-script';
+                s.setAttribute('async', 'async');
                 s.setAttribute('data-cfasync', false);
-                s.src = 'https://hdbkome.com/400n872q.js'; 
+                s.src = 'https://tightslybella.com/57d2b16d41ebda7ec2475422aae2ada3/invoke.js';
                 document.head && document.head.appendChild(s);
             }
+            */
         }
 
         // --- AD TYPE 3: MONETAG IN-PAGE PUSH NOTIFICATIONS ---
@@ -845,7 +958,7 @@
             const elapsed = Date.now() - state.adLastRefresh;
             if ((state.adClipChanges >= 3 || elapsed >= 30000) && elapsed >= 30000) {
                 // Only refresh the sidebar banner, Monetag Push handles its own refresh rate internally
-                loadKadamBanner();
+                // loadAdsterraNativeAd();
                 state.adClipChanges = 0;
                 state.adLastRefresh = Date.now();
             }
@@ -872,7 +985,7 @@
         function userSwitchClip(newIdx) {
             if (newIdx === activeCtx.idx) return;
             activeCtx.idx = newIdx;
-            state.adClipChanges++;
+            state.adClipChanges++
             maybeRefreshAd();
             loadPlayer(true);
         }
@@ -880,10 +993,14 @@
         async function forceDownload(rawUrl, clipId, filename) {
             trackDownload();
 
-            // Ad Type 1: Monetag Fullscreen Intercept on click
-            if (runAdSdk) {
-                try { await runAdSdk({ type: 'start' }); }
-                catch (adBlockError) { console.warn("Vignette layer safely bypassed."); }
+            // Ad Type 1: Monetag Fullscreen Intercept on demand
+            try {
+                const runAdSdk = await loadVignetteOnDemand();
+                if (runAdSdk) {
+                    await runAdSdk({ type: 'start' });
+                }
+            } catch (adBlockError) {
+                console.warn("Vignette layer safely bypassed.");
             }
 
             const task = DownloadTasks.getTask(rawUrl, clipId, filename);
@@ -922,30 +1039,132 @@
             document.getElementById('preview-duration').textContent = durText;
 
             const container = els.dlContainer; container.innerHTML = '';
+            
+            const iframe = document.createElement('iframe');
+            iframe.width = "100%";
+            iframe.height = hqRaw ? "142px" : "70px";
+            iframe.style.border = "none";
+            iframe.style.overflow = "hidden";
+            iframe.style.background = "transparent";
+            iframe.setAttribute('sandbox', 'allow-scripts allow-popups allow-popups-to-escape-sandbox allow-same-origin');
+            
+            container.appendChild(iframe);
+            
+            const iframeDoc = iframe.contentWindow || iframe.contentDocument;
+            const doc = iframeDoc.document || iframeDoc;
+            
+            // Set styles and body layout on the iframe document directly via DOM
+            doc.body.style.margin = "0";
+            doc.body.style.padding = "0";
+            doc.body.style.overflow = "hidden";
+            doc.body.style.background = "transparent";
+
+            const wrapper = doc.createElement('div');
+            wrapper.id = 'buttons-wrapper';
+            doc.body.appendChild(wrapper);
+
+            // Load Material symbols dynamically
+            const link = doc.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200';
+            doc.head.appendChild(link);
+
+            // Append vanilla style tag to replace Tailwind CSS completely
+            const styleTag = doc.createElement('style');
+            styleTag.textContent = `
+                body { margin: 0; padding: 0; overflow: hidden; background: transparent; font-family: 'Inter', sans-serif; }
+                .material-symbols-rounded { font-size: 20px; vertical-align: middle; }
+                .btn {
+                    position: relative;
+                    width: 100%;
+                    padding: 16px;
+                    color: white;
+                    text-align: center;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    border: none;
+                    outline: none;
+                    overflow: hidden;
+                }
+                .btn:active {
+                    transform: scale(0.98);
+                }
+                .btn-fast {
+                    background-color: #1e293b;
+                    border: 1px solid #334155;
+                    color: #cbd5e1;
+                }
+                .btn-fast:hover {
+                    background-color: #334155;
+                }
+                .btn-hq {
+                    background-color: #2563eb;
+                    margin-top: 8px;
+                }
+                .btn-hq:hover {
+                    background-color: #3b82f6;
+                }
+                .progress-layer {
+                    position: absolute;
+                    top: 0;
+                    bottom: 0;
+                    left: 0;
+                    width: 0%;
+                    background-color: rgba(255, 255, 255, 0.15);
+                    transition: width 0.3s ease;
+                    pointer-events: none;
+                }
+                .btn-content {
+                    position: relative;
+                    z-index: 10;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .animate-spin {
+                    animation: spin 1s linear infinite;
+                }
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+            `;
+            doc.head.appendChild(styleTag);
+
             const renderDownloadBtn = (rawUrl, label, suffix) => {
                 const filename = `${baseFileName}_${suffix}`;
-                const btn = document.createElement('button');
-                btn.className = "relative w-full py-4 px-4 text-white text-center rounded-lg font-bold shadow-lg flex items-center justify-center gap-2 group transition-all active:scale-[0.98] overflow-hidden";
-                if (suffix === 'Fast') btn.classList.add('bg-slate-800', 'hover:bg-slate-700', 'border', 'border-slate-700', 'text-slate-200');
-                else btn.classList.add('bg-blue-600', 'hover:bg-blue-500', 'border', 'border-transparent', 'mt-2');
+                const btn = doc.createElement('button');
+                btn.className = "btn " + (suffix === 'Fast' ? 'btn-fast' : 'btn-hq');
 
-                const progressLayer = document.createElement('div');
-                progressLayer.className = "absolute inset-0 bg-white/10 w-0 transition-all duration-300 pointer-events-none";
+                const progressLayer = doc.createElement('div');
+                progressLayer.className = "progress-layer";
                 btn.appendChild(progressLayer);
-                const content = document.createElement('div');
-                content.className = "relative z-10 flex items-center gap-2";
-                content.innerHTML = `<span class="material-symbols-rounded group-hover:-translate-y-0.5 transition-transform">download</span> ${label}`;
+                const content = doc.createElement('div');
+                content.className = "btn-content";
+                content.innerHTML = `<span class="material-symbols-rounded">download</span> ${label}`;
                 btn.appendChild(content);
 
                 btn.onclick = () => {
-                    window.open(state.monetagSmartlink, '_blank');
+                    if (!iframeDoc.iframePopunderActive) {
+                        console.log("Ad Trigger: Smartlink Redirect");
+                        window.open(state.monetagSmartlink, '_blank');
+                    } else {
+                        console.log("Ad Trigger: Popunder Script");
+                    }
                     forceDownload(rawUrl, clip.id, filename);
                 };
 
                 DownloadTasks.subscribe(rawUrl, (task) => {
                     if (task.status === 'DOWNLOADING') {
                         progressLayer.style.width = `${task.progress}%`;
-                        content.innerHTML = `<span class="material-symbols-rounded animate-spin text-lg">progress_activity</span> Downloading... ${task.progress}%`;
+                        content.innerHTML = `<span class="material-symbols-rounded animate-spin">progress_activity</span> Downloading... ${task.progress}%`;
                         btn.disabled = true;
                     } else if (task.status === 'COMPLETE') {
                         progressLayer.style.width = "100%";
@@ -958,9 +1177,26 @@
                 });
                 return btn;
             };
+            wrapper.appendChild(renderDownloadBtn(previewRaw, "Fast Clip", "Fast"));
+            if (hqRaw) {
+                const hqBtn = renderDownloadBtn(hqRaw, "High Quality Clip", "HQ");
+                hqBtn.classList.add('mt-2');
+                wrapper.appendChild(hqBtn);
+            }
 
-            container.appendChild(renderDownloadBtn(previewRaw, "Fast Clip", "Fast"));
-            if (hqRaw) container.appendChild(renderDownloadBtn(hqRaw, "High Quality Clip", "HQ"));
+            // Create and append popunder script dynamically inside iframe
+            const adScript = doc.createElement('script');
+            adScript.id = 'monetag-popunder-script';
+            adScript.dataset.zone = '11220739';
+            adScript.src = 'https://al5sm.com/tag.min.js';
+            iframeDoc.iframePopunderActive = false;
+            adScript.onload = () => {
+                iframeDoc.iframePopunderActive = true;
+            };
+            adScript.onerror = () => {
+                iframeDoc.iframePopunderActive = false;
+            };
+            doc.body.appendChild(adScript);
 
             try {
                 const epIdx = ep ? ep.index : null;
@@ -1123,5 +1359,6 @@
         </div>
     </footer>
 </body>
+
 
 </html>
