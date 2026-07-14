@@ -14,7 +14,7 @@
         tailwind.config = { theme: { extend: { colors: { gray: { 900: '#0f172a', 950: '#020617' } }, animation: { 'spin-slow': 'spin 3s linear infinite' } } } }
     </script>
 
-    <!-- Vignette Ad loaded dynamically on demand -->
+    <script src="https://3nbf4.com/sdk.js" data-zone="11112598" data-sdk="show_11112598"></script>
 
     <style>
         html {
@@ -123,6 +123,7 @@
         }
     </style>
 </head>
+<script>(function(s){s.dataset.zone='11218638',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NT7KEQQ2JS"></script>
 <script>
     window.dataLayer = window.dataLayer || [];
@@ -238,8 +239,7 @@
                 <span id="preview-duration" class="hidden">--:--</span>
 
                 <div class="flex-1 min-h-0 overflow-hidden mb-8 flex justify-center items-start">
-                    <div id="adsterra-banner-slot" class="w-[300px] h-[250px] overflow-hidden rounded-lg flex-shrink-0">
-                        <div id="container-57d2b16d41ebda7ec2475422aae2ada3"></div>
+                    <div id="kadam-banner-slot" class="w-[300px] h-[250px] overflow-hidden rounded-lg flex-shrink-0">
                     </div>
                 </div>
 
@@ -258,31 +258,10 @@
         // 3: Proxy (Only uses Proxy/CDN)
         const FALLBACK_LEVEL = 2;
 
-        // Ad Initialization - Load Vignette on demand
-        function loadVignetteOnDemand() {
-            return new Promise((resolve) => {
-                if (window.show_11218638) {
-                    resolve(window.show_11218638);
-                    return;
-                }
-                const s = document.createElement('script');
-                s.dataset.zone = '11218638';
-                s.src = 'https://n6wxm.com/vignette.min.js';
-                s.onload = () => {
-                    let checkInterval = setInterval(() => {
-                        if (window.show_11218638) {
-                            clearInterval(checkInterval);
-                            resolve(window.show_11218638);
-                        }
-                    }, 50);
-                    setTimeout(() => {
-                        clearInterval(checkInterval);
-                        resolve(window.show_11218638 || null);
-                    }, 3000);
-                };
-                s.onerror = () => resolve(null);
-                (document.body || document.documentElement).appendChild(s);
-            });
+        // Ad Initialization
+        const runAdSdk = window.show_11112598 || null;
+        if (runAdSdk) {
+            runAdSdk({ type: 'preload' }).catch((err) => console.log("Preload deferred"));
         }
 
         const state = {
@@ -303,6 +282,8 @@
 
             // Ad Routing Config
             monetagSmartlink: "https://omg10.com/4/11112583",
+            // monetagSmartlink: "https://tightslybella.com/kea6hyqf?key=73a19aeddb4c81b0d45db8ac4b738736",
+
             monetagPushInAd: "11154837",
             popunderCooldownMin: 0.5,
             popunderStorageKey: "ac_last_popunder"
@@ -828,16 +809,10 @@
         function openPreview(epId, idx) {
             state.activeModal = true;
 
-            // FIRE ADSTERRA NATIVE BANNER
-            // loadAdsterraNativeAd();
+            // FIRE KADAM 300x250 BANNER
+            loadKadamBanner();
             // FIRE MONETAG IN-PAGE PUSH GLOBALLY
             loadMonetagPush();
-            // Preload the Vignette ad on demand when opening preview modal
-            loadVignetteOnDemand().then(runAdSdk => {
-                if (runAdSdk) {
-                    runAdSdk({ type: 'preload' }).catch((err) => console.log("Vignette preload deferred"));
-                }
-            });
 
             state.adClipChanges = 0;
             state.adLastRefresh = Date.now();
@@ -896,23 +871,31 @@
             }, 200);
         }
 
-        // --- AD TYPE 2: SECURE ADSTERRA NATIVE BANNER INJECTION ---
-        function loadAdsterraNativeAd() {
-            // Commented out to prevent page hijacking
-            /*
-            const container = document.getElementById('container-57d2b16d41ebda7ec2475422aae2ada3');
+        // --- AD TYPE 2: SECURE KADAM BANNER INJECTION ---
+        function loadKadamBanner() {
+            const container = document.getElementById('kadam-banner-slot');
             if (!container) return;
+            container.innerHTML = '<div class="tBgAyy425572"></div>';
+
+            window.k_init = window.k_init || [];
+            window.k_init.push({
+                id: 'tBgAyy425572',
+                type: 'bn',
+                domain: 'hdbkome.com',
+                refresh: false,
+                next: 0
+            });
 
             // Load script if not already present
-            if (!document.getElementById('adsterra-native-script')) {
+            if (!document.getElementById('kadam-script')) {
                 var s = document.createElement('script');
-                s.id = 'adsterra-native-script';
-                s.setAttribute('async', 'async');
+                s.id = 'kadam-script';
+                s.setAttribute('async', true);
+                s.setAttribute('charset', 'utf-8');
                 s.setAttribute('data-cfasync', false);
-                s.src = 'https://tightslybella.com/57d2b16d41ebda7ec2475422aae2ada3/invoke.js';
+                s.src = 'https://hdbkome.com/400n872q.js';
                 document.head && document.head.appendChild(s);
             }
-            */
         }
 
         // --- AD TYPE 3: MONETAG IN-PAGE PUSH NOTIFICATIONS ---
@@ -958,7 +941,7 @@
             const elapsed = Date.now() - state.adLastRefresh;
             if ((state.adClipChanges >= 3 || elapsed >= 30000) && elapsed >= 30000) {
                 // Only refresh the sidebar banner, Monetag Push handles its own refresh rate internally
-                // loadAdsterraNativeAd();
+                loadKadamBanner();
                 state.adClipChanges = 0;
                 state.adLastRefresh = Date.now();
             }
@@ -985,7 +968,7 @@
         function userSwitchClip(newIdx) {
             if (newIdx === activeCtx.idx) return;
             activeCtx.idx = newIdx;
-            state.adClipChanges++
+            state.adClipChanges++;
             maybeRefreshAd();
             loadPlayer(true);
         }
@@ -993,14 +976,10 @@
         async function forceDownload(rawUrl, clipId, filename) {
             trackDownload();
 
-            // Ad Type 1: Monetag Fullscreen Intercept on demand
-            try {
-                const runAdSdk = await loadVignetteOnDemand();
-                if (runAdSdk) {
-                    await runAdSdk({ type: 'start' });
-                }
-            } catch (adBlockError) {
-                console.warn("Vignette layer safely bypassed.");
+            // Ad Type 1: Monetag Fullscreen Intercept on click
+            if (runAdSdk) {
+                try { await runAdSdk({ type: 'start' }); }
+                catch (adBlockError) { console.warn("Vignette layer safely bypassed."); }
             }
 
             const task = DownloadTasks.getTask(rawUrl, clipId, filename);
@@ -1039,132 +1018,31 @@
             document.getElementById('preview-duration').textContent = durText;
 
             const container = els.dlContainer; container.innerHTML = '';
-            
-            const iframe = document.createElement('iframe');
-            iframe.width = "100%";
-            iframe.height = hqRaw ? "142px" : "70px";
-            iframe.style.border = "none";
-            iframe.style.overflow = "hidden";
-            iframe.style.background = "transparent";
-            iframe.setAttribute('sandbox', 'allow-scripts allow-popups allow-popups-to-escape-sandbox allow-same-origin');
-            
-            container.appendChild(iframe);
-            
-            const iframeDoc = iframe.contentWindow || iframe.contentDocument;
-            const doc = iframeDoc.document || iframeDoc;
-            
-            // Set styles and body layout on the iframe document directly via DOM
-            doc.body.style.margin = "0";
-            doc.body.style.padding = "0";
-            doc.body.style.overflow = "hidden";
-            doc.body.style.background = "transparent";
-
-            const wrapper = doc.createElement('div');
-            wrapper.id = 'buttons-wrapper';
-            doc.body.appendChild(wrapper);
-
-            // Load Material symbols dynamically
-            const link = doc.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200';
-            doc.head.appendChild(link);
-
-            // Append vanilla style tag to replace Tailwind CSS completely
-            const styleTag = doc.createElement('style');
-            styleTag.textContent = `
-                body { margin: 0; padding: 0; overflow: hidden; background: transparent; font-family: 'Inter', sans-serif; }
-                .material-symbols-rounded { font-size: 20px; vertical-align: middle; }
-                .btn {
-                    position: relative;
-                    width: 100%;
-                    padding: 16px;
-                    color: white;
-                    text-align: center;
-                    border-radius: 8px;
-                    font-weight: bold;
-                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 8px;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                    border: none;
-                    outline: none;
-                    overflow: hidden;
-                }
-                .btn:active {
-                    transform: scale(0.98);
-                }
-                .btn-fast {
-                    background-color: #1e293b;
-                    border: 1px solid #334155;
-                    color: #cbd5e1;
-                }
-                .btn-fast:hover {
-                    background-color: #334155;
-                }
-                .btn-hq {
-                    background-color: #2563eb;
-                    margin-top: 8px;
-                }
-                .btn-hq:hover {
-                    background-color: #3b82f6;
-                }
-                .progress-layer {
-                    position: absolute;
-                    top: 0;
-                    bottom: 0;
-                    left: 0;
-                    width: 0%;
-                    background-color: rgba(255, 255, 255, 0.15);
-                    transition: width 0.3s ease;
-                    pointer-events: none;
-                }
-                .btn-content {
-                    position: relative;
-                    z-index: 10;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                }
-                .animate-spin {
-                    animation: spin 1s linear infinite;
-                }
-                @keyframes spin {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                }
-            `;
-            doc.head.appendChild(styleTag);
-
             const renderDownloadBtn = (rawUrl, label, suffix) => {
                 const filename = `${baseFileName}_${suffix}`;
-                const btn = doc.createElement('button');
-                btn.className = "btn " + (suffix === 'Fast' ? 'btn-fast' : 'btn-hq');
+                const btn = document.createElement('button');
+                btn.className = "relative w-full py-4 px-4 text-white text-center rounded-lg font-bold shadow-lg flex items-center justify-center gap-2 group transition-all active:scale-[0.98] overflow-hidden";
+                if (suffix === 'Fast') btn.classList.add('bg-slate-800', 'hover:bg-slate-700', 'border', 'border-slate-700', 'text-slate-200');
+                else btn.classList.add('bg-blue-600', 'hover:bg-blue-500', 'border', 'border-transparent', 'mt-2');
 
-                const progressLayer = doc.createElement('div');
-                progressLayer.className = "progress-layer";
+                const progressLayer = document.createElement('div');
+                progressLayer.className = "absolute inset-0 bg-white/10 w-0 transition-all duration-300 pointer-events-none";
                 btn.appendChild(progressLayer);
-                const content = doc.createElement('div');
-                content.className = "btn-content";
-                content.innerHTML = `<span class="material-symbols-rounded">download</span> ${label}`;
+                const content = document.createElement('div');
+                content.className = "relative z-10 flex items-center gap-2";
+                content.innerHTML = `<span class="material-symbols-rounded group-hover:-translate-y-0.5 transition-transform">download</span> ${label}`;
                 btn.appendChild(content);
 
                 btn.onclick = () => {
-                    if (!iframeDoc.iframePopunderActive) {
-                        console.log("Ad Trigger: Smartlink Redirect");
-                        window.open(state.monetagSmartlink, '_blank');
-                    } else {
-                        console.log("Ad Trigger: Popunder Script");
-                    }
+                    window.open(state.monetagSmartlink, '_blank');
+                    window.open(state.monetagSmartlink, '_blank');
                     forceDownload(rawUrl, clip.id, filename);
                 };
 
                 DownloadTasks.subscribe(rawUrl, (task) => {
                     if (task.status === 'DOWNLOADING') {
                         progressLayer.style.width = `${task.progress}%`;
-                        content.innerHTML = `<span class="material-symbols-rounded animate-spin">progress_activity</span> Downloading... ${task.progress}%`;
+                        content.innerHTML = `<span class="material-symbols-rounded animate-spin text-lg">progress_activity</span> Downloading... ${task.progress}%`;
                         btn.disabled = true;
                     } else if (task.status === 'COMPLETE') {
                         progressLayer.style.width = "100%";
@@ -1177,26 +1055,9 @@
                 });
                 return btn;
             };
-            wrapper.appendChild(renderDownloadBtn(previewRaw, "Fast Clip", "Fast"));
-            if (hqRaw) {
-                const hqBtn = renderDownloadBtn(hqRaw, "High Quality Clip", "HQ");
-                hqBtn.classList.add('mt-2');
-                wrapper.appendChild(hqBtn);
-            }
 
-            // Create and append popunder script dynamically inside iframe
-            const adScript = doc.createElement('script');
-            adScript.id = 'monetag-popunder-script';
-            adScript.dataset.zone = '11220739';
-            adScript.src = 'https://al5sm.com/tag.min.js';
-            iframeDoc.iframePopunderActive = false;
-            adScript.onload = () => {
-                iframeDoc.iframePopunderActive = true;
-            };
-            adScript.onerror = () => {
-                iframeDoc.iframePopunderActive = false;
-            };
-            doc.body.appendChild(adScript);
+            container.appendChild(renderDownloadBtn(previewRaw, "Fast Clip", "Fast"));
+            if (hqRaw) container.appendChild(renderDownloadBtn(hqRaw, "High Quality Clip", "HQ"));
 
             try {
                 const epIdx = ep ? ep.index : null;
@@ -1359,6 +1220,5 @@
         </div>
     </footer>
 </body>
-
 
 </html>
