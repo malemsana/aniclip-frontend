@@ -37,5 +37,18 @@
     "author": "Previous Stomach",
     "authorTitle": "Creator & Lead Dev",
     "featured": false
+  },
+  {
+    "id": "the-story-behind-aniclips",
+    "title": "The Story Behind AniClips",
+    "slug": "the-story-of-aniclips.html",
+    "date": "May 15, 2026",
+    "readTime": "12 min read",
+    "category": "Behind the scenes",
+    "excerpt": "From a fragile Python script running on Google Colab to a database holding over 200,000 clips. The honest, behind-the-scenes history of engineering a platform built by an editor, for editors.",
+    "image": "/assets/history-of-aniclips.webp",
+    "author": "Previous Stomach",
+    "authorTitle": "Creator & Lead Dev",
+    "featured": false
   }
 ]

@@ -295,6 +295,9 @@
         const ADMIN_KEY = localStorage.getItem('aniclip_admin_key');
         const slug = new URLSearchParams(window.location.search).get('name');
 
+        // Fallback toggle variable: 1 for jsdelivr, 2 for github raw direct url
+        let FALLBACK_LEVEL = 2;
+
         let currentAnimeId = null;
         let currentMalId = null;
         let currentEpisodeClips = [];
@@ -302,6 +305,37 @@
         // Reprocess State
         let isReprocessMode = false;
         let selectedClipsToReprocess = new Set();
+
+        const getJsDelivrUrl = (url) => {
+            if (!url) return "";
+            if (url.includes('cdn.jsdelivr.net/gh/')) {
+                return url;
+            }
+            if (url.includes('raw.githubusercontent.com/')) {
+                const parts = url.split('raw.githubusercontent.com/');
+                if (parts.length > 1) {
+                    const subParts = parts[1].split('/');
+                    if (subParts.length >= 3) {
+                        const owner = subParts[0];
+                        const repo = subParts[1];
+                        const branch = subParts[2];
+                        const path = subParts.slice(3).join('/');
+                        return `https://cdn.jsdelivr.net/gh/${owner}/${repo}@${branch}/${path}`;
+                    }
+                }
+            }
+            return url;
+        };
+
+        const getGitHubUrl = (url) => {
+            if (!url) return "";
+            if (url.includes('cdn.jsdelivr.net/gh/')) {
+                return url
+                    .replace('cdn.jsdelivr.net/gh/', 'raw.githubusercontent.com/')
+                    .replace('@', '/'); // jsDelivr uses @ for versions/branches, GitHub uses /
+            }
+            return url;
+        };
 
         // --- DECRYPTION ENGINE ---
         const cryptoCache = {};
@@ -341,7 +375,36 @@
                 const epCrypto = await getEpisodeCrypto(malId, epNum);
                 const clipIv = await deriveClipIV(epCrypto.ivSeed, clipId);
 
-                const res = await fetch(url);
+                // Build fallback chain based on configuration
+                const jsDelivrUrl = getJsDelivrUrl(url);
+                const gitHubUrl = getGitHubUrl(url);
+                const urlsToTry = [];
+                if (FALLBACK_LEVEL === 1) {
+                    if (jsDelivrUrl) urlsToTry.push(jsDelivrUrl);
+                    if (gitHubUrl && gitHubUrl !== jsDelivrUrl) urlsToTry.push(gitHubUrl);
+                } else if (FALLBACK_LEVEL === 2) {
+                    if (gitHubUrl) urlsToTry.push(gitHubUrl);
+                    if (jsDelivrUrl && jsDelivrUrl !== gitHubUrl) urlsToTry.push(jsDelivrUrl);
+                } else {
+                    urlsToTry.push(url);
+                }
+
+                let res;
+                let lastError;
+                for (const targetUrl of urlsToTry) {
+                    try {
+                        res = await fetch(targetUrl);
+                        if (res.ok) break;
+                        lastError = new Error(`Fetch failed with status ${res.status}`);
+                    } catch (err) {
+                        lastError = err;
+                    }
+                }
+
+                if (!res || !res.ok) {
+                    throw lastError || new Error("Failed to fetch all fallback URLs");
+                }
+
                 const ciphertext = await res.arrayBuffer();
                 const decryptedBuffer = await crypto.subtle.decrypt({ name: "AES-CTR", counter: clipIv, length: 128 }, epCrypto.key, ciphertext);
 

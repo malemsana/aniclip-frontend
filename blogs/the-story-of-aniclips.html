@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Unique dynamic config parameters for dynamic routing cross-references -->
+    <meta name="article-id" content="introducing-aniclips-v4">
+
+    <title>The Story Behind AniClips — Built for Editors | AniClips Blog</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Unified Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <!-- Original Homepage Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { gray: { 900: '#0f172a', 950: '#020617' }, brand: { 500: '#3b82f6', 600: '#2563eb' } },
+                    animation: { 'fade-in': 'fadeIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards' }
+                }
+            }
+        }
+    </script>
+
+    <!-- Unified Styles -->
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+
+        /* Glass Nav */
+        .glass-nav {
+            background: rgba(2, 6, 23, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-enter {
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body class="antialiased min-h-screen flex flex-col bg-[#020617] relative selection:bg-blue-600 selection:text-white">
+
+    <!-- Subtle Ambient Glows -->
+    <div
+        class="absolute top-0 right-1/4 w-[500px] h-[500px] bg-blue-900/10 rounded-full blur-[150px] pointer-events-none z-0">
+    </div>
+
+    <!-- ==== PREMIUM GLASS NAVIGATION BAR ==== -->
+    <header class="fixed top-0 w-full z-50 glass-nav transition-all duration-300">
+        <nav class="container mx-auto px-4 h-16 flex justify-between items-center">
+            <!-- LOGO -->
+            <a href="../index" class="flex items-center gap-3 group z-50">
+                <div
+                    class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                    <span class="material-symbols-rounded text-white text-lg">movie</span>
+                </div>
+                <span class="font-black text-xl tracking-wide text-slate-100 group-hover:text-white transition-colors">
+                    Ani<span class="text-blue-500">Clips</span>
+                </span>
+                <span
+                    class="ml-2 px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[9px] font-bold text-slate-400 uppercase tracking-widest hidden sm:block">
+                    Blog
+                </span>
+            </a>
+
+            <!-- NAV LINKS -->
+            <div class="flex items-center gap-6 z-50">
+                <a href="../blogs"
+                    class="text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-wider transition-colors flex items-center gap-1">
+                    <span class="material-symbols-rounded text-sm">arrow_back</span> Back to Blogs
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ==== ARTICLE HERO ==== -->
+    <div class="w-full relative pt-28 pb-12 sm:pt-36 sm:pb-16 px-4 z-10 animate-enter">
+        <div class="max-w-4xl mx-auto">
+
+            <!-- Breadcrumbs / Meta -->
+            <div class="flex flex-wrap items-center gap-3 mb-6">
+                <a href="../blogs"
+                    class="text-[10px] font-bold text-blue-500 hover:text-blue-400 uppercase tracking-widest transition-colors">Creator
+                    Notes</a>
+                <span class="w-1 h-1 rounded-full bg-slate-700"></span>
+                <span class="text-[10px] font-mono text-slate-400 tracking-wider">May 15, 2026</span>
+                <span class="w-1 h-1 rounded-full bg-slate-700"></span>
+                <span class="text-[10px] font-mono text-slate-400 tracking-wider flex items-center gap-1">
+                    <span class="material-symbols-rounded text-[12px]">schedule</span> 12 min read
+                </span>
+            </div>
+
+            <!-- Title -->
+            <h1 class="text-3xl sm:text-5xl md:text-6xl font-black text-white leading-[1.1] tracking-tight mb-6">
+                The Story Behind AniClips
+            </h1>
+
+            <!-- Subtitle -->
+            <p class="text-lg sm:text-xl text-slate-400 font-medium leading-relaxed max-w-3xl mb-10">
+                How a personal editing tool slowly turned into a website used by thousands of anime editors.
+            </p>
+
+            <!-- Author Plate -->
+            <div class="flex items-center gap-4 border-t border-white/5 pt-6">
+                <div
+                    class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white text-sm shadow-[0_0_10px_rgba(37,99,235,0.3)]">
+                    PS
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-white">Previous Stomach</p>
+                    <p class="text-[10px] text-slate-500 uppercase tracking-wider">Creator & Lead Developer</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ==== MAIN ARTICLE CONTENT ==== -->
+    <main class="max-w-3xl mx-auto w-full px-4 pb-12 z-10 animate-enter" style="animation-delay: 150ms;">
+        <article class="space-y-12 text-base sm:text-lg text-slate-300 leading-relaxed">
+
+            <!-- CHAPTER ONE -->
+            <section class="space-y-6">
+                <h2 class="text-xl font-mono text-blue-500 uppercase tracking-widest font-bold">Chapter One — It Was
+                    Never Supposed to Become a Website</h2>
+                <p>If you asked me in 2025 whether I'd eventually build a website with hundreds of thousands of anime
+                    clips, I would've laughed.</p>
+                <p>Not because it sounded impossible.</p>
+                <p>Because I had absolutely no intention of building one.</p>
+                <p>AniClips didn't begin with a business plan.</p>
+                <p>It didn't begin with a startup idea.</p>
+                <p>It didn't even begin with programming.</p>
+                <p>It began with a YouTube channel.</p>
+
+                <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight pt-4">September 2025 — A Simple Idea
+                </h3>
+                <p>Around September 2025, I came across a YouTube creator whose videos immediately caught my attention.
+                </p>
+                <p>They weren't flashy.</p>
+                <p>There weren't insane visual effects or complicated transitions.</p>
+                <p>Instead, the creator talked about philosophy, friendship, happiness and life while carefully chosen
+                    anime scenes quietly played in the background.</p>
+                <p>The editing felt... effortless.</p>
+                <p>The visuals didn't distract from the message.</p>
+                <p>They strengthened it.</p>
+                <p>I watched one video.</p>
+                <p>Then another.</p>
+                <p>Then another.</p>
+                <p>Eventually I caught myself thinking, "I'd love to make videos like this someday."</p>
+                <p>Like most people, I assumed the difficult part would be writing the script or editing.</p>
+                <p>I was wrong.</p>
+                <p>The difficult part was finding the clips.</p>
+
+                <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight pt-4">The Problem Nobody Talks About
+                </h3>
+                <p>If you've never edited anime before, downloading a clip sounds easy.</p>
+                <p>Just download the episode.</p>
+                <p>Cut the scene.</p>
+                <p>Done.</p>
+                <p>That's exactly what everyone recommended.</p>
+                <p>The problem was... I hated every step of that workflow.</p>
+                <p>My internet wasn't particularly fast.</p>
+                <p>Storage space wasn't unlimited.</p>
+                <p>Downloading an entire two gigabyte episode just to use four seconds felt incredibly wasteful.</p>
+                <p>Even after downloading it, I still had to open a video editor and drag a timeline back and forth for
+                    twenty-four minutes until I finally found the scene I wanted.</p>
+                <p>Then I'd repeat that process again.</p>
+                <p>And again.</p>
+                <p>And again.</p>
+                <p>It didn't feel like editing.</p>
+                <p>It felt like searching.</p>
+                <p>Looking back, I don't think I wanted anime clips. I wanted to skip the searching part.</p>
+                <p>That tiny difference eventually became the entire philosophy behind AniClips.</p>
+            </section>
+
+            <!-- BREAKTHROUGH FEATURE SHOWCASE -->
+            <section
+                class="grid grid-cols-1 md:grid-cols-2 gap-8 my-12 items-center bg-slate-900/40 border border-slate-800 p-6 sm:p-8 rounded-2xl">
+                <div class="space-y-4">
+                    <div class="text-[10px] font-black text-blue-500 tracking-wider uppercase">The Breakthrough Feature
+                    </div>
+                    <h3 class="text-xl font-bold text-white leading-tight">One Feature Existed Before The Website</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">
+                        Before there was a backend. Before there was a database. Before there was even a name. There was
+                        already one feature I knew the tool absolutely had to include: **Hover previews.**
+                    </p>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Not because they looked modern. Not because other websites had them. Because I never wanted to
+                        scrub through Premiere Pro timelines just to remember whether a clip was the right one. I wanted
+                        to move my mouse across the screen, watch the preview, recognize the scene instantly, and keep
+                        scrolling.
+                    </p>
+                </div>
+
+                <!-- Video Preview Mockup Window -->
+                <div class="w-full relative group">
+                    <div
+                        class="absolute -inset-1.5 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition duration-500">
+                    </div>
+                    <div
+                        class="relative rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl flex flex-col">
+                        <div
+                            class="bg-[#0b0f19] px-4 py-2.5 border-b border-slate-800/80 flex items-center justify-between select-none">
+                            <div class="flex gap-1.5">
+                                <div class="w-2.5 h-2.5 rounded-full bg-red-500/60"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/60"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-green-500/60"></div>
+                            </div>
+                            <div class="text-[9px] font-mono text-slate-500 tracking-wider flex items-center gap-1.5">
+                                <span
+                                    class="material-symbols-rounded text-[11px] text-blue-500 animate-pulse">track_changes</span>
+                                hover-preview-demo.mp4
+                            </div>
+                            <div class="w-10"></div>
+                        </div>
+                        <div class="relative w-full aspect-[576/450] bg-slate-950 overflow-hidden">
+                            <video src="assets/hoverPreview_demo.mp4" autoplay loop muted playsinline
+                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02] ease-out"></video>
+                            <div
+                                class="absolute bottom-3 right-3 bg-slate-950/90 backdrop-blur border border-white/10 text-[9px] font-bold text-slate-300 px-2.5 py-1 rounded-md flex items-center gap-1.5 shadow-lg select-none">
+                                <span
+                                    class="material-symbols-rounded text-xs text-blue-500 animate-ping">touch_app</span>
+                                Instant Hover Preview
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="space-y-6">
+                <p>It's funny looking back now. Version after version has completely rewritten the backend. The
+                    processing pipeline has changed multiple times. The storage architecture has changed. Almost
+                    everything behind the scenes has been rebuilt.</p>
+                <p>Hover previews survived all of it. They've been part of AniClips since before AniClips even existed.
+                </p>
+
+                <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight pt-4">Version 1 — Can This Even
+                    Work?</h3>
+                <p>Ideas are cheap. Eventually you have to stop thinking and start building. Around early November 2025,
+                    that's exactly what I did.</p>
+                <p>Fortunately, Gemini 2.5 had only recently been released. Like many developers at the time, I spent
+                    countless evenings experimenting with AI-assisted programming. I had no experience building
+                    something like this. There wasn't a tutorial called "How to Build an Anime Clip Library." So the
+                    entire project became one long experiment.</p>
+                <p>Eventually... something actually worked. Calling it Version 1 feels generous. It was really just a
+                    proof of concept. A rough HTML page. A tiny backend. And an unhealthy amount of hope.</p>
+
+                <h4 class="text-lg font-bold text-white pt-2">Building A Pipeline Out Of Whatever I Could Find</h4>
+                <p>The frontend wasn't actually the difficult part. Processing anime was. Every clip on the website had
+                    to come from somewhere. My entire processing pipeline lived inside a single Python notebook running
+                    on Google Colab. Whenever I wanted to add a new anime, the workflow looked something like this.</p>
+                <p>First I'd find a direct source for the episode. Then I'd paste the URL into Colab. Press Run. And
+                    wait. Usually around an hour.</p>
+                <p>The notebook downloaded the episode. Generated thumbnails. Cut the video into clips. Uploaded
+                    everything. Updated metadata. If everything went perfectly... I had a new episode ready for the
+                    website. If Google Colab disconnected after forty-five minutes... I started again. If the source
+                    website stopped responding halfway through... I started again. If something crashed for absolutely
+                    no reason... I started again.</p>
+                <p>There wasn't much automation. There wasn't much reliability either. At the time, I genuinely thought,
+                    "This is probably just what software development feels like."</p>
+
+                <h4 class="text-lg font-bold text-white pt-2">ImgBB, Vidplay... and Pure Optimism</h4>
+                <p>The first version of AniClips wasn't powered by fancy infrastructure. It was powered by whatever
+                    worked. Thumbnails were uploaded to ImgBB. Not because it was designed for serving tens of thousands
+                    of images. Simply because it accepted image uploads.</p>
+                <p>Videos were uploaded to Vidplay. Surprisingly, Vidplay deserves more credit than most people realise.
+                    It allowed large uploads without requiring an account, had surprisingly generous limits and quietly
+                    hosted the entire project for weeks. Neither service belonged to me. Neither was intended for this
+                    kind of workload. But when you're building your first project, you don't always choose the perfect
+                    tool. Sometimes you choose the only tool that lets you continue. Looking back, that version was held
+                    together with optimism more than architecture.</p>
+
+                <blockquote class="my-6 pl-5 py-3 border-l-4 border-blue-500 bg-slate-900/30 rounded-r-xl">
+                    <p class="text-base italic text-slate-200">
+                        I still remember the first time everything worked together. The page loaded. I scrolled through
+                        a few clips. Hovered over one. The preview started playing. I immediately recognised the scene I
+                        wanted. Clicked download. Done. No opening Premiere. No scrubbing through twenty-four minutes.
+                        No exporting. Just... Done. It sounds completely ordinary now. Back then, it honestly felt like
+                        magic. For the first time, the tool I'd imagined months earlier actually existed. Not perfectly.
+                        Not beautifully. But it existed. And that was enough to convince me to keep building.
+                    </p>
+                </blockquote>
+
+                <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight pt-4">Version 2 — Maybe Other People
+                    Need This Too</h3>
+                <p>Originally, AniClips was never supposed to leave my computer. It existed because I needed it. But
+                    after using it for a while, one thought kept coming back. "If this solved my problem... surely it
+                    solves someone else's too."</p>
+                <p>That simple question completely changed the direction of the project. Around late November 2025, I
+                    started preparing the prototype for something I'd never originally planned: A public release.</p>
+                <p>One of the first major changes happened behind the scenes. Even though Vidplay had been surprisingly
+                    reliable, I didn't want the future of the project depending entirely on third-party hosting. Around
+                    this time I built the first version of what would later become the GitHub Swarm storage system.
+                    Compared to today's implementation, it was incredibly primitive. But it represented something much
+                    bigger. For the first time, AniClips was beginning to own its own infrastructure instead of
+                    borrowing someone else's. Looking back, I think this was the moment AniClips stopped being an
+                    experiment. It started becoming a real project.</p>
+
+                <h4 class="text-lg font-bold text-white pt-2">December 2, 2025</h4>
+                <p>On December 2nd, 2025, I bought the aniclips.site domain. Looking back, buying the domain wasn't
+                    technically important. The website already existed. The code already worked. But psychologically...
+                    Everything changed. Up until that day, I could always tell myself, "It's just a little side
+                    project." Buying the domain quietly removed that excuse. Now it had a name. Now it had an address.
+                    Now anyone could visit it.</p>
+                <p>The website wasn't finished. Not even close. The backend was still almost entirely manual. Every
+                    anime still required me to process it by hand. There were no workers. No automation. No queue
+                    system. No dashboard. Just one person, one Colab notebook and an idea that somehow kept working.</p>
+
+                <h4 class="text-lg font-bold text-white pt-2">My First Reddit Post</h4>
+                <p>A few days after launching the website, I made my very first post on r/AMV. I wasn't trying to market
+                    a startup. Honestly, I just wanted to know whether other anime editors found the idea useful.</p>
+
+                <!-- Reddit Screenshot Placeholder Container -->
+                <img src="assets/original-redditpost.png" alt="Original Reddit Post on r/AMV"
+                    class="my-8 w-full max-w-2xl mx-auto rounded-xl border border-slate-800 object-cover shadow-2xl">
+
+                <p>Reading that post today makes me smile. I proudly wrote that the website already had around fifty
+                    anime and that I planned to expand it to five hundred "very soon." At the time, fifty anime felt
+                    enormous. Processing each one still took hours. Five hundred sounded almost impossible. Today, the
+                    library contains more than 200,000 clips. Back then, I couldn't even imagine building something that
+                    large.</p>
+                <p>The responses were encouraging. People understood the idea almost immediately. Some started using the
+                    website. Others shared suggestions. For the first time, AniClips wasn't just solving my own problem
+                    anymore. It was solving someone else's too.</p>
+                <p class="text-blue-500 font-mono text-sm tracking-wide">To be continued...</p>
+            </section>
+
+            <!-- CHAPTER TWO -->
+            <section class="space-y-6 pt-6 border-t border-white/5">
+                <h2 class="text-xl font-mono text-blue-500 uppercase tracking-widest font-bold">Chapter Two — The
+                    Comment That Changed Everything</h2>
+                <p>The first few weeks after launch were exciting. Not because the website suddenly became popular. It
+                    didn't. Most days only a handful of people visited. But that wasn't the point. For the first time,
+                    complete strangers were using something I'd built. Every returning visitor felt like proof that the
+                    idea itself made sense.</p>
+                <p>The website slowly grew. New anime were added whenever I had enough free time to process them. Each
+                    new series still followed the same painfully manual routine: Find the source. Paste it into Google
+                    Colab. Wait. Hope nothing crashed. Repeat.</p>
+                <p>Looking back, it almost feels ridiculous. The entire library depended on one person pressing Run. If
+                    I got busy... Nothing happened. If my internet stopped working... Nothing happened. If Google Colab
+                    decided it had enough for the day... Nothing happened. The website worked. The production line
+                    didn't. At the time, I didn't fully appreciate how dangerous that architecture was. I would soon
+                    find out.</p>
+
+                <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight pt-4">The Website Slowly Grew</h3>
+                <p>Over the following weeks, AniClips expanded little by little. Every processed anime felt like a small
+                    victory. There wasn't any automation. No background workers. No queue system. Every new addition
+                    represented another evening spent waiting for notebooks to finish processing. Eventually the library
+                    reached around sixty-four anime. Seeing that number felt unbelievable. Just a few months earlier,
+                    the website hadn't even existed. Now people were actually browsing it.</p>
+                <p>Sometimes I'd open the analytics page simply to watch visitors moving around the site. It never
+                    stopped feeling strange. Someone, somewhere in another country, was using a tool that only existed
+                    because I didn't like downloading torrents.</p>
+
+                <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight pt-4">Version 3 — The Rewrite Nobody
+                    Saw</h3>
+                <p>Around this time I started working on what would eventually become Version 3. Ironically, almost
+                    nobody noticed it. There were no shiny new buttons. No redesigned homepage. No dramatic
+                    announcement. Most users probably assumed development had slowed down. In reality, I was rewriting
+                    the most important part of the project: The processing pipeline.</p>
+                <p>The original workflow had one fundamental problem. It depended entirely on me. Every anime. Every
+                    episode. Every processing job. Every upload. If I wasn't sitting at my computer, the library simply
+                    stopped growing. That wasn't sustainable. So instead of building new features, I started building
+                    something users would never directly see: Automation.</p>
+                <p>Version 3 became my first serious attempt to remove myself from the production pipeline. It wasn't
+                    complete. It wasn't particularly elegant. But for the first time, I started thinking less about
+                    processing anime... and more about building a system that could process anime.</p>
+                <p>Looking back now, Version 3 wasn't really a finished release. It was an experiment. A bridge between
+                    the handcrafted website I had originally built and the automated platform I wanted AniClips to
+                    become. Nearly every major idea that powers Version 4 first appeared during this period.</p>
+
+                <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight pt-4">Then Came One Reddit Comment
+                </h3>
+                <p>Sometime around late December 2025 to early 2026, another Reddit comment appeared. It was short.
+                    Direct. And impossible to ignore: <span class="text-red-400 font-mono">"It's hella
+                        compressed."</span></p>
+                <p>The commenter compared one of my Attack on Titan clips with a Blu-ray source. The difference wasn't
+                    small. The bitrate was almost five times lower. Then came the sentence that stuck with me: <span
+                        class="italic text-slate-400">"At least be honest, it's not a good start."</span></p>
+
+                <!-- Criticism Screenshot Placeholder Container -->
+                <img src="assets/original-criticism.png" alt="Reddit Quality Criticism Comment"
+                    class="my-8 w-full max-w-2xl mx-auto rounded-xl border border-slate-800 object-cover shadow-2xl">
+
+                <p>I'll be honest. Reading that wasn't fun. Nobody enjoys having their work criticised. My first
+                    instinct was the same as everyone else's: Maybe they were being too harsh. Maybe they expected too
+                    much. Then I opened both videos side by side. And within a few minutes, I stopped trying to defend
+                    the website. They were right. The clips were convenient. The quality wasn't.</p>
+
+                <h4 class="text-lg font-bold text-white pt-2">It Wasn't An Encoding Problem</h4>
+                <p>At first I thought the fix would be easy. Increase the bitrate. Change FFmpeg settings. Use a
+                    different encoder. Problem solved. Except... nothing was that simple. The more I looked into the
+                    processing pipeline, the more obvious something became. The low quality wasn't really the problem.
+                    It was a symptom.</p>
+                <p>The original pipeline had been designed around convenience. It downloaded from lower-quality web
+                    sources because those were easy to automate. That decision had made Version 1 possible. Now it was
+                    preventing AniClips from becoming the website I actually wanted to build. Improving quality wasn't
+                    going to happen by changing one line of code. It meant changing where every episode came from. How
+                    every episode was processed. How clips were generated. How storage worked. Almost everything. The
+                    criticism hadn't revealed one bug. It had exposed the limits of the entire architecture.</p>
+
+                <h4 class="text-lg font-bold text-white pt-2">Sometimes You Have To Stop Moving Forward</h4>
+                <p>For about a month, almost nothing happened publicly. Users probably assumed development had slowed
+                    down. In reality, the opposite was true. I deliberately stopped adding new anime. That wasn't an
+                    easy decision. Every new series added to the website also added more content that would eventually
+                    need replacing. The more I thought about it, the less sense it made to keep expanding a system I
+                    already knew I was about to rebuild.</p>
+                <p>So instead of growing the library... I started designing Version 4. At first, I thought Version 4
+                    would just improve quality. Then I began writing down everything that bothered me about the existing
+                    system. The list became surprisingly long: Manual processing. No queue. No workers. No dashboard. No
+                    standard output format. No way to scale. No future-proof architecture.</p>
+                <p>By the time I finished the list, I realised something: I wasn't planning an upgrade anymore. I was
+                    planning a replacement. The website users saw wasn't changing. Everything underneath it was. And if
+                    I was going to rebuild it... I wanted to make sure I never had to rebuild it like this again.</p>
+                <p class="text-blue-500 font-mono text-sm tracking-wide">End of Chapter Two. Next: Chapter Three —
+                    Burning It Down to Build It Better.</p>
+            </section>
+
+            <!-- CHAPTER THREE -->
+            <section class="space-y-6 pt-6 border-t border-white/5">
+                <h2 class="text-xl font-mono text-blue-500 uppercase tracking-widest font-bold">Chapter Three — Burning
+                    It Down to Build It Better</h2>
+                <p>By April 2026, I had reached a decision. Version 4 wasn't going to be another update. It wasn't going
+                    to be Version 3 with a few improvements. It had to replace almost everything. So, the website went
+                    offline. Visitors saw a maintenance page. Behind the scenes, AniClips was being rebuilt from the
+                    ground up.</p>
+
+                <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight pt-4">Building A Factory Instead Of
+                    A Workshop</h3>
+                <p>The first versions of AniClips worked like a small workshop. Every episode passed through me. I found
+                    the source. I started the processing. I waited. I uploaded the results. It worked... But it could
+                    never scale. The more anime I wanted to add, the more hours I personally had to spend babysitting
+                    Google Colab. Eventually I asked myself a different question: What if I wasn't the one processing
+                    anime anymore?</p>
+                <p>Instead of building a better notebook... I started building a production system. The first piece was
+                    an administration dashboard. Rather than manually hunting for episode links every single time, I
+                    could now simply search for an anime, choose the torrent release I wanted and add it to a processing
+                    queue. That queue became the heart of Version 4.</p>
+                <p>Once an anime entered the queue, I didn't have to touch it again. Google Colab workers would
+                    automatically claim available jobs, download the torrent, normalize the source, generate thumbnails,
+                    cut the episode into clips, encode multiple versions and upload everything back to the server. One
+                    worker could process anime. Five workers could process anime. Ten workers could process anime. The
+                    architecture no longer depended on me sitting in front of my computer pressing Run. That single
+                    change probably saved hundreds of hours over the following months.</p>
+
+                <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight pt-4">Finally Fixing The Quality
+                </h3>
+                <p>The Reddit criticism had done exactly what good criticism should do: it forced me to confront a
+                    weakness I had already been avoiding. Version 4 abandoned the low-quality web sources used by the
+                    earlier pipeline. Instead, processing now started directly from torrent releases, giving the encoder
+                    much cleaner source material. Every episode also produced two separate versions:</p>
+
+                <!-- Unified Download Cards Layout inside Article Flow -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8 text-left">
+                    <div class="p-6 rounded-xl border border-slate-800 bg-slate-900/30 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-3 text-blue-500">
+                                <span class="material-symbols-rounded text-3xl">bolt</span>
+                            </div>
+                            <h4 class="text-lg font-bold text-white mb-2">Fast Clip</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                                Optimized for speed. Downloads instantly and is perfect for mobile video editing apps
+                                (Alight Motion, CapCut) or mapping draft tracks.
+                            </p>
+                        </div>
+                        <span
+                            class="text-[10px] font-mono text-blue-400 uppercase tracking-widest bg-blue-950/40 py-1 px-2 rounded-md self-start">Instant
+                            Download</span>
+                    </div>
+                    <div class="p-6 rounded-xl border border-slate-800 bg-slate-900/30 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-3 text-emerald-500">
+                                <span class="material-symbols-rounded text-3xl">hd</span>
+                            </div>
+                            <h4 class="text-lg font-bold text-white mb-2">High Quality Clip</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                                Native bitstream file format. Designed for editors who demand absolute pixel clarity for
+                                color-grading, complex masking, or large exports.
+                            </p>
+                        </div>
+                        <span
+                            class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest bg-emerald-950/40 py-1 px-2 rounded-md self-start">Raw/HQ
+                            Output</span>
+                    </div>
+                </div>
+
+                <p>Instead of forcing everyone into the same compromise, users could simply choose whichever version
+                    suited their project. It was a surprisingly simple idea. Looking back, I'm surprised I hadn't built
+                    it earlier.</p>
+
+                <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight pt-4">The Feature Almost Nobody
+                    Notices</h3>
+                <p>One feature in Version 4 is almost invisible. Most people have probably used it without ever
+                    realizing it exists. Every clip downloaded from AniClips passes through a lightweight encrypted
+                    delivery system. Not because I wanted to build complicated DRM. In fact, it isn't really DRM at all.
+                    Its purpose is much more practical.</p>
+                <p>AniClips stores an enormous number of files. Without some protection, someone could bypass the
+                    website completely, crawl the storage backend and mass-download the entire library with automated
+                    scripts. That wouldn't just consume bandwidth. It would make the website itself almost pointless.
+                    The encryption isn't designed to stop determined people. Nothing like that really exists. Instead,
+                    it quietly discourages automated scraping while remaining completely invisible during normal use. If
+                    you're simply browsing clips and downloading what you need... You'll probably never even notice it's
+                    there. That's exactly how I wanted it. The best infrastructure is the infrastructure users never
+                    have to think about.</p>
+
+                <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight pt-4">The Hardest Decision</h3>
+                <p>Version 4 solved almost every technical problem I had written down. Unfortunately... it created one
+                    enormous problem. Everything from the previous website was incompatible. The storage architecture
+                    had changed. The processing pipeline had changed. The metadata format had changed. Even the way
+                    files were delivered had changed.</p>
+                <p>For a while, I looked for a way to migrate everything. A conversion script. Some clever workaround.
+                    Anything. Eventually I accepted reality: There wasn't one. Every anime processed by the old pipeline
+                    had reached the end of its life. All sixty-four of them.</p>
+                <p>Deleting them wasn't dramatic. It wasn't emotional. It was simply the correct engineering decision.
+                    Keeping incompatible content would have forced every future version of AniClips to carry around the
+                    mistakes of the past. Sometimes rebuilding software means accepting that your previous work no
+                    longer belongs in the future you're trying to build.</p>
+                <p class="font-bold text-red-400">So... Every anime disappeared. The library returned to zero.</p>
+
+                <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight pt-4">Starting Again</h3>
+                <p>From the outside, it probably looked strange. The website had fewer anime than before. Months of work
+                    had vanished overnight. But underneath, everything was different. Adding new anime no longer
+                    required manually running notebooks. The processing pipeline was automated. The storage system was
+                    designed to grow. Every new clip followed the same standardized format. That last point was
+                    especially important. Version 4 wasn't only built for Version 4. It was built so future versions
+                    wouldn't have to repeat the same painful rewrite. For the first time, I felt like I wasn't just
+                    building features anymore. I was building a foundation.</p>
+            </section>
+
+            <!-- LOOKING BACK -->
+            <section class="space-y-6 pt-6 border-t border-white/5">
+                <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">Looking Back</h2>
+                <p>Today, AniClips contains more than 203,878 clips across 100+ anime, and that number continues to
+                    grow. People sometimes ask what feature I'm most proud of. It's never an easy question to answer.
+                    Hover previews are probably the most recognizable. The processing pipeline took months to redesign.
+                    The GitHub Swarm storage system solved problems most users will never know existed. The encrypted
+                    delivery system quietly protects the library every single day.</p>
+                <p>But if I had to choose one thing... It wouldn't be any of those. It would be the philosophy that
+                    survived every version. Every major decision, every rewrite and every architectural change came back
+                    to one simple question:</p>
+
+                <p class="text-xl italic text-blue-400 font-medium text-center py-4">
+                    "Will this help editors spend less time searching and more time creating?"
+                </p>
+
+                <p>That question existed before AniClips had a name. It existed before the first line of backend code.
+                    It survived four major versions. And it's still the question I ask before building anything new.
+                    Version 5 is already being planned. Not because the website needs more features. Because I still
+                    remember what it felt like sitting in front of a timeline, searching through twenty-four minutes of
+                    video just to find one five-second scene. AniClips exists because I wanted to solve that problem.
+                    Everything else—the website, the community, the hundreds of thousands of clips—grew from that single
+                    frustration. Looking back, I never really set out to build an anime clip library. I just wanted to
+                    spend less time searching. Somehow, that became AniClips.</p>
+            </section>
+
+            <!-- Thanks Callout -->
+            <div class="mt-16 pt-10 border-t border-white/5 space-y-6 text-center">
+                <h2 class="text-2xl font-black text-white italic uppercase tracking-wide">Thank You for Supporting the
+                    Library</h2>
+                <p class="text-slate-400 text-sm max-w-lg mx-auto">
+                    Whether you have downloaded one clip or hundreds, your support helps me refine the pipeline and
+                    understand what editors actually need. There's still a massive road ahead, but for now:
+                </p>
+                <p class="text-lg font-bold text-blue-500 font-mono uppercase tracking-widest mb-6">Welcome to AniClips
+                    V4</p>
+
+                <a href="../index"
+                    class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3.5 rounded-lg shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all hover:-translate-y-0.5">
+                    <span class="material-symbols-rounded">movie</span> Open the V4 Library
+                </a>
+            </div>
+        </article>
+    </main>
+
+    <!-- ==== DYNAMIC DUAL-CROSS REFERENCE (Continue Reading Segment) ==== -->
+    <section class="max-w-5xl mx-auto w-full px-4 pt-12 pb-24 border-t border-white/5 z-10">
+        <div class="flex items-center justify-between mb-8">
+            <h3 class="text-base font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+                <span class="material-symbols-rounded text-blue-500 text-lg">read_more</span> Continue Reading
+            </h3>
+            <a href="../blogs"
+                class="text-xs text-slate-500 hover:text-white uppercase font-bold tracking-widest transition-colors flex items-center gap-1">
+                All Articles <span class="material-symbols-rounded text-xs">arrow_forward</span>
+            </a>
+        </div>
+
+        <div id="continue-reading-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Dynamic items loaded based on local JSON analysis -->
+            <div class="h-48 bg-slate-900/40 rounded-xl border border-slate-800 animate-pulse"></div>
+            <div class="h-48 bg-slate-900/40 rounded-xl border border-slate-800 animate-pulse"></div>
+        </div>
+    </section>
+
+    <!-- ==== FOOTER ==== -->
+    <footer class="mt-20 border-t border-white/5 bg-slate-950/80 backdrop-blur-2xl pt-16 pb-8">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
+
+                <!-- Column 1: Brand & About (4 Cols) -->
+                <div class="lg:col-span-4 space-y-6">
+                    <a href="/" class="flex items-center gap-3 group">
+                        <div
+                            class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                            <span class="material-symbols-rounded text-white text-lg">movie</span>
+                        </div>
+                        <span class="font-black text-xl tracking-tight text-slate-100">Ani<span
+                                class="text-blue-500">Clips</span></span>
+                    </a>
+                    <p class="text-slate-400 text-sm leading-relaxed max-w-sm">
+                        AniClips is your ultimate destination for high-quality anime moments. We provide a seamless
+                        experience for discovering, previewing, and collecting your favorite clips from the world's most
+                        popular series.
+                    </p>
+                    <div class="flex gap-4">
+                        <a target="_blank" href="https://t.me/+QTrHC5GUA9w5NjI9" title="Telegram"
+                            class="w-10 h-10 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#26A5E4] hover:border-[#26A5E4]/30 transition-all shadow-lg">
+                            <i class="fa-brands fa-telegram text-xl"></i>
+                        </a>
+                        <a target="_blank" href="https://www.reddit.com/r/aniclips_site/" title="Reddit"
+                            class="w-10 h-10 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#FF4500] hover:border-[#FF4500]/30 transition-all shadow-lg">
+                            <i class="fa-brands fa-reddit-alien text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Column 2: Navigation (2 Cols) -->
+                <div class="lg:col-span-2">
+                    <h4 class="text-white font-bold mb-6 text-xs uppercase tracking-widest">Library</h4>
+                    <ul class="space-y-4 text-slate-400 text-sm">
+                        <li><a href="/" class="hover:text-blue-400 transition-colors">Home</a></li>
+                        <li><a href="/" class="hover:text-blue-400 transition-colors">Trending</a></li>
+                        <li><a href="#browse-genres" class="hover:text-blue-400 transition-colors">Collections</a></li>
+                        <li><a href="blogs"
+                                class="text-blue-400 hover:text-blue-300 font-medium transition-colors flex items-center gap-1">Blogs
+                                <span
+                                    class="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1 rounded uppercase tracking-widest font-bold">New</span></a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Collapsible FOQA (6 Cols) -->
+                <div class="lg:col-span-6">
+                    <h4 class="text-white font-bold mb-6 text-xs uppercase tracking-widest">Quick FOQA</h4>
+                    <div class="space-y-3">
+                        <details
+                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary
+                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                                <span class="text-sm font-bold text-slate-200">Is the library free to use?</span>
+                                <span
+                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                            </summary>
+                            <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
+                                Yes, AniClips is a free community-driven project. We do not charge for access to our
+                                standard or 4K/RAW library segments.
+                            </div>
+                        </details>
+
+                        <details
+                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary
+                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                                <span class="text-sm font-bold text-slate-200">How do I download RAW clips?</span>
+                                <span
+                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                            </summary>
+                            <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
+                                Open any episode, click on a clip card, and use the "Download Ready" button. You can
+                                choose between 'Fast' (standard) or 'HQ' (RAW) depending on availability.
+                            </div>
+                        </details>
+
+                        <details
+                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary
+                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                                <span class="text-sm font-bold text-slate-200">What about copyrights of the
+                                    clips?</span>
+                                <span
+                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                            </summary>
+                            <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
+                                They are rightfully owned by the respective owners of the anime. We are just an editor
+                                community operating on the principle of fair use and keeping the fanbase alive. Fan
+                                media
+                                stimulates Blu-ray and merchandise sales, so it is generally tolerated. At no point do
+                                we monetize
+                                this website, nor do our users, as YouTube claims all monetization via content IDs
+                                anyway.
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div
+                class="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                <p>&copy; 2026 AniClips Library. All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-white transition-colors">Privacy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms</a>
+                    <a href="#" class="hover:text-white transition-colors">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==== DYNAMIC CONTINUOUS READING RECOMMENDATION ENGINE ==== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Get the ID of the current page to exclude it from recommendation cards
+                const currentArticleId = document.querySelector('meta[name="article-id"]')?.getAttribute('content');
+
+                // Read manifest records
+                const response = await fetch('manifest.json');
+                if (!response.ok) throw new Error("Manifest could not be read.");
+                const articles = await response.json();
+
+                // Filter out the active post
+                const remaining = articles.filter(art => art.id !== currentArticleId);
+
+                // Slice down to top 2 relevant recommendations
+                const recommendations = remaining.slice(0, 2);
+
+                const container = document.getElementById('continue-reading-grid');
+                if (recommendations.length > 0) {
+                    container.innerHTML = recommendations.map((art, i) => `
+                        <a href="${art.slug}" class="group relative rounded-xl bg-slate-900/50 border border-slate-800/80 hover:border-blue-500/30 overflow-hidden flex flex-col md:flex-row items-center transition-all duration-300 hover:bg-slate-900 shadow-md">
+                            <div class="w-full md:w-1/3 aspect-[16/10] bg-slate-950 relative overflow-hidden self-stretch shrink-0">
+                                <img src="${art.image}" class="w-full h-full object-cover opacity-50 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500">
+                                <div class="absolute top-2 left-2 bg-slate-900/95 backdrop-blur border border-white/10 text-[8px] text-slate-300 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
+                                    ${art.category}
+                                </div>
+                            </div>
+                            <div class="p-5 flex flex-col justify-center min-w-0 flex-grow">
+                                <div class="text-[9px] font-mono text-slate-500 mb-1">${art.date}</div>
+                                <h4 class="text-sm sm:text-base font-bold text-white leading-snug group-hover:text-blue-400 transition-colors truncate">
+                                    ${art.title}
+                                </h4>
+                                <p class="text-[11px] text-slate-400 leading-normal line-clamp-2 mt-1.5">
+                                    ${art.excerpt}
+                                </p>
+                            </div>
+                        </a>
+                    `).join('');
+                } else {
+                    container.innerHTML = `<p class="col-span-full text-center text-slate-600 text-xs py-8 font-mono">Next Article Cooking...</p>`;
+                }
+
+            } catch (err) {
+                console.error("Failed to run continuous reading index loader:", err);
+            }
+        });
+    </script>
+</body>
+
+</html>
