@@ -554,7 +554,7 @@
             }
             isSearchDatabaseLoading = true;
             try {
-                // 1. Fetch manifest from raw GitHub (bypasses cache for instant update info)
+                // 1. Fetch manifest from raw GitHub
                 const manifestRes = await fetch(MANIFEST_URL);
                 if (!manifestRes.ok) throw new Error("Failed to fetch manifest");
                 const manifest = await manifestRes.json();
@@ -569,12 +569,20 @@
                     return;
                 }
 
-                // 3. Download the compressed gzip file (served through fast jsdelivr CDN from manifest.url)
-                console.log(`📥 Downloading search index gzip: ${manifest.url}`);
-                const response = await fetch(manifest.url);
-                if (!response.ok) throw new Error("Failed to fetch search gzip file");
+                // --- INTERCEPT & CONVERT jsDelivr URL TO GITHUB RAW ---
+                let targetUrl = manifest.url;
+                if (targetUrl.includes('cdn.jsdelivr.net/gh/')) {
+                    targetUrl = targetUrl
+                        .replace('https://cdn.jsdelivr.net/gh/', 'https://raw.githubusercontent.com/')
+                        .replace('@', '/'); // Replaces the '@branch' or '@commit' separator with '/'
+                }
 
-                // 4. Decompress the gzip stream in the browser natively!
+                // 3. Download the compressed gzip file from GitHub Raw
+                console.log(`📥 Downloading search index gzip (Intercepted Raw URL): ${targetUrl}`);
+                const response = await fetch(targetUrl);
+                if (!response.ok) throw new Error("Failed to fetch search gzip file from Raw URL");
+
+                // 4. Decompress the gzip stream in the browser natively
                 const ds = new DecompressionStream('gzip');
                 const decompressedStream = response.body.pipeThrough(ds);
                 const text = await new Response(decompressedStream).text();
