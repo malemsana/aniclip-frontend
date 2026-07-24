@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -876,6 +877,7 @@
 
         // --- AD TYPE 2: SECURE KADAM BANNER INJECTION ---
         function loadKadamBanner() {
+            /*
             const container = document.getElementById('kadam-banner-slot');
             if (!container) return;
             container.innerHTML = '<div class="tBgAyy425572"></div>';
@@ -899,6 +901,7 @@
                 s.src = 'https://hdbkome.com/400n872q.js';
                 document.head && document.head.appendChild(s);
             }
+            */
         }
 
         // --- AD TYPE 3: MONETAG IN-PAGE PUSH NOTIFICATIONS ---
@@ -917,6 +920,7 @@
         }
 
         function precalculateCloseAd() {
+            /*
             const closeBtn = document.querySelector('#preview-modal button[onclick="closePreview()"]');
             if (!closeBtn) return;
             if (closeBtn.parentElement.tagName === 'A' && closeBtn.parentElement.classList.contains('ad-wrapper')) {
@@ -938,6 +942,7 @@
             });
             closeBtn.parentNode.insertBefore(adLink, closeBtn);
             adLink.appendChild(closeBtn);
+            */
         }
 
         function maybeRefreshAd() {
@@ -1037,8 +1042,10 @@
                 btn.appendChild(content);
 
                 btn.onclick = () => {
+                    /*
                     window.open(state.monetagSmartlink, '_blank');
                     window.open(state.monetagSmartlink, '_blank');
+                    */
                     forceDownload(rawUrl, clip.id, filename);
                 };
 
