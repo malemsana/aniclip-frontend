@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,11 +14,8 @@
         tailwind.config = { theme: { extend: { colors: { gray: { 900: '#0f172a', 950: '#020617' } }, animation: { 'spin-slow': 'spin 3s linear infinite' } } } }
     </script>
 
-     <!-- monetag <script src="https://3nbf4.com/sdk.js" data-zone="11112598" data-sdk="show_11112598"></script> -->
-    <!-- pop up-->
-    <script data-cfasync="false" src="//dc9xwpjprguup.cloudfront.net/?pwxcd=1466043"></script>
-    <!-- float --> 
-    <script data-cfasync="false" src="//dc9xwpjprguup.cloudfront.net/?pwxcd=1466068"></script>
+    <script src="https://3nbf4.com/sdk.js" data-zone="11112598" data-sdk="show_11112598"></script>
+
     <style>
         html {
             scroll-behavior: smooth;
@@ -877,7 +873,6 @@
 
         // --- AD TYPE 2: SECURE KADAM BANNER INJECTION ---
         function loadKadamBanner() {
-            /*
             const container = document.getElementById('kadam-banner-slot');
             if (!container) return;
             container.innerHTML = '<div class="tBgAyy425572"></div>';
@@ -901,7 +896,6 @@
                 s.src = 'https://hdbkome.com/400n872q.js';
                 document.head && document.head.appendChild(s);
             }
-            */
         }
 
         // --- AD TYPE 3: MONETAG IN-PAGE PUSH NOTIFICATIONS ---
@@ -920,7 +914,6 @@
         }
 
         function precalculateCloseAd() {
-            /*
             const closeBtn = document.querySelector('#preview-modal button[onclick="closePreview()"]');
             if (!closeBtn) return;
             if (closeBtn.parentElement.tagName === 'A' && closeBtn.parentElement.classList.contains('ad-wrapper')) {
@@ -942,7 +935,6 @@
             });
             closeBtn.parentNode.insertBefore(adLink, closeBtn);
             adLink.appendChild(closeBtn);
-            */
         }
 
         function maybeRefreshAd() {
@@ -1042,10 +1034,8 @@
                 btn.appendChild(content);
 
                 btn.onclick = () => {
-                    /*
                     window.open(state.monetagSmartlink, '_blank');
                     window.open(state.monetagSmartlink, '_blank');
-                    */
                     forceDownload(rawUrl, clip.id, filename);
                 };
 
