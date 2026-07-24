@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anime Clips Library</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script data-cfasync="false" src="//dc9xwpjprguup.cloudfront.net/?pwxcd=1466068"></script>
     <meta property="og:image" content="https://cdn.jsdelivr.net/gh/malemsana2/aniclip-frontend@main/preview.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -351,7 +350,7 @@
             loadRecentRow();
             loadTrendingGrid();
             setupInfiniteScroll();
-            // initDelayedMonetagPush();
+            initDelayedMonetagPush();
         };
 
         // --- 1. DATA FETCHERS ---
@@ -671,7 +670,6 @@
         document.addEventListener('click', e => { if (document.getElementById('search-wrapper') && !document.getElementById('search-wrapper').contains(e.target)) closeSearch(); });
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSearch(); });
 
-        /*
         // Ads
         // --- AD TYPE 3: MONETAG IN-PAGE PUSH NOTIFICATIONS (45s DELAY) ---
         function initDelayedMonetagPush() {
@@ -692,7 +690,6 @@
                 document.body.appendChild(pushScript);
             }, 45000);
         }
-        */
     </script>
     <!-- ==== FOOTER ==== -->
     <footer class="mt-20 border-t border-white/5 bg-slate-950/80 backdrop-blur-2xl pt-16 pb-8">
@@ -712,7 +709,7 @@
                     <p class="text-slate-400 text-sm leading-relaxed max-w-sm">
                         AniClips is your ultimate destination for high-quality anime moments. We provide a seamless
                         experience for discovering, previewing, and collecting your favorite clips from the world's most
-                        popular series.
+                        popular series.[cite: 1]
                     </p>
                     <div class="flex gap-4">
                         <a target="_blank" href="https://t.me/+QTrHC5GUA9w5NjI9" title="Telegram"
@@ -755,7 +752,7 @@
                             </summary>
                             <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
                                 Yes, AniClips is a free community-driven project. We do not charge for access to our
-                                standard or 4K/RAW library segments.
+                                standard or 4K/RAW library segments.[cite: 1]
                             </div>
                         </details>
 
@@ -769,7 +766,7 @@
                             </summary>
                             <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
                                 Open any episode, click on a clip card, and use the "Download Ready" button. You can
-                                choose between 'Fast' (standard) or 'HQ' (RAW) depending on availability.
+                                choose between 'Fast' (standard) or 'HQ' (RAW) depending on availability.[cite: 1]
                             </div>
                         </details>
 
@@ -788,7 +785,7 @@
                                 industrially not recognised but tolerated as fan Media such as AMV, edit stimulates
                                 Blu-ray and merchandise sales. At no point do we monitise from this website nor do our
                                 users (you) as youtube claims all the money anyway, going straight to the rightful
-                                owners.
+                                owners.[cite: 1]
                             </div>
                         </details>
                     </div>
