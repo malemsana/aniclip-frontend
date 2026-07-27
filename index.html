@@ -4,52 +4,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anime Clips Library</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script data-cfasync="false" src="//dc9xwpjprguup.cloudfront.net/?pwxcd=1466068"></script>
-    <meta property="og:image" content="https://cdn.jsdelivr.net/gh/malemsana2/aniclip-frontend@main/preview.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:title" content="Aniclips – Anime Clips Library">
-    <meta property="og:description"
-        content="Browse and download high-quality anime clips in 4K and RAW. Action, romance, fights and cinematic scenes.">
+    <title>Temporarily Down - AniClips Library</title>
+    
+    <!-- SEO & OG Tags (Retained for consistency) -->
+    <meta property="og:title" content="Aniclips – Temporary Closure">
+    <meta property="og:description" content="Our servers hit their limits! We are taking a few days to upgrade and will be back ASAP.">
     <meta property="og:url" content="https://aniclips.site">
-    <meta name="monetag" content="46bf66b367b6991b85e07ff5de4d8026">
+    <meta name="description" content="Aniclips is temporarily down due to server limits. We'll be back soon!">
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/malemsana2/aniclip-frontend@main/preview.png" />
-    <meta name="description"
-        content="Aniclips is a high-quality anime clips library for editors finding clips for their amv, edits, review, essay etc. Quicky grab the quick you need and get to work.">
-
-
-    <meta name="kadam-verification" content="kadam4e4b074af39d061d9ada588546e0b3b3" />
     <link rel="icon" href="/favicon.ico" sizes="48x48">
-    <link rel="icon" href="/favicon-48.png" sizes="48x48" type="image/png">
-    <link rel="icon" href="/favicon-96.png" sizes="96x96" type="image/png">
-    <link rel="icon" href="/favicon-192.png" sizes="192x192" type="image/png">
-    <link rel="icon" href="/favicon-512.png" sizes="512x512" type="image/png">
 
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { gray: { 900: '#0f172a', 950: '#020617' }, brand: { 500: '#3b82f6', 600: '#2563eb' } },
-                    animation: { 'fade-in': 'fadeIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards' }
+                    colors: { 
+                        gray: { 900: '#0f172a', 950: '#020617' }, 
+                        brand: { 500: '#3b82f6', 600: '#2563eb' } 
+                    },
+                    animation: { 
+                        'fade-in': 'fadeIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'float': 'float 6s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        }
+                    }
                 }
             }
         }
     </script>
 
     <style>
-        html {
-            scroll-behavior: smooth;
-        }
-
+        html { scroll-behavior: smooth; }
         body {
             font-family: 'Inter', sans-serif;
             background-color: #020617;
@@ -64,650 +64,114 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        .snap-scroll-x {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        .text-glow-red {
+            text-shadow: 0 0 30px rgba(239, 68, 68, 0.6);
         }
-
-        .snap-scroll-x::-webkit-scrollbar {
-            display: none;
-        }
-
-        /* Thin Scrollbar for Search Results */
-        .scrollbar-thin::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .scrollbar-thin::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .scrollbar-thin::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 20px;
-        }
-
-        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-            background: #475569;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-enter {
-            animation: fadeIn 0.5s ease-out forwards;
-            opacity: 0;
-        }
-
-        .text-glow {
-            text-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
-        }
-
-        .line-clamp-2 {
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 2;
+        
+        .box-glow {
+            box-shadow: 0 0 50px rgba(37, 99, 235, 0.1);
         }
     </style>
 </head>
-<script data-cfasync="false" src="https://cmp.gatekeeperconsent.com/min.js"></script>
-<script data-cfasync="false" src="https://the.gatekeeperconsent.com/cmp.min.js"></script>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-NT7KEQQ2JS"></script>
-<script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
 
-    gtag('config', 'G-NT7KEQQ2JS');
-</script>
-<script async src="//www.ezojs.com/ezoic/sa.min.js"></script>
-<script>
-    window.ezstandalone = window.ezstandalone || {};
-    ezstandalone.cmd = ezstandalone.cmd || [];
-</script>
-<script src="//ezoicanalytics.com/analytics.js"></script>
-
-
-
-<body class="antialiased min-h-screen flex flex-col pb-16 bg-[#020617]">
+<body class="antialiased min-h-screen flex flex-col bg-[#020617]">
 
     <!-- ==== HEADER ==== -->
-    <!-- ==== HEADER ==== -->
-    <header class="fixed top-0 w-full z-50 glass-nav transition-all duration-300" id="navbar">
+    <header class="fixed top-0 w-full z-50 glass-nav" id="navbar">
         <nav class="container mx-auto px-4 h-16 flex justify-between items-center">
-
-            <a href="index" class="flex items-center gap-3 group z-50">
-                <div
-                    class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+            <a href="/" class="flex items-center gap-3 group z-50">
+                <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
                     <span class="material-symbols-rounded text-white text-lg">movie</span>
                 </div>
-
                 <span class="font-black text-xl tracking-wide text-slate-100 group-hover:text-white transition-colors">
                     Ani<span class="text-blue-500">Clips</span>
                 </span>
             </a>
 
-            <div class="flex-grow max-w-md mx-2 sm:mx-6 relative group z-50" id="search-wrapper">
+            <!-- Disabled Search Bar for Notice Page -->
+            <div class="flex-grow max-w-md mx-2 sm:mx-6 relative opacity-50 pointer-events-none hidden sm:block">
                 <div class="relative">
-                    <input type="text" id="global-search" oninput="handleGlobalSearch(this.value)"
-                        placeholder="Quick search library..." autocomplete="off"
-                        class="w-full bg-slate-950/60 border border-slate-800 rounded-lg pl-10 pr-4 py-2 text-xs text-slate-200 placeholder-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:bg-slate-950 outline-none transition-all shadow-inner font-medium">
-                    <span
-                        class="material-symbols-rounded absolute left-3 top-1.5 text-slate-600 text-sm pointer-events-none">search</span>
-                    <div id="search-spinner" class="absolute right-3 top-1.5 hidden">
-                        <span
-                            class="material-symbols-rounded animate-spin text-blue-500 text-sm">progress_activity</span>
-                    </div>
-                </div>
-
-                <div id="search-dropdown"
-                    class="absolute top-full left-0 w-full bg-[#0f172a] border border-slate-700/50 rounded-lg shadow-2xl mt-2 hidden flex-col overflow-hidden ring-1 ring-black/50 origin-top scale-95 opacity-0 transition-all duration-200 ease-out transform">
-                    <div class="bg-slate-950/50 px-3 py-2 border-b border-white/5 flex justify-between items-center">
-                        <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Results</span>
-                        <span class="text-[9px] text-slate-600">ESC to close</span>
-                    </div>
-                    <div id="search-results-list" class="max-h-[60vh] overflow-y-auto scrollbar-thin"></div>
-                    <div id="search-footer" class="p-2 bg-slate-950/80 border-t border-white/5 hidden">
-                        <button
-                            class="block w-full text-center bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white py-1.5 rounded text-[10px] font-bold transition-colors uppercase tracking-wider">
-                            View all results ›
-                        </button>
-                    </div>
+                    <input type="text" disabled placeholder="Search is temporarily disabled..." 
+                        class="w-full bg-slate-950/60 border border-slate-800 rounded-lg pl-10 pr-4 py-2 text-xs text-slate-500 outline-none shadow-inner font-medium cursor-not-allowed">
+                    <span class="material-symbols-rounded absolute left-3 top-1.5 text-slate-700 text-sm">search</span>
                 </div>
             </div>
 
-            <div class="hidden sm:flex items-center gap-6">
-                <a href="blogs"
-                    class="text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-wider transition-colors flex items-center gap-1">
-                    <span class="material-symbols-rounded text-sm">edit_note</span> Blogs
-                </a>
-                <a href="#browse-genres"
-                    class="text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-wider transition-colors">
-                    Collections
+            <div class="flex items-center gap-6">
+                <a href="#" class="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                    <span class="material-symbols-rounded text-sm text-red-500">warning</span> System Notice
                 </a>
             </div>
         </nav>
     </header>
 
-    <!-- ==== HERO SECTION (Slider) ==== -->
-    <section id="hero-section"
-        class="relative w-full h-[60vh] flex items-end justify-start overflow-hidden bg-slate-950 mt-14">
-        <div class="absolute inset-0 bg-slate-900 animate-pulse z-20" id="hero-skeleton"></div>
-        <div id="hero-content" class="absolute inset-0 z-0 flex items-end"></div>
-    </section>
+    <!-- ==== MAIN CONTENT: CLOSURE NOTICE ==== -->
+    <main class="flex-grow flex items-center justify-center px-4 sm:px-6 pt-24 pb-12 relative z-10">
+        
+        <!-- Background decorative blur -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 max-w-2xl h-64 bg-blue-600/10 blur-[100px] rounded-full pointer-events-none z-0"></div>
 
-    <!-- ==== MAIN CONTENT ==== -->
-    <main class="container mx-auto px-4 sm:px-5 relative z-20 -mt-6">
-
-        <!-- 1. FRESH RAWS -->
-        <div class="mb-12">
-            <div class="flex items-center justify-between mb-3 border-l-4 border-emerald-500 pl-3">
-                <h2 class="text-base font-extrabold text-white">Updated Raws</h2>
-            </div>
-            <div class="relative group">
-                <div id="recent-row"
-                    class="flex overflow-x-auto snap-x snap-mandatory gap-2 pb-2 snap-scroll-x scroll-pl-1"></div>
-            </div>
-        </div>
-
-        <!-- 2. TRENDING (TOP 20) -->
-        <div class="mb-16">
-            <div class="flex items-center gap-3 mb-4 border-b border-white/5 pb-2">
-                <span class="material-symbols-rounded text-blue-500 text-xl">trending_up</span>
-                <h2 class="text-base font-extrabold text-white">Most Downloaded</h2>
-                <div
-                    class="ml-auto text-[9px] text-slate-500 uppercase font-bold tracking-widest bg-slate-900 px-2 py-1 rounded">
-                    Popularity Sort</div>
-            </div>
-            <div id="trending-grid"
-                class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-1.5 gap-y-6">
-            </div>
-        </div>
-
-        <!-- 3. COLLECTIONS (Cinematic Images) -->
-        <div id="browse-genres" class="mb-20 pt-10 border-t border-white/5">
-            <div class="flex items-center justify-between mb-6 px-1">
-                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Browse Collections</h2>
+        <div class="max-w-2xl w-full bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 sm:p-12 text-center shadow-2xl relative z-10 animate-fade-in box-glow">
+            
+            <!-- Icon -->
+            <div class="mb-6 flex justify-center animate-float">
+                <div class="w-20 h-20 rounded-full bg-slate-950 border border-red-500/30 flex items-center justify-center shadow-[0_0_30px_rgba(239,68,68,0.2)]">
+                    <span class="material-symbols-rounded text-5xl text-red-500 text-glow-red">dns</span>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <!-- Action -->
-                <a href="browse?tag=Action"
-                    class="group relative h-36 rounded-xl overflow-hidden border border-slate-800 hover:border-blue-500/50 transition-all cursor-pointer shadow-lg">
-                    <img src="https://images4.alphacoders.com/937/937357.png"
-                        class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
-                    <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/60 to-transparent"></div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <span
-                            class="text-3xl font-black text-white italic tracking-tighter uppercase drop-shadow-xl group-hover:tracking-widest transition-all duration-500 text-glow">Action</span>
-                    </div>
-                </a>
-                <!-- Romance -->
-                <a href="browse?tag=Romance"
-                    class="group relative h-36 rounded-xl overflow-hidden border border-slate-800 hover:border-pink-500/50 transition-all cursor-pointer shadow-lg">
-                    <img src="https://images7.alphacoders.com/132/1325305.jpeg"
-                        class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
-                    <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/60 to-transparent"></div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <span
-                            class="text-3xl font-black text-white italic tracking-tighter uppercase drop-shadow-xl group-hover:tracking-widest transition-all duration-500 text-glow">Romance</span>
-                    </div>
-                </a>
-                <!-- Scenery -->
-                <a href="browse?tag=Scenery"
-                    class="group relative h-36 rounded-xl overflow-hidden border border-slate-800 hover:border-emerald-500/50 transition-all cursor-pointer shadow-lg">
-                    <img src="https://images8.alphacoders.com/545/545905.jpg"
-                        class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
-                    <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/60 to-transparent"></div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <span
-                            class="text-3xl font-black text-white italic tracking-tighter uppercase drop-shadow-xl group-hover:tracking-widest transition-all duration-500 text-glow">Scenery</span>
-                    </div>
-                </a>
-                <!-- Dark -->
-                <a href="browse?tag=Dark"
-                    class="group relative h-36 rounded-xl overflow-hidden border border-slate-800 hover:border-purple-500/50 transition-all cursor-pointer shadow-lg">
-                    <img src="https://images.alphacoders.com/114/1149479.jpg"
-                        class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-100 grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700">
-                    <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/60 to-transparent"></div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <span
-                            class="text-3xl font-black text-white italic tracking-tighter uppercase drop-shadow-xl group-hover:tracking-widest transition-all duration-500 text-glow">Dark</span>
-                    </div>
-                </a>
-                <!-- Fight -->
-                <a href="browse?tag=Fight"
-                    class="group relative h-36 rounded-xl overflow-hidden border border-slate-800 hover:border-red-500/50 transition-all cursor-pointer shadow-lg">
-                    <img src="https://images3.alphacoders.com/133/1337489.png"
-                        class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
-                    <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/60 to-transparent"></div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <span
-                            class="text-3xl font-black text-white italic tracking-tighter uppercase drop-shadow-xl group-hover:tracking-widest transition-all duration-500 text-glow">Fight</span>
-                    </div>
-                </a>
-                <!-- 4K/Raw -->
-                <a href="browse?tag=4K"
-                    class="group relative h-36 rounded-xl overflow-hidden border border-slate-800 hover:border-cyan-500/50 transition-all cursor-pointer shadow-lg">
-                    <img src="https://images5.alphacoders.com/131/1311029.jpeg"
-                        class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
-                    <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/60 to-transparent"></div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <span
-                            class="text-3xl font-black text-white italic tracking-tighter uppercase drop-shadow-xl group-hover:tracking-widest transition-all duration-500 text-glow">4K
-                            / Raw</span>
-                    </div>
-                </a>
-            </div>
-        </div>
-
-        <!-- 4. THE ARCHIVE (Infinite Scroll) -->
-        <div class="mb-20 pt-4 border-t border-white/5">
-            <div class="flex items-center justify-between mb-4 px-1">
-                <h2 class="text-base font-bold text-white flex items-center gap-2">
-                    <span class="material-symbols-rounded text-slate-500">shuffle</span> Full Library
-                </h2>
-                <div
-                    class="text-[9px] font-bold text-slate-500 uppercase tracking-wider bg-slate-900 border border-slate-800 px-2 py-1 rounded">
-                    Randomized Sort</div>
+            <!-- Headers -->
+            <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tighter mb-4">
+                We got <span class="text-blue-500">too popular</span> too fast.
+            </h1>
+            
+            <!-- Message Body -->
+            <div class="space-y-4 text-slate-400 text-sm sm:text-base leading-relaxed font-medium mb-8 max-w-lg mx-auto">
+                <p>
+                    Our servers just hit their maximum limits because you guys are absolutely awesome. The volume of editors downloading raw clips completely overloaded our system.
+                </p>
+                <p class="text-slate-300">
+                    <span class="font-bold text-white">The bad news?</span> To be completely honest, we're a bit too broke right now to instantly pay for the massive server upgrades required to handle this traffic. 😅
+                </p>
+                <p>
+                    We need a few days to figure out the funding and scale things up properly. <strong class="text-blue-400">AniClips will be back online ASAP.</strong> Thank you for your incredible patience and support!
+                </p>
             </div>
 
-            <div id="archive-grid"
-                class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-2 gap-y-4">
+            <!-- Call to Action / Socials -->
+            <div class="border-t border-white/10 pt-8 mt-4">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Get updates while we're down</p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a target="_blank" href="https://t.me/+QTrHC5GUA9w5NjI9" 
+                        class="flex items-center justify-center gap-2 bg-[#26A5E4]/10 hover:bg-[#26A5E4]/20 border border-[#26A5E4]/30 text-[#26A5E4] px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all hover:-translate-y-1">
+                        <i class="fa-brands fa-telegram text-lg"></i>
+                        Join Telegram
+                    </a>
+                    
+                    <a target="_blank" href="https://www.reddit.com/r/aniclips_site/" 
+                        class="flex items-center justify-center gap-2 bg-[#FF4500]/10 hover:bg-[#FF4500]/20 border border-[#FF4500]/30 text-[#FF4500] px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all hover:-translate-y-1">
+                        <i class="fa-brands fa-reddit-alien text-lg"></i>
+                        Check Reddit
+                    </a>
+                </div>
             </div>
-            <div id="archive-trigger" class="h-24 mt-10 flex justify-center items-center opacity-0 transition-opacity">
-                <span class="material-symbols-rounded animate-spin text-blue-500">progress_activity</span>
-            </div>
+
         </div>
     </main>
 
-    <!-- ========================= JS LOGIC ========================= -->
-    <script>
-        const API_URL = 'https://aniclip-backend.onrender.com/api';
-
-        // STATE
-        let debounceTimer;
-        let heroInterval;
-        let currentHeroIndex = 0;
-        let featuredAnimeList = [];
-        const sessionSeed = Math.random().toString(36).substring(7);
-        let archivePage = 1;
-        let isArchiveLoading = false;
-        let endOfArchive = false;
-
-        window.onload = () => {
-            loadHeroSection();
-            loadRecentRow();
-            loadTrendingGrid();
-            setupInfiniteScroll();
-            // initDelayedMonetagPush();
-        };
-
-        // --- 1. DATA FETCHERS ---
-
-        async function loadHeroSection() {
-            try {
-                const res = await fetch(`${API_URL}/animes/featured`);
-                const data = await res.json();
-                if (data.length > 0) {
-                    featuredAnimeList = data;
-                    initHeroCarousel();
-                    document.getElementById('hero-skeleton').style.display = 'none';
-                }
-            } catch (e) { console.error("Hero error:", e); }
-        }
-
-        async function loadRecentRow() {
-            try {
-                const res = await fetch(`${API_URL}/animes/recent`);
-                const data = await res.json();
-                renderRow(data, 'recent-row');
-            } catch (e) { console.error(e); }
-        }
-
-        async function loadTrendingGrid() {
-            try {
-                const res = await fetch(`${API_URL}/animes/trending`);
-                const data = await res.json();
-                renderGrid(data, 'trending-grid');
-            } catch (e) { console.error(e); }
-        }
-
-        // --- 2. HERO CAROUSEL LOGIC ---
-
-        function initHeroCarousel() {
-            const container = document.getElementById('hero-content');
-            clearInterval(heroInterval);
-
-            // Layered slides structure (BG z-0, Gradient z-10, Text z-20)
-            const slidesHtml = featuredAnimeList.map((anime, index) => {
-                const activeClass = index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none';
-                const genresHtml = (anime.genres || []).slice(0, 3).map(g => `<span class="text-[9px] font-bold bg-blue-600/30 text-blue-100 border border-blue-400/30 px-2 py-0.5 rounded uppercase tracking-wider backdrop-blur-md shadow-sm">${g}</span>`).join('');
-
-                return `
-                <div id="slide-${index}" class="hero-slide absolute inset-0 transition-opacity duration-1000 ease-in-out ${activeClass}">
-                    <!-- Layer 1: Background -->
-                    <div class="absolute inset-0 z-0">
-                        <img src="${anime.poster_url}" class="w-full h-full object-cover object-top opacity-40 blur-[2px]">
-                    </div>
-                    
-                    <!-- Layer 2: Gradient Sandwich -->
-                    <div class="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/60 to-transparent z-10 pointer-events-none"></div>
-                    
-                    <!-- Layer 3: Text & UI (Above Gradient) -->
-                    <div class="container mx-auto px-5 relative z-20 pb-10 flex flex-row items-end gap-6 w-full h-full">
-                        <div class="hidden md:block w-48 lg:w-56 shrink-0 rounded-lg shadow-[0_0_25px_rgba(0,0,0,0.6)] border border-white/10 bg-slate-950 overflow-hidden relative aspect-[4/3] transform transition-transform duration-700 ${index === 0 ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'} slide-element">
-                            <img src="${anime.poster_url}" class="w-full h-full object-cover">
-                        </div>
-                        <div class="flex-grow mb-1 transform transition-all duration-700 delay-100 ${index === 0 ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'} slide-element">
-                            <div class="flex gap-2 mb-3">${genresHtml}</div>
-                            <h1 class="text-3xl md:text-5xl font-black text-white leading-[0.9] tracking-tighter mb-4 drop-shadow-2xl text-shadow">${anime.title || anime.name}</h1>
-                            <p class="text-slate-100 text-xs md:text-sm font-medium leading-relaxed line-clamp-2 max-w-xl mb-6 drop-shadow-md text-shadow-sm">${anime.description || 'Raw clips available.'}</p>
-                            <div class="flex gap-3">
-                                <a href="anime?name=${encodeURIComponent(anime.name)}" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-black px-6 py-3 rounded shadow-lg transition-all flex items-center gap-2 hover:-translate-y-0.5"><span class="material-symbols-rounded text-lg">play_arrow</span> OPEN CLIPS</a>
-                                <button class="px-4 py-3 border border-white/20 hover:bg-white/10 text-slate-200 hover:text-white rounded text-xs font-bold transition-colors">+ MY LIST</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('');
-
-            // UI Controls
-            const uiHtml = `
-                <div class="absolute bottom-5 right-6 md:right-10 z-30 flex gap-2">
-                    ${featuredAnimeList.map((_, i) => `<button onclick="goToSlide(${i})" class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-all duration-300 ${i === 0 ? 'bg-blue-500 scale-125 ring-2 ring-blue-500/30' : 'bg-slate-600 hover:bg-white'}" id="dot-${i}"></button>`).join('')}
-                </div>
-            `;
-
-            container.innerHTML = slidesHtml + uiHtml;
-            startAutoSlide();
-        }
-
-        window.goToSlide = function (index) {
-            if (index === currentHeroIndex) return;
-
-            const prevSlide = document.getElementById(`slide-${currentHeroIndex}`);
-            const nextSlide = document.getElementById(`slide-${index}`);
-
-            if (prevSlide) {
-                prevSlide.classList.replace('opacity-100', 'opacity-0');
-                prevSlide.classList.replace('z-10', 'z-0');
-                prevSlide.classList.add('pointer-events-none');
-                toggleSlideElements(prevSlide, false);
-            }
-            if (nextSlide) {
-                nextSlide.classList.replace('opacity-0', 'opacity-100');
-                nextSlide.classList.replace('z-0', 'z-10');
-                nextSlide.classList.remove('pointer-events-none');
-                toggleSlideElements(nextSlide, true);
-            }
-
-            updateDots(index);
-            currentHeroIndex = index;
-            startAutoSlide();
-        };
-
-        function updateDots(index) {
-            const prevDot = document.getElementById(`dot-${currentHeroIndex}`);
-            const nextDot = document.getElementById(`dot-${index}`);
-            if (prevDot) prevDot.className = "w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-all duration-300 bg-slate-600 hover:bg-white";
-            if (nextDot) nextDot.className = "w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-all duration-300 bg-blue-500 scale-125 ring-2 ring-blue-500/30";
-        }
-
-        function toggleSlideElements(slide, show) {
-            const els = slide.querySelectorAll('.slide-element');
-            els.forEach(el => {
-                if (show) { el.classList.replace('translate-y-4', 'translate-y-0'); el.classList.replace('translate-x-4', 'translate-x-0'); el.classList.replace('opacity-0', 'opacity-100'); }
-                else { setTimeout(() => { el.classList.replace('translate-y-0', 'translate-y-4'); el.classList.replace('translate-x-0', 'translate-x-4'); el.classList.replace('opacity-100', 'opacity-0'); }, 1000); }
-            });
-        }
-
-        function changeSlide(dir) {
-            let next = currentHeroIndex + dir;
-            if (next >= featuredAnimeList.length) next = 0;
-            if (next < 0) next = featuredAnimeList.length - 1;
-            goToSlide(next);
-        }
-
-        function startAutoSlide() {
-            clearInterval(heroInterval);
-            heroInterval = setInterval(() => changeSlide(1), 6000);
-        }
-
-        // --- 3. INFINITE ARCHIVE ---
-        async function loadNextArchiveBatch() {
-            if (isArchiveLoading || endOfArchive) return;
-            isArchiveLoading = true;
-            const trigger = document.getElementById('archive-trigger');
-            trigger.classList.replace('opacity-0', 'opacity-100');
-
-            try {
-                const res = await fetch(`${API_URL}/animes/archive?page=${archivePage}&seed=${sessionSeed}`);
-                const data = await res.json();
-
-                if (data.length === 0) {
-                    endOfArchive = true;
-                    trigger.innerHTML = `<span class="text-[10px] text-slate-600 font-bold uppercase tracking-widest">End of Library</span>`;
-                    return;
-                }
-                renderGrid(data, 'archive-grid', true);
-                archivePage++;
-            } catch (e) { console.error(e); }
-            finally {
-                isArchiveLoading = false;
-                if (!endOfArchive) trigger.classList.replace('opacity-100', 'opacity-0');
-            }
-        }
-
-        function setupInfiniteScroll() {
-            const observer = new IntersectionObserver((entries) => { if (entries[0].isIntersecting) loadNextArchiveBatch(); }, { threshold: 0.1 });
-            observer.observe(document.getElementById('archive-trigger'));
-        }
-
-        // --- 4. SHARED RENDERERS ---
-        function renderRow(list, elementId) {
-            document.getElementById(elementId).innerHTML = list.map(anime => `
-                <a href="anime?name=${encodeURIComponent(anime.name)}" class="snap-start flex-shrink-0 w-32 sm:w-40 group cursor-pointer block">
-                    <div class="relative w-full aspect-[4/3] rounded bg-slate-900 border border-slate-800/50 overflow-hidden shadow-sm"><img src="${anime.poster_url}" loading="lazy" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div class="mt-2 px-1"><h3 class="text-[10px] sm:text-xs font-bold text-slate-300 leading-tight truncate group-hover:text-white transition-colors">${anime.title || anime.name}</h3><p class="text-[8px] text-slate-600 font-mono mt-0.5 uppercase tracking-wide">Updated</p></div>
-                </a>`).join('');
-        }
-
-        function renderGrid(list, elementId, append = false) {
-            const html = list.map((anime, i) => `
-                <div class="animate-enter" style="animation-delay: ${Math.min(i * 30, 800)}ms">
-                    <a href="anime?name=${encodeURIComponent(anime.name)}" class="group relative block w-full">
-                        <div class="relative aspect-[4/3] rounded bg-slate-900 border border-white/5 overflow-hidden shadow-sm group-hover:shadow-blue-900/20 group-hover:border-blue-500/30 transition-all">
-                            <img src="${anime.poster_url}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 opacity-80 group-hover:opacity-100">
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-80"></div>
-                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"><div class="w-8 h-8 rounded-full bg-blue-600/90 text-white flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform"><span class="material-symbols-rounded text-base">play_arrow</span></div></div>
-                        </div>
-                        <div class="mt-1.5 px-0.5"><h3 class="text-[10px] sm:text-[11px] font-bold text-slate-300 leading-tight truncate group-hover:text-blue-400 transition-colors">${anime.title || anime.name}</h3><div class="flex items-center gap-1.5 mt-0.5 opacity-60"><span class="text-[8px] font-bold bg-white/10 px-1 rounded text-slate-300">TV</span></div></div>
-                    </a>
-                </div>`).join('');
-            const c = document.getElementById(elementId);
-            if (append) c.insertAdjacentHTML('beforeend', html); else c.innerHTML = html;
-        }
-
-        // --- 5. SEARCH LOGIC (FIXED ANIMATION) ---
-        const MANIFEST_URL = 'https://raw.githubusercontent.com/malemsana2/aniclips-search/main/manifest.json';
-        let searchDatabase = null;
-        let isSearchDatabaseLoading = false;
-
-        async function ensureSearchDatabase() {
-            if (searchDatabase) return;
-            if (isSearchDatabaseLoading) {
-                while (isSearchDatabaseLoading) {
-                    await new Promise(r => setTimeout(r, 50));
-                }
-                return;
-            }
-            isSearchDatabaseLoading = true;
-            try {
-                // 1. Fetch manifest from raw GitHub
-                const manifestRes = await fetch(MANIFEST_URL);
-                if (!manifestRes.ok) throw new Error("Failed to fetch manifest");
-                const manifest = await manifestRes.json();
-                const activeHash = manifest.current_hash;
-
-                // 2. Check disk cache (localStorage) for exact version
-                const cachedHash = localStorage.getItem('ac_search_hash');
-                const cachedDb = localStorage.getItem('ac_search_db');
-                if (cachedHash === activeHash && cachedDb) {
-                    searchDatabase = JSON.parse(cachedDb);
-                    console.log('⚡ Loaded search database from cache.');
-                    return;
-                }
-
-                // --- INTERCEPT & CONVERT jsDelivr URL TO GITHUB RAW ---
-                let targetUrl = manifest.url;
-                if (targetUrl.includes('cdn.jsdelivr.net/gh/')) {
-                    targetUrl = targetUrl
-                        .replace('https://cdn.jsdelivr.net/gh/', 'https://raw.githubusercontent.com/')
-                        .replace('@', '/'); // Replaces the '@branch' or '@commit' separator with '/'
-                }
-
-                // 3. Download the compressed gzip file from GitHub Raw
-                console.log(`📥 Downloading search index gzip (Intercepted Raw URL): ${targetUrl}`);
-                const response = await fetch(targetUrl);
-                if (!response.ok) throw new Error("Failed to fetch search gzip file from Raw URL");
-
-                // 4. Decompress the gzip stream in the browser natively
-                const ds = new DecompressionStream('gzip');
-                const decompressedStream = response.body.pipeThrough(ds);
-                const text = await new Response(decompressedStream).text();
-
-                searchDatabase = JSON.parse(text);
-
-                // 5. Store in disk cache (localStorage)
-                localStorage.setItem('ac_search_hash', activeHash);
-                localStorage.setItem('ac_search_db', text);
-                console.log('✅ Updated and cached search database version:', activeHash);
-
-            } catch (e) {
-                console.error("Failed to load search database, falling back to API:", e);
-            } finally {
-                isSearchDatabaseLoading = false;
-            }
-        }
-
-        window.handleGlobalSearch = function (query) {
-            const dropdown = document.getElementById('search-dropdown'), list = document.getElementById('search-results-list'), spin = document.getElementById('search-spinner');
-            if (!query || query.length < 1) { closeSearch(); return; }
-
-            dropdown.classList.remove('hidden');
-            requestAnimationFrame(() => { dropdown.classList.remove('scale-95', 'opacity-0'); dropdown.classList.add('scale-100', 'opacity-100'); });
-            spin.classList.remove('hidden');
-
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(async () => {
-                try {
-                    await ensureSearchDatabase();
-
-                    let matches = [];
-                    if (searchDatabase) {
-                        const cleanStr = (str) => (str || '').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
-                        const q = cleanStr(query);
-                        matches = q ? searchDatabase
-                            .filter(a => {
-                                // a[2] = title, a[3] = title_english, a[4] = title_japanese
-                                return (a[2] && cleanStr(a[2]).includes(q)) ||
-                                    (a[3] && cleanStr(a[3]).includes(q)) ||
-                                    (a[4] && cleanStr(a[4]).includes(q));
-                            })
-                            .slice(0, 10)
-                            .map(a => ({
-                                id: a[0],
-                                name: a[1], // slug alias for template matching
-                                title: a[2],
-                                title_english: a[3],
-                                title_japanese: a[4],
-                                poster_url: a[5]
-                            })) : [];
-                    } else {
-                        // Fallback API call if local JSON fetch failed
-                        const res = await fetch(`${API_URL}/search?q=${encodeURIComponent(query)}`);
-                        matches = await res.json();
-                    }
-
-                    spin.classList.add('hidden');
-                    if (matches.length === 0) {
-                        list.innerHTML = `<div class="p-8 text-center"><span class="material-symbols-rounded text-3xl text-slate-700 mb-2">sentiment_dissatisfied</span><p class="text-xs text-slate-500">No matches</p></div>`;
-                        document.getElementById('search-footer').classList.add('hidden');
-                    } else {
-                        list.innerHTML = matches.map(a => `
-                            <a href="anime?name=${encodeURIComponent(a.name)}" class="flex items-center gap-3 p-2.5 hover:bg-slate-800/50 transition-colors border-b border-white/5 last:border-0 group">
-                                <div class="w-16 aspect-[4/3] bg-slate-900 rounded overflow-hidden shrink-0 border border-white/10 group-hover:border-blue-500/40 transition-all"><img src="${a.poster_url}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"></div>
-                                <div class="flex-grow min-w-0"><h4 class="text-sm font-bold text-slate-200 group-hover:text-blue-400 truncate transition-colors">${a.title_english || a.title || a.name}</h4><div class="flex items-center gap-2 mt-1"><span class="text-[9px] font-mono bg-blue-600/20 text-blue-300 px-1 rounded border border-blue-500/20">SERIES</span></div></div>
-                                <span class="material-symbols-rounded text-slate-600 group-hover:text-blue-400 -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all text-lg">chevron_right</span>
-                            </a>`).join('');
-                        document.getElementById('search-footer').classList.remove('hidden');
-                    }
-                } catch { spin.classList.add('hidden'); }
-            }, 150);
-        };
-
-        window.closeSearch = function () {
-            const d = document.getElementById('search-dropdown');
-            if (d) {
-                d.classList.add('scale-95', 'opacity-0');
-                d.classList.remove('scale-100', 'opacity-100');
-                setTimeout(() => d.classList.add('hidden'), 200); // Matched to duration-200
-            }
-            document.getElementById('search-spinner').classList.add('hidden');
-        };
-
-        document.addEventListener('click', e => { if (document.getElementById('search-wrapper') && !document.getElementById('search-wrapper').contains(e.target)) closeSearch(); });
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSearch(); });
-
-        /*
-        // Ads
-        // --- AD TYPE 3: MONETAG IN-PAGE PUSH NOTIFICATIONS (45s DELAY) ---
-        function initDelayedMonetagPush() {
-            // Wait 45,000 milliseconds (45 seconds) after page load completes
-            setTimeout(() => {
-                // Prevent duplicate injections if called again
-                if (document.getElementById('monetag-push-script')) return;
-
-                console.log("⏱️ 45s reached: Injecting In-Page Push tracking tag.");
-
-                const pushScript = document.createElement('script');
-                pushScript.id = 'monetag-push-script';
-                pushScript.dataset.zone = "11187388"; // Your specific Homepage Zone ID
-                pushScript.src = 'https://nap5k.com/tag.min.js';
-                pushScript.async = true;
-
-                // Append directly to body to allow the native floating engine to overlay the UI
-                document.body.appendChild(pushScript);
-            }, 45000);
-        }
-        */
-    </script>
     <!-- ==== FOOTER ==== -->
-    <footer class="mt-20 border-t border-white/5 bg-slate-950/80 backdrop-blur-2xl pt-16 pb-8">
+    <footer class="mt-auto border-t border-white/5 bg-slate-950/80 backdrop-blur-2xl pt-16 pb-8 relative z-20">
         <div class="container mx-auto px-6">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
 
                 <!-- Column 1: Brand & About (4 Cols) -->
                 <div class="lg:col-span-4 space-y-6">
                     <a href="/" class="flex items-center gap-3 group">
-                        <div
-                            class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                        <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(37,99,235,0.5)]">
                             <span class="material-symbols-rounded text-white text-lg">movie</span>
                         </div>
-                        <span class="font-black text-xl tracking-tight text-slate-100">Ani<span
-                                class="text-blue-500">Clips</span></span>
+                        <span class="font-black text-xl tracking-tight text-slate-100">Ani<span class="text-blue-500">Clips</span></span>
                     </a>
                     <p class="text-slate-400 text-sm leading-relaxed max-w-sm">
                         AniClips is your ultimate destination for high-quality anime moments. We provide a seamless
@@ -729,15 +193,11 @@
                 <!-- Column 2: Navigation (2 Cols) -->
                 <div class="lg:col-span-2">
                     <h4 class="text-white font-bold mb-6 text-xs uppercase tracking-widest">Library</h4>
-                    <ul class="space-y-4 text-slate-400 text-sm">
-                        <li><a href="/" class="hover:text-blue-400 transition-colors">Home</a></li>
-                        <li><a href="/" class="hover:text-blue-400 transition-colors">Trending</a></li>
-                        <li><a href="#browse-genres" class="hover:text-blue-400 transition-colors">Collections</a></li>
-                        <li><a href="blogs"
-                                class="text-blue-400 hover:text-blue-300 font-medium transition-colors flex items-center gap-1">Blogs
-                                <span
-                                    class="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1 rounded uppercase tracking-widest text-[9px] font-bold">New</span></a>
-                        </li>
+                    <ul class="space-y-4 text-slate-400 text-sm opacity-50 pointer-events-none">
+                        <li><a href="#" class="transition-colors">Home</a></li>
+                        <li><a href="#" class="transition-colors">Trending</a></li>
+                        <li><a href="#" class="transition-colors">Collections</a></li>
+                        <li><a href="#" class="font-medium transition-colors flex items-center gap-1">Blogs</a></li>
                     </ul>
                 </div>
 
@@ -745,50 +205,22 @@
                 <div class="lg:col-span-6">
                     <h4 class="text-white font-bold mb-6 text-xs uppercase tracking-widest">Quick FOQA</h4>
                     <div class="space-y-3">
-                        <details
-                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
-                            <summary
-                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                        <details class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
                                 <span class="text-sm font-bold text-slate-200">Is the library free to use?</span>
-                                <span
-                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                                <span class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
                             </summary>
                             <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
-                                Yes, AniClips is a free community-driven project. We do not charge for access to our
-                                standard or 4K/RAW library segments.
+                                Yes, AniClips is a free community-driven project. We do not charge for access to our standard or 4K/RAW library segments.
                             </div>
                         </details>
-
-                        <details
-                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
-                            <summary
-                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
-                                <span class="text-sm font-bold text-slate-200">How do I download RAW clips?</span>
-                                <span
-                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                        <details class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                                <span class="text-sm font-bold text-slate-200">What about copyrights of the clips?</span>
+                                <span class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
                             </summary>
                             <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
-                                Open any episode, click on a clip card, and use the "Download Ready" button. You can
-                                choose between 'Fast' (standard) or 'HQ' (RAW) depending on availability.
-                            </div>
-                        </details>
-
-                        <details
-                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
-                            <summary
-                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
-                                <span class="text-sm font-bold text-slate-200">What about copyrights of the
-                                    clips?</span>
-                                <span
-                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
-                            </summary>
-                            <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
-                                They are rightfully owned by the respective owners of the anime. We are just an editor
-                                community operate on principle of fair use and keeping the fanbase alive. We are
-                                industrially not recognised but tolerated as fan Media such as AMV, edit stimulates
-                                Blu-ray and merchandise sales. At no point do we monitise from this website nor do our
-                                users (you) as youtube claims all the money anyway, going straight to the rightful
-                                owners.
+                                They are rightfully owned by the respective owners of the anime. We are just an editor community operate on principle of fair use. At no point do we monitise from this website nor do our users (you) as youtube claims all the money anyway, going straight to the rightful owners.
                             </div>
                         </details>
                     </div>
@@ -796,8 +228,7 @@
             </div>
 
             <!-- Bottom Bar -->
-            <div
-                class="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+            <div class="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
                 <p>&copy; 2025 AniClips Library. All rights reserved.</p>
                 <div class="flex gap-6">
                     <a href="#" class="hover:text-white transition-colors">Privacy</a>
@@ -807,7 +238,6 @@
             </div>
         </div>
     </footer>
+
 </body>
-
-
 </html>

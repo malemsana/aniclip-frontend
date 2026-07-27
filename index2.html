@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anime Clips Library</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script data-cfasync="false" src="//dc9xwpjprguup.cloudfront.net/?pwxcd=1466068"></script>
     <meta property="og:image" content="https://cdn.jsdelivr.net/gh/malemsana2/aniclip-frontend@main/preview.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -18,9 +19,10 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/malemsana2/aniclip-frontend@main/preview.png" />
     <meta name="description"
-        content="Aniclips is a high-quality anime clips library featuring 4K, RAW, action, romance, fight and cinematic scenes for editors and fans.">
+        content="Aniclips is a high-quality anime clips library for editors finding clips for their amv, edits, review, essay etc. Quicky grab the quick you need and get to work.">
 
 
+    <meta name="kadam-verification" content="kadam4e4b074af39d061d9ada588546e0b3b3" />
     <link rel="icon" href="/favicon.ico" sizes="48x48">
     <link rel="icon" href="/favicon-48.png" sizes="48x48" type="image/png">
     <link rel="icon" href="/favicon-96.png" sizes="96x96" type="image/png">
@@ -118,7 +120,25 @@
         }
     </style>
 </head>
-<script>(function (s) { s.dataset.zone = '11112598', s.src = 'https://n6wxm.com/vignette.min.js' })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+<script data-cfasync="false" src="https://cmp.gatekeeperconsent.com/min.js"></script>
+<script data-cfasync="false" src="https://the.gatekeeperconsent.com/cmp.min.js"></script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NT7KEQQ2JS"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-NT7KEQQ2JS');
+</script>
+<script async src="//www.ezojs.com/ezoic/sa.min.js"></script>
+<script>
+    window.ezstandalone = window.ezstandalone || {};
+    ezstandalone.cmd = ezstandalone.cmd || [];
+</script>
+<script src="//ezoicanalytics.com/analytics.js"></script>
+
+
 
 <body class="antialiased min-h-screen flex flex-col pb-16 bg-[#020617]">
 
@@ -127,21 +147,17 @@
     <header class="fixed top-0 w-full z-50 glass-nav transition-all duration-300" id="navbar">
         <nav class="container mx-auto px-4 h-16 flex justify-between items-center">
 
-            <!-- LOGO (Corrected Spacing) -->
             <a href="index" class="flex items-center gap-3 group z-50">
-                <!-- Icon with Glow -->
                 <div
                     class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
                     <span class="material-symbols-rounded text-white text-lg">movie</span>
                 </div>
 
-                <!-- TEXT UPDATE: 'tracking-wide' instead of 'tracking-tight' -->
                 <span class="font-black text-xl tracking-wide text-slate-100 group-hover:text-white transition-colors">
                     Ani<span class="text-blue-500">Clips</span>
                 </span>
             </a>
 
-            <!-- SEARCH SECTION -->
             <div class="flex-grow max-w-md mx-2 sm:mx-6 relative group z-50" id="search-wrapper">
                 <div class="relative">
                     <input type="text" id="global-search" oninput="handleGlobalSearch(this.value)"
@@ -164,15 +180,22 @@
                     <div id="search-results-list" class="max-h-[60vh] overflow-y-auto scrollbar-thin"></div>
                     <div id="search-footer" class="p-2 bg-slate-950/80 border-t border-white/5 hidden">
                         <button
-                            class="block w-full text-center bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white py-1.5 rounded text-[10px] font-bold transition-colors uppercase tracking-wider">View
-                            all results ›</button>
+                            class="block w-full text-center bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white py-1.5 rounded text-[10px] font-bold transition-colors uppercase tracking-wider">
+                            View all results ›
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <div class="hidden sm:flex items-center gap-4">
+            <div class="hidden sm:flex items-center gap-6">
+                <a href="blogs"
+                    class="text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-wider transition-colors flex items-center gap-1">
+                    <span class="material-symbols-rounded text-sm">edit_note</span> Blogs
+                </a>
                 <a href="#browse-genres"
-                    class="text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-wider transition-colors">Collections</a>
+                    class="text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-wider transition-colors">
+                    Collections
+                </a>
             </div>
         </nav>
     </header>
@@ -328,6 +351,7 @@
             loadRecentRow();
             loadTrendingGrid();
             setupInfiniteScroll();
+            // initDelayedMonetagPush();
         };
 
         // --- 1. DATA FETCHERS ---
@@ -531,7 +555,7 @@
             }
             isSearchDatabaseLoading = true;
             try {
-                // 1. Fetch manifest from raw GitHub (bypasses cache for instant update info)
+                // 1. Fetch manifest from raw GitHub
                 const manifestRes = await fetch(MANIFEST_URL);
                 if (!manifestRes.ok) throw new Error("Failed to fetch manifest");
                 const manifest = await manifestRes.json();
@@ -546,12 +570,20 @@
                     return;
                 }
 
-                // 3. Download the compressed gzip file (served through fast jsdelivr CDN from manifest.url)
-                console.log(`📥 Downloading search index gzip: ${manifest.url}`);
-                const response = await fetch(manifest.url);
-                if (!response.ok) throw new Error("Failed to fetch search gzip file");
+                // --- INTERCEPT & CONVERT jsDelivr URL TO GITHUB RAW ---
+                let targetUrl = manifest.url;
+                if (targetUrl.includes('cdn.jsdelivr.net/gh/')) {
+                    targetUrl = targetUrl
+                        .replace('https://cdn.jsdelivr.net/gh/', 'https://raw.githubusercontent.com/')
+                        .replace('@', '/'); // Replaces the '@branch' or '@commit' separator with '/'
+                }
 
-                // 4. Decompress the gzip stream in the browser natively!
+                // 3. Download the compressed gzip file from GitHub Raw
+                console.log(`📥 Downloading search index gzip (Intercepted Raw URL): ${targetUrl}`);
+                const response = await fetch(targetUrl);
+                if (!response.ok) throw new Error("Failed to fetch search gzip file from Raw URL");
+
+                // 4. Decompress the gzip stream in the browser natively
                 const ds = new DecompressionStream('gzip');
                 const decompressedStream = response.body.pipeThrough(ds);
                 const text = await new Response(decompressedStream).text();
@@ -638,7 +670,31 @@
 
         document.addEventListener('click', e => { if (document.getElementById('search-wrapper') && !document.getElementById('search-wrapper').contains(e.target)) closeSearch(); });
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSearch(); });
+
+        /*
+        // Ads
+        // --- AD TYPE 3: MONETAG IN-PAGE PUSH NOTIFICATIONS (45s DELAY) ---
+        function initDelayedMonetagPush() {
+            // Wait 45,000 milliseconds (45 seconds) after page load completes
+            setTimeout(() => {
+                // Prevent duplicate injections if called again
+                if (document.getElementById('monetag-push-script')) return;
+
+                console.log("⏱️ 45s reached: Injecting In-Page Push tracking tag.");
+
+                const pushScript = document.createElement('script');
+                pushScript.id = 'monetag-push-script';
+                pushScript.dataset.zone = "11187388"; // Your specific Homepage Zone ID
+                pushScript.src = 'https://nap5k.com/tag.min.js';
+                pushScript.async = true;
+
+                // Append directly to body to allow the native floating engine to overlay the UI
+                document.body.appendChild(pushScript);
+            }, 45000);
+        }
+        */
     </script>
+    <!-- ==== FOOTER ==== -->
     <footer class="mt-20 border-t border-white/5 bg-slate-950/80 backdrop-blur-2xl pt-16 pb-8">
         <div class="container mx-auto px-6">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
@@ -667,9 +723,6 @@
                             class="w-10 h-10 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#FF4500] hover:border-[#FF4500]/30 transition-all shadow-lg">
                             <i class="fa-brands fa-reddit-alien text-xl"></i>
                         </a>
-                        <!-- <a href="#" title="X (Twitter)" class="w-10 h-10 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:border-white/30 transition-all shadow-lg">
-                            <i class="fa-brands fa-x-twitter text-xl"></i>
-                        </a> -->
                     </div>
                 </div>
 
@@ -679,7 +732,12 @@
                     <ul class="space-y-4 text-slate-400 text-sm">
                         <li><a href="/" class="hover:text-blue-400 transition-colors">Home</a></li>
                         <li><a href="/" class="hover:text-blue-400 transition-colors">Trending</a></li>
-                        <li><a href="/" class="hover:text-blue-400 transition-colors">Collections</a></li>
+                        <li><a href="#browse-genres" class="hover:text-blue-400 transition-colors">Collections</a></li>
+                        <li><a href="blogs"
+                                class="text-blue-400 hover:text-blue-300 font-medium transition-colors flex items-center gap-1">Blogs
+                                <span
+                                    class="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1 rounded uppercase tracking-widest text-[9px] font-bold">New</span></a>
+                        </li>
                     </ul>
                 </div>
 
@@ -726,12 +784,11 @@
                             </summary>
                             <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
                                 They are rightfully owned by the respective owners of the anime. We are just an editor
-                                community operate on principle of fair use and keeping the fanbase alive.
-                                We are industrially not recognised but tolerated as fan Media such as AMV, edit
-                                stimulates
+                                community operate on principle of fair use and keeping the fanbase alive. We are
+                                industrially not recognised but tolerated as fan Media such as AMV, edit stimulates
                                 Blu-ray and merchandise sales. At no point do we monitise from this website nor do our
-                                users (you)
-                                as youtube claims all the money anyway, going straight to the rightful owners.
+                                users (you) as youtube claims all the money anyway, going straight to the rightful
+                                owners.
                             </div>
                         </details>
                     </div>
