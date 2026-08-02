@@ -914,14 +914,9 @@
         }
 
         function triggerCloseAd() {
-            const lastImpression = localStorage.getItem(state.popunderStorageKey);
-            const now = Date.now();
-            const cooldownMs = state.popunderCooldownMin * 60 * 1000;
-            if (lastImpression && (now - lastImpression) < cooldownMs) return;
-            if (Math.random() > 0.333) return;
-
-            localStorage.setItem(state.popunderStorageKey, now);
-            window.open(state.monetagSmartlink, '_blank');
+            if (state.monetagSmartlink) {
+                window.open(state.monetagSmartlink, '_blank');
+            }
         }
 
         function maybeRefreshAd() {
