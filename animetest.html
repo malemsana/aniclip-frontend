@@ -830,11 +830,7 @@
         }
 
         function closePreview() {
-            const closeBtn = document.querySelector('#preview-modal button[onclick="closePreview()"]');
-            if (closeBtn && closeBtn.parentElement.tagName === 'A' && closeBtn.parentElement.classList.contains('ad-wrapper')) {
-                const wrapper = closeBtn.parentElement;
-                wrapper.replaceWith(closeBtn);
-            }
+            triggerCloseAd();
 
             clearInterval(state.adTimer);
             state.adTimer = null;
@@ -914,27 +910,18 @@
         }
 
         function precalculateCloseAd() {
-            const closeBtn = document.querySelector('#preview-modal button[onclick="closePreview()"]');
-            if (!closeBtn) return;
-            if (closeBtn.parentElement.tagName === 'A' && closeBtn.parentElement.classList.contains('ad-wrapper')) {
-                const wrapper = closeBtn.parentElement;
-                wrapper.replaceWith(closeBtn);
-            }
+            // Deprecated DOM wrapper method
+        }
+
+        function triggerCloseAd() {
             const lastImpression = localStorage.getItem(state.popunderStorageKey);
             const now = Date.now();
             const cooldownMs = state.popunderCooldownMin * 60 * 1000;
             if (lastImpression && (now - lastImpression) < cooldownMs) return;
             if (Math.random() > 0.333) return;
-            const adLink = document.createElement('a');
-            adLink.href = state.monetagSmartlink; // The close button Popunder Fallback
-            adLink.target = '_blank';
-            adLink.className = "ad-wrapper cursor-pointer";
-            adLink.addEventListener('click', () => {
-                localStorage.setItem(state.popunderStorageKey, Date.now());
-                setTimeout(() => { if (adLink.parentElement) adLink.replaceWith(closeBtn); }, 50);
-            });
-            closeBtn.parentNode.insertBefore(adLink, closeBtn);
-            adLink.appendChild(closeBtn);
+
+            localStorage.setItem(state.popunderStorageKey, now);
+            window.open(state.monetagSmartlink, '_blank');
         }
 
         function maybeRefreshAd() {
