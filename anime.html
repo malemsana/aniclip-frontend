@@ -16,8 +16,8 @@
     </script>
 
      <!-- monetag <script src="https://3nbf4.com/sdk.js" data-zone="11112598" data-sdk="show_11112598"></script> -->
-    <!-- pop up-->
-    <script data-cfasync="false" src="//dc9xwpjprguup.cloudfront.net/?pwxcd=1466043"></script>
+    <!-- pop up (disabled) -->
+    <!-- <script data-cfasync="false" src="//dc9xwpjprguup.cloudfront.net/?pwxcd=1466043"></script> -->
     <!-- float --> 
     <script data-cfasync="false" src="//dc9xwpjprguup.cloudfront.net/?pwxcd=1466068"></script>
     <style>
@@ -984,11 +984,12 @@
         async function forceDownload(rawUrl, clipId, filename) {
             trackDownload();
 
-            // Ad Type 1: Monetag Fullscreen Intercept on click
+            /* Ad Type 1: Monetag Fullscreen Intercept on click (disabled)
             if (runAdSdk) {
                 try { await runAdSdk({ type: 'start' }); }
                 catch (adBlockError) { console.warn("Vignette layer safely bypassed."); }
             }
+            */
 
             const task = DownloadTasks.getTask(rawUrl, clipId, filename);
             if (task.status === 'COMPLETE') {
@@ -1042,10 +1043,7 @@
                 btn.appendChild(content);
 
                 btn.onclick = () => {
-                    /*
                     window.open(state.monetagSmartlink, '_blank');
-                    window.open(state.monetagSmartlink, '_blank');
-                    */
                     forceDownload(rawUrl, clip.id, filename);
                 };
 
