@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,10 +14,10 @@
         tailwind.config = { theme: { extend: { colors: { gray: { 900: '#0f172a', 950: '#020617' } }, animation: { 'spin-slow': 'spin 3s linear infinite' } } } }
     </script>
 
-     <!-- monetag <script src="https://3nbf4.com/sdk.js" data-zone="11112598" data-sdk="show_11112598"></script> -->
+    <!-- monetag <script src="https://3nbf4.com/sdk.js" data-zone="11112598" data-sdk="show_11112598"></script> -->
     <!-- pop up (disabled) -->
-    <script data-cfasync="false" src="//dc9xwpjprguup.cloudfront.net/?pwxcd=1466043"></script> 
-    <!-- float --> 
+    <script data-cfasync="false" src="//dc9xwpjprguup.cloudfront.net/?pwxcd=1466043"></script>
+    <!-- float -->
     <script data-cfasync="false" src="//dc9xwpjprguup.cloudfront.net/?pwxcd=1466068"></script>
     <style>
         html {
@@ -300,6 +299,68 @@
             return await res.json();
         }
 
+        const GITHUB_JSON_OWNER = 'malemsana2';
+        const GITHUB_JSON_REPO = 'aniclips-jsons';
+
+        function getStaticJsonUrlChain(path) {
+            const jsDelivrUrl = `https://cdn.jsdelivr.net/gh/${GITHUB_JSON_OWNER}/${GITHUB_JSON_REPO}@main/${path}`;
+            const gitHubRawUrl = `https://raw.githubusercontent.com/${GITHUB_JSON_OWNER}/${GITHUB_JSON_REPO}/main/${path}`;
+
+            const chain = [];
+            if (FALLBACK_LEVEL === 1) {
+                chain.push(jsDelivrUrl, gitHubRawUrl);
+            } else if (FALLBACK_LEVEL === 2) {
+                chain.push(gitHubRawUrl);
+            }
+            return chain;
+        }
+
+        async function fetchAnimeMetadata(slug) {
+            const urlChain = getStaticJsonUrlChain(`${slug}/meta.json`);
+
+            for (const url of urlChain) {
+                try {
+                    const res = await fetch(url);
+                    if (res.ok) {
+                        const data = await res.json();
+                        console.log("⚡ [StaticJSON] Loaded metadata:", url);
+                        const { episodes, ...animeMeta } = data;
+                        return { anime: animeMeta, episodes: episodes || [] };
+                    }
+                } catch (e) {
+                    console.warn(`[StaticJSON] Fetch failed for ${url}:`, e.message);
+                }
+            }
+
+            console.log("⚠️ [API Fallback] Fetching metadata from backend API for:", slug);
+            const [anime, episodes] = await Promise.all([
+                safeFetch(`/animes/${slug}`),
+                safeFetch(`/animes/${slug}/episodes`)
+            ]);
+            return { anime, episodes };
+        }
+
+        async function fetchEpisodeClips(slug, epNum, signal) {
+            const urlChain = getStaticJsonUrlChain(`${slug}/ep${epNum}.json`);
+
+            for (const url of urlChain) {
+                try {
+                    const res = await fetch(url, { signal });
+                    if (res.ok) {
+                        const data = await res.json();
+                        console.log(`⚡ [StaticJSON] Loaded Ep ${epNum} clips:`, url);
+                        return data;
+                    }
+                } catch (e) {
+                    if (e.name === 'AbortError') throw e;
+                    console.warn(`[StaticJSON] Ep ${epNum} fetch failed for ${url}:`, e.message);
+                }
+            }
+
+            console.log(`⚠️ [API Fallback] Fetching Ep ${epNum} clips from backend API`);
+            return await safeFetch(`/animes/${slug}/episodes/${epNum}/clips`, { signal });
+        }
+
         const els = {
             hero: document.getElementById('anime-info-panel'),
             wrapper: document.getElementById('episodes-wrapper'),
@@ -317,10 +378,7 @@
         window.onload = async () => {
             if (!state.animeSlug) { window.location.href = 'index'; return; }
             try {
-                const [anime, episodes] = await Promise.all([
-                    safeFetch(`/animes/${state.animeSlug}`),
-                    safeFetch(`/animes/${state.animeSlug}/episodes`)
-                ]);
+                const { anime, episodes } = await fetchAnimeMetadata(state.animeSlug);
                 state.episodesList = episodes.sort((a, b) => a.number - b.number).map((ep, idx) => ({ ...ep, index: idx }));
                 state.animeId = anime.id;
                 document.title = `${anime.title} | AniClips`;
@@ -446,7 +504,7 @@
             else {
                 renderSkeleton(cDiv);
                 try {
-                    const d = await safeFetch(`/animes/${state.animeSlug}/episodes/${ep.number}/clips`, { signal: controller.signal });
+                    const d = await fetchEpisodeClips(state.animeSlug, ep.number, controller.signal);
                     state.clipsCache[ep.id] = d;
                     if (state.mountedEpisodes.has(idx)) renderClips(cDiv, ep.id, d, idx, controller.signal);
                 } catch (e) {
