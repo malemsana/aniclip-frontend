@@ -245,7 +245,8 @@
 
                 <div class="flex-1 min-h-0 overflow-hidden mb-8 flex justify-center items-start">
                     <div id="kadam-banner-slot" class="w-[300px] h-[250px] overflow-hidden rounded-lg flex-shrink-0">
-                        <script async="async" data-cfasync="false" src="https://pl29665546.effectivecpmnetwork.com/57d2b16d41ebda7ec2475422aae2ada3/invoke.js"></script>
+                        <script async="async" data-cfasync="false"
+                            src="https://pl29665546.effectivecpmnetwork.com/57d2b16d41ebda7ec2475422aae2ada3/invoke.js"></script>
                         <div id="container-57d2b16d41ebda7ec2475422aae2ada3"></div>
                     </div>
                 </div>
@@ -288,7 +289,8 @@
             adTimer: null,
 
             // Ad Routing Config
-            monetagSmartlink: "https://ytohimselfashel.com?DXJRc=1511166",
+            monetagSmartlink: "https://www.effectivecpmnetwork.com/m7v6znjc?key=7263d7d844b770c9d864fbe20f9d6856",
+            // monetagSmartlink: "https://ytohimselfashel.com?DXJRc=1511166", // Admaven smartlink
             // monetagSmartlink: "https://tightslybella.com/kea6hyqf?key=73a19aeddb4c81b0d45db8ac4b738736",
 
             monetagPushInAd: "11154837",
@@ -933,33 +935,43 @@
             }, 200);
         }
 
-        // --- AD TYPE 2: SECURE KADAM BANNER INJECTION ---
-        function loadKadamBanner() {
-            /*
+        // --- ADSTERRA NATIVE BANNER INJECTION & REFRESH ---
+        function loadAdsterraBanner() {
             const container = document.getElementById('kadam-banner-slot');
             if (!container) return;
-            container.innerHTML = '<div class="tBgAyy425572"></div>';
 
-            window.k_init = window.k_init || [];
-            window.k_init.push({
-                id: 'tBgAyy425572',
-                type: 'bn',
-                domain: 'hdbkome.com',
-                refresh: false,
-                next: 0
-            });
+            // Clear container and inject iframe/script to force fresh ad load
+            container.innerHTML = '';
 
-            // Load script if not already present
-            if (!document.getElementById('kadam-script')) {
-                var s = document.createElement('script');
-                s.id = 'kadam-script';
-                s.setAttribute('async', true);
-                s.setAttribute('charset', 'utf-8');
-                s.setAttribute('data-cfasync', false);
-                s.src = 'https://hdbkome.com/400n872q.js';
-                document.head && document.head.appendChild(s);
-            }
-            */
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '300px';
+            iframe.style.height = '250px';
+            iframe.style.border = 'none';
+            iframe.style.overflow = 'hidden';
+            iframe.scrolling = 'no';
+
+            container.appendChild(iframe);
+
+            const iframeDoc = iframe.contentWindow.document;
+            iframeDoc.open();
+            iframeDoc.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>body { margin: 0; padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; background: transparent; }</style>
+                </head>
+                <body>
+                    <div id="container-57d2b16d41ebda7ec2475422aae2ada3"></div>
+                    <script async="async" data-cfasync="false" src="https://pl29665546.effectivecpmnetwork.com/57d2b16d41ebda7ec2475422aae2ada3/invoke.js"><\/script>
+                </body>
+                </html>
+            `);
+            iframeDoc.close();
+        }
+
+        // --- AD TYPE 2: SECURE KADAM BANNER INJECTION ---
+        function loadKadamBanner() {
+            loadAdsterraBanner();
         }
 
         // --- AD TYPE 3: MONETAG IN-PAGE PUSH NOTIFICATIONS ---
@@ -989,9 +1001,8 @@
 
         function maybeRefreshAd() {
             const elapsed = Date.now() - state.adLastRefresh;
-            if ((state.adClipChanges >= 3 || elapsed >= 30000) && elapsed >= 30000) {
-                // Only refresh the sidebar banner, Monetag Push handles its own refresh rate internally
-                loadKadamBanner();
+            if (elapsed >= 30000) {
+                loadAdsterraBanner();
                 state.adClipChanges = 0;
                 state.adLastRefresh = Date.now();
             }
