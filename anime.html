@@ -14,7 +14,6 @@
         tailwind.config = { theme: { extend: { colors: { gray: { 900: '#0f172a', 950: '#020617' } }, animation: { 'spin-slow': 'spin 3s linear infinite' } } } }
     </script>
 
-    <!-- monetag <script src="https://3nbf4.com/sdk.js" data-zone="11112598" data-sdk="show_11112598"></script> -->
     <!-- pop up (disabled) -->
     <script data-cfasync="false" src="//dc9xwpjprguup.cloudfront.net/?pwxcd=1466043"></script>
     <!-- float -->
@@ -258,10 +257,10 @@
 
     <script>
         const API_URL = 'https://aniclip-backend-nycl.onrender.com/api';
-        const WINDOW_PADDING = 1;
-        const BANDAGE_KEY_URL = 'https://bandagekey.aniclips.site';
-        const bandageKeyBypass = true; // Set to true to bypass bandage key server and query main backend directly
+        const KEY_BANDAGE_URL = 'https://bandagekey.aniclips.site';
+        const bandageKeyBypass = true; // Set to true to route episode-key requests via KEY_BANDAGE_URL first
 
+        const WINDOW_PADDING = 1;
 
         // Fallback priority level:
         // 1: jsDelivr -> GitHub -> Proxy (Starts at jsDelivr, falls back to GitHub, then Proxy)
@@ -293,14 +292,10 @@
 
             // Ad Routing Config
             monetagSmartlink: "https://www.effectivecpmnetwork.com/m7v6znjc?key=7263d7d844b770c9d864fbe20f9d6856",
-            // monetagSmartlink: "https://ytohimselfashel.com?DXJRc=1511166", // Admaven smartlink
-            // monetagSmartlink: "https://tightslybella.com/kea6hyqf?key=73a19aeddb4c81b0d45db8ac4b738736",
-
             monetagPushInAd: "11154837",
             popunderCooldownMin: 0.5,
             popunderStorageKey: "ac_last_popunder",
         };
-        
 
         async function safeFetch(url, options = {}) {
             const fullUrl = url.startsWith('http') ? url : `${API_URL}${url}`;
@@ -309,12 +304,9 @@
             return await res.json();
         }
 
-        const GITHUB_JSON_OWNER = 'malemsana2';
-        const GITHUB_JSON_REPO = 'aniclips-jsons';
-
         function getStaticJsonUrlChain(path) {
-            const jsDelivrUrl = `https://cdn.jsdelivr.net/gh/${GITHUB_JSON_OWNER}/${GITHUB_JSON_REPO}@main/${path}`;
-            const gitHubRawUrl = `https://raw.githubusercontent.com/${GITHUB_JSON_OWNER}/${GITHUB_JSON_REPO}/main/${path}`;
+            const jsDelivrUrl = `https://cdn.jsdelivr.net/gh/malemsana2/aniclips-jsons@main/${path}`;
+            const gitHubRawUrl = `https://raw.githubusercontent.com/malemsana2/aniclips-jsons/main/${path}`;
 
             const chain = [];
             if (FALLBACK_LEVEL === 1) {
@@ -527,13 +519,37 @@
         const pendingKeyRequests = {};
         const blobCache = {};
 
+        // --- KEY BANDAGE FRONT LINE ---
+        async function getEpisodeKey(mal_id, ep_num) {
+            const relPath = `/episodes/${encodeURIComponent(mal_id)}/${encodeURIComponent(ep_num)}/key`;
+
+            if (bandageKeyBypass) {
+                try {
+                    const bandageRes = await fetch(`${KEY_BANDAGE_URL}${relPath}`);
+                    if (!bandageRes.ok) {
+                        throw new Error(`Bandage returned ${bandageRes.status}`);
+                    }
+                    return await bandageRes.json();
+                } catch (bandageError) {
+                    console.warn('Episode-key bandage unavailable, falling back to main API:', bandageError);
+                }
+            }
+
+            // Backend fallback
+            const res = await fetch(`${API_URL}${relPath}`);
+            if (!res.ok) {
+                throw new Error(`Backend returned ${res.status}`);
+            }
+            return await res.json();
+        }
+
         async function getEpisodeCrypto(malId, epNum) {
             const token = `${malId}-${epNum}`;
             if (cryptoCache[token]) return cryptoCache[token];
             if (pendingKeyRequests[token]) return pendingKeyRequests[token];
             pendingKeyRequests[token] = (async () => {
                 try {
-                    const data = await safeFetch(`/episodes/${malId}/${epNum}/key`);
+                    const data = await getEpisodeKey(malId, epNum);
                     const keyBytes = new Uint8Array(data.key.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
                     const ivSeedBytes = new Uint8Array(data.iv_seed.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
                     const cryptoKey = await crypto.subtle.importKey("raw", keyBytes, { name: "AES-CTR" }, false, ["decrypt"]);
@@ -621,7 +637,7 @@
             if (url.includes('cdn.jsdelivr.net/gh/')) {
                 return url
                     .replace('cdn.jsdelivr.net/gh/', 'raw.githubusercontent.com/')
-                    .replace('@', '/'); // jsDelivr uses @ for versions/branches, GitHub uses /
+                    .replace('@', '/');
             }
             return url;
         };
@@ -721,7 +737,6 @@
                 const epCrypto = await getEpisodeCrypto(parts[0], parts[1]);
                 const clipIv = await deriveClipIV(epCrypto.ivSeed, clipId);
 
-                // Build the fallback URL chain based on the manual toggle configuration
                 let urlChain = [];
                 const jsDelivrUrl = getJsDelivrUrl(url);
                 const gitHubUrl = getGitHubUrl(url);
@@ -747,15 +762,13 @@
                         if (proxyUrl) urlChain.push(proxyUrl);
                     }
 
-                    // Fallback to original URL if the chain is empty
                     if (urlChain.length === 0) {
                         urlChain.push(url);
                     }
                 }
 
-                // If it's a clip (video) and the primary is jsDelivr, retry the primary request once before falling back
                 if (type !== 'image' && urlChain[0] && urlChain[0].includes('cdn.jsdelivr.net/gh/')) {
-                    urlChain.splice(1, 0, urlChain[0]); // insert primary URL retry at index 1
+                    urlChain.splice(1, 0, urlChain[0]);
                 }
 
                 let response;
@@ -881,9 +894,7 @@
         function openPreview(epId, idx) {
             state.activeModal = true;
 
-            // FIRE KADAM 300x250 BANNER
             loadKadamBanner();
-            // FIRE MONETAG IN-PAGE PUSH GLOBALLY
             loadMonetagPush();
 
             state.adClipChanges = 0;
@@ -939,12 +950,10 @@
             }, 200);
         }
 
-        // --- ADSTERRA NATIVE BANNER INJECTION & REFRESH ---
         function loadAdsterraBanner() {
             const container = document.getElementById('kadam-banner-slot');
             if (!container) return;
 
-            // Clear container and inject iframe/script to force fresh ad load
             container.innerHTML = '';
 
             const iframe = document.createElement('iframe');
@@ -973,29 +982,23 @@
             iframeDoc.close();
         }
 
-        // --- AD TYPE 2: SECURE KADAM BANNER INJECTION ---
         function loadKadamBanner() {
             loadAdsterraBanner();
         }
 
-        // --- AD TYPE 3: MONETAG IN-PAGE PUSH NOTIFICATIONS ---
         function loadMonetagPush() {
-            // Prevent duplicate injections if the user opens the modal multiple times
             if (document.getElementById('monetag-push-script')) return;
 
             const pushScript = document.createElement('script');
             pushScript.id = 'monetag-push-script';
-            pushScript.dataset.zone = state.monetagPushInAd; // "11154837"
+            pushScript.dataset.zone = state.monetagPushInAd;
             pushScript.src = 'https://nap5k.com/tag.min.js';
             pushScript.async = true;
 
-            // In-page push natively floats globally over the UI, so we append directly to body
             document.body.appendChild(pushScript);
         }
 
-        function precalculateCloseAd() {
-            // Deprecated DOM wrapper method
-        }
+        function precalculateCloseAd() {}
 
         function triggerCloseAd() {
             if (state.monetagSmartlink) {
@@ -1040,13 +1043,6 @@
 
         async function forceDownload(rawUrl, clipId, filename) {
             trackDownload();
-
-            /* Ad Type 1: Monetag Fullscreen Intercept on click (disabled)
-            if (runAdSdk) {
-                try { await runAdSdk({ type: 'start' }); }
-                catch (adBlockError) { console.warn("Vignette layer safely bypassed."); }
-            }
-            */
 
             const task = DownloadTasks.getTask(rawUrl, clipId, filename);
             if (task.status === 'COMPLETE') {
@@ -1176,6 +1172,7 @@
 
         function trackDownload() { fetch(`${API_URL}/animes/${state.animeId}/track-download`, { method: 'POST' }).catch(() => { }); }
     </script>
+
     <!-- ==== FOOTER ==== -->
     <footer class="mt-20 border-t border-white/5 bg-slate-950/80 backdrop-blur-2xl pt-16 pb-8">
         <div class="container mx-auto px-6">
