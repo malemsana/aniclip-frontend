@@ -259,6 +259,9 @@
     <script>
         const API_URL = 'https://aniclip-backend-nycl.onrender.com/api';
         const WINDOW_PADDING = 1;
+        const BANDAGE_KEY_URL = 'https://bandagekey.aniclips.site';
+        const bandageKeyBypass = true; // Set to true to bypass bandage key server and query main backend directly
+
 
         // Fallback priority level:
         // 1: jsDelivr -> GitHub -> Proxy (Starts at jsDelivr, falls back to GitHub, then Proxy)
@@ -295,8 +298,9 @@
 
             monetagPushInAd: "11154837",
             popunderCooldownMin: 0.5,
-            popunderStorageKey: "ac_last_popunder"
+            popunderStorageKey: "ac_last_popunder",
         };
+        
 
         async function safeFetch(url, options = {}) {
             const fullUrl = url.startsWith('http') ? url : `${API_URL}${url}`;
