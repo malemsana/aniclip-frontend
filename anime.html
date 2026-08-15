@@ -244,11 +244,7 @@
                 <span id="preview-duration" class="hidden">--:--</span>
 
                 <div class="flex-1 min-h-0 overflow-hidden mb-8 flex justify-center items-start">
-                    <div id="kadam-banner-slot" class="w-[300px] h-[250px] overflow-hidden rounded-lg flex-shrink-0">
-                        <script async="async" data-cfasync="false"
-                            src="https://pl29665546.effectivecpmnetwork.com/57d2b16d41ebda7ec2475422aae2ada3/invoke.js"></script>
-                        <div id="container-57d2b16d41ebda7ec2475422aae2ada3"></div>
-                    </div>
+                    <div id="kadam-banner-slot" class="w-[300px] h-[250px] overflow-hidden rounded-lg flex-shrink-0"></div>
                 </div>
 
                 <div id="download-container" class="space-y-3 pb-4"></div>
@@ -405,7 +401,9 @@
         });
 
         function createListStructure() {
-            els.wrapper.innerHTML = state.episodesList.map(ep => `
+            let html = '';
+            state.episodesList.forEach((ep) => {
+                html += `
             <div id="row-${ep.index}" class="episode-row transition-all duration-300 scroll-mt-28" data-index="${ep.index}" data-id="${ep.id}">
                 <div class="sticky top-16 bg-slate-950/90 backdrop-blur z-30 py-1 mb-1 border-b border-slate-800/50">
                     <button onclick="openNav()" class="group flex items-center gap-3 w-full text-left focus:outline-none hover:bg-slate-900/50 px-2 py-0.5 rounded-lg transition-colors -ml-2">
@@ -415,7 +413,23 @@
                     </button>
                 </div>
                 <div id="content-${ep.index}" class="ep-content min-h-[160px]"></div>
-            </div>`).join('');
+            </div>`;
+
+                if ((ep.index + 1) % 3 === 0 && ep.index !== state.episodesList.length - 1) {
+                    html += `
+            <div class="ad-banner-row my-2.5 p-1 sm:p-2.5 rounded-xl bg-slate-900/30 border border-white/5 shadow-sm flex flex-col items-center w-full overflow-hidden">
+                <div class="w-full flex items-center justify-between mb-1 px-1">
+                    <span class="text-[9px] uppercase font-bold tracking-widest text-slate-500 flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500/50"></span> Sponsored
+                    </span>
+                    <span class="text-[9px] text-slate-600 uppercase font-semibold">Advertisement</span>
+                </div>
+                <div class="ad-slot-container w-full flex flex-nowrap justify-center items-center gap-1 sm:gap-2.5 overflow-hidden" data-ad-loaded="false"></div>
+            </div>`;
+                }
+            });
+            els.wrapper.innerHTML = html;
+            initAdLazyLoader();
         }
 
         function populateNavGrid() { els.navGrid.innerHTML = state.episodesList.map(ep => `<button onclick="jumpToEpisode(${ep.index})" class="py-3 px-2 bg-slate-800 hover:bg-blue-600 hover:text-white rounded-lg border border-slate-700 transition-colors text-slate-300 font-medium text-sm flex flex-col items-center"><span>Ep ${ep.number}</span></button>`).join(''); }
@@ -935,38 +949,152 @@
             }, 200);
         }
 
-        // --- ADSTERRA NATIVE BANNER INJECTION & REFRESH ---
-        function loadAdsterraBanner() {
-            const container = document.getElementById('kadam-banner-slot');
-            if (!container) return;
+        function calculateAdConfig(containerWidth) {
+            // Minimal gap on mobile so 2 ads fit snugly
+            const isSmallScreen = containerWidth < 640;
+            const gap = isSmallScreen ? 4 : 10;
+            const maxWidth = 225; // standard compact size (scale 0.75)
 
-            // Clear container and inject iframe/script to force fresh ad load
-            container.innerHTML = '';
+            // On mobile / small screens, prioritize fitting at least 2 ads
+            let count = Math.max(containerWidth >= 220 ? 2 : 1, Math.floor((containerWidth + gap) / (maxWidth + gap)));
 
+            // Calculate candidate width per ad
+            let adWidth = (containerWidth - (count - 1) * gap) / count;
+
+            // If desktop/tablet with 3+ ads shrinks below 150px, drop count down
+            while (count > 2 && adWidth < 150) {
+                count--;
+                adWidth = (containerWidth - (count - 1) * gap) / count;
+            }
+
+            // Cap at maxWidth
+            if (adWidth > maxWidth) {
+                adWidth = maxWidth;
+            }
+
+            // Fallback for extreme narrow widths (<220px)
+            if (adWidth > containerWidth) {
+                adWidth = Math.max(90, containerWidth);
+            }
+
+            const scale = +(adWidth / 300).toFixed(3);
+            const width = Math.round(300 * scale);
+            const height = Math.round(250 * scale);
+
+            return { count, scale, width, height };
+        }
+
+        function createAdsterraBannerIframe(scale = 1) {
             const iframe = document.createElement('iframe');
             iframe.style.width = '300px';
             iframe.style.height = '250px';
             iframe.style.border = 'none';
             iframe.style.overflow = 'hidden';
             iframe.scrolling = 'no';
+            iframe.style.transformOrigin = 'top left';
+            if (scale !== 1) {
+                iframe.style.transform = `scale(${scale})`;
+            }
+            iframe.className = 'flex-shrink-0';
 
-            container.appendChild(iframe);
+            iframe.onload = () => {
+                try {
+                    const doc = iframe.contentDocument || iframe.contentWindow.document;
+                    if (!doc || doc.body.querySelector('#container-57d2b16d41ebda7ec2475422aae2ada3')) return;
+                    
+                    doc.body.style.margin = '0';
+                    doc.body.style.padding = '0';
+                    doc.body.style.overflow = 'hidden';
+                    doc.body.style.display = 'flex';
+                    doc.body.style.justifyContent = 'center';
+                    doc.body.style.alignItems = 'center';
+                    doc.body.style.background = 'transparent';
 
-            const iframeDoc = iframe.contentWindow.document;
-            iframeDoc.open();
-            iframeDoc.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <style>body { margin: 0; padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; background: transparent; }</style>
-                </head>
-                <body>
-                    <div id="container-57d2b16d41ebda7ec2475422aae2ada3"></div>
-                    <script async="async" data-cfasync="false" src="https://pl29665546.effectivecpmnetwork.com/57d2b16d41ebda7ec2475422aae2ada3/invoke.js"><\/script>
-                </body>
-                </html>
-            `);
-            iframeDoc.close();
+                    const containerDiv = doc.createElement('div');
+                    containerDiv.id = 'container-57d2b16d41ebda7ec2475422aae2ada3';
+                    doc.body.appendChild(containerDiv);
+
+                    const adScript = doc.createElement('script');
+                    adScript.async = true;
+                    adScript.setAttribute('data-cfasync', 'false');
+                    adScript.src = 'https://pl29665546.effectivecpmnetwork.com/57d2b16d41ebda7ec2475422aae2ada3/invoke.js';
+                    doc.body.appendChild(adScript);
+                } catch (e) {
+                    console.warn("Could not load banner in iframe:", e);
+                }
+            };
+            iframe.src = 'about:blank';
+
+            return iframe;
+        }
+
+        function renderResponsiveBanners(slotContainer) {
+            if (!slotContainer) return;
+            const availableWidth = slotContainer.clientWidth || slotContainer.offsetWidth || window.innerWidth;
+            if (availableWidth <= 0) return;
+
+            const config = calculateAdConfig(availableWidth);
+            
+            // Check if already rendered with the exact same count and width
+            const prevCount = parseInt(slotContainer.dataset.adCount || '0', 10);
+            const prevWidth = parseInt(slotContainer.dataset.adWidth || '0', 10);
+            if (slotContainer.dataset.adLoaded === 'true' && prevCount === config.count && Math.abs(prevWidth - config.width) < 5) {
+                return;
+            }
+
+            slotContainer.dataset.adLoaded = 'true';
+            slotContainer.dataset.adCount = config.count;
+            slotContainer.dataset.adWidth = config.width;
+            slotContainer.innerHTML = '';
+
+            for (let i = 0; i < config.count; i++) {
+                const adWrap = document.createElement('div');
+                adWrap.style.width = `${config.width}px`;
+                adWrap.style.height = `${config.height}px`;
+                adWrap.className = 'overflow-hidden rounded-xl bg-slate-950/60 border border-white/5 shadow-inner flex-shrink-0 flex items-start justify-start';
+                adWrap.appendChild(createAdsterraBannerIframe(config.scale));
+                slotContainer.appendChild(adWrap);
+            }
+        }
+
+        let adObserver = null;
+        let adResizeTimeout = null;
+        function initAdLazyLoader() {
+            if (adObserver) adObserver.disconnect();
+
+            adObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const slot = entry.target;
+                        renderResponsiveBanners(slot);
+                    }
+                });
+            }, { rootMargin: '300px 0px' });
+
+            document.querySelectorAll('.ad-slot-container').forEach(slot => {
+                adObserver.observe(slot);
+            });
+
+            window.removeEventListener('resize', handleAdResize);
+            window.addEventListener('resize', handleAdResize);
+        }
+
+        function handleAdResize() {
+            clearTimeout(adResizeTimeout);
+            adResizeTimeout = setTimeout(() => {
+                document.querySelectorAll('.ad-slot-container[data-ad-loaded="true"]').forEach(slot => {
+                    renderResponsiveBanners(slot);
+                });
+            }, 250);
+        }
+
+        // --- ADSTERRA NATIVE BANNER INJECTION & REFRESH ---
+        function loadAdsterraBanner() {
+            const container = document.getElementById('kadam-banner-slot');
+            if (!container) return;
+
+            container.innerHTML = '';
+            container.appendChild(createAdsterraBannerIframe(1));
         }
 
         // --- AD TYPE 2: SECURE KADAM BANNER INJECTION ---
