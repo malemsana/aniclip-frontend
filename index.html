@@ -143,7 +143,6 @@
 <body class="antialiased min-h-screen flex flex-col pb-16 bg-[#020617]">
 
     <!-- ==== HEADER ==== -->
-    <!-- ==== HEADER ==== -->
     <header class="fixed top-0 w-full z-50 glass-nav transition-all duration-300" id="navbar">
         <nav class="container mx-auto px-4 h-16 flex justify-between items-center">
 
@@ -339,6 +338,12 @@
     <!-- ========================= JS LOGIC ========================= -->
     <script>
         const API_URL = 'https://aniclip-backend-nycl.onrender.com/api';
+        const JSON_ENDPOINTS = {
+            featured: 'https://cdn.jsdelivr.net/gh/adsjust460/bucket-bandage@main/featured.json',
+            recent: 'https://cdn.jsdelivr.net/gh/adsjust460/bucket-bandage@main/recent.json',
+            trending: 'https://cdn.jsdelivr.net/gh/adsjust460/bucket-bandage@main/Trending.json',
+            archive: 'https://cdn.jsdelivr.net/gh/adsjust460/bucket-bandage@main/archive.json'
+        };
 
         // STATE
         let debounceTimer;
@@ -349,6 +354,8 @@
         let archivePage = 1;
         let isArchiveLoading = false;
         let endOfArchive = false;
+        let archiveDatabase = null;
+        let useArchiveApiFallback = false;
 
         window.onload = () => {
             loadHeroSection();
@@ -358,34 +365,89 @@
             // initDelayedMonetagPush();
         };
 
+        // --- SEEDED SHUFFLE HELPER FOR ARCHIVE ---
+        function createSeededRandom(seedStr) {
+            let h = 0;
+            for (let i = 0; i < seedStr.length; i++) {
+                h = Math.imul(31, h) + seedStr.charCodeAt(i) | 0;
+            }
+            return function () {
+                h |= 0; h = h + 0x6D2B79F5 | 0;
+                let t = Math.imul(h ^ h >>> 15, 1 | h);
+                t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+                return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            };
+        }
+
+        function seededShuffle(array, seedStr) {
+            const rng = createSeededRandom(seedStr);
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(rng() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
         // --- 1. DATA FETCHERS ---
 
         async function loadHeroSection() {
             try {
-                const res = await fetch(`${API_URL}/animes/featured`);
-                const data = await res.json();
-                if (data.length > 0) {
+                let data;
+
+                try {
+                    const jsonRes = await fetch(JSON_ENDPOINTS.featured);
+                    if (!jsonRes.ok) throw new Error('Static featured JSON failed');
+                    data = await jsonRes.json();
+                } catch (jsonError) {
+                    console.warn('Static featured JSON unavailable, falling back to API:', jsonError);
+
+                    const res = await fetch(`${API_URL}/animes/featured`);
+                    data = await res.json();
+                }
+
+                if (data && data.length > 0) {
                     featuredAnimeList = data;
                     initHeroCarousel();
                     document.getElementById('hero-skeleton').style.display = 'none';
                 }
-            } catch (e) { console.error("Hero error:", e); }
+            } catch (e) {
+                console.error("Hero error:", e);
+            }
         }
 
         async function loadRecentRow() {
             try {
-                const res = await fetch(`${API_URL}/animes/recent`);
-                const data = await res.json();
+                let data;
+                try {
+                    const jsonRes = await fetch(JSON_ENDPOINTS.recent);
+                    if (!jsonRes.ok) throw new Error('Static recent JSON failed');
+                    data = await jsonRes.json();
+                } catch (jsonError) {
+                    console.warn('Static recent JSON unavailable, falling back to API:', jsonError);
+
+                    const res = await fetch(`${API_URL}/animes/recent`);
+                    data = await res.json();
+                }
                 renderRow(data, 'recent-row');
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error("Recent row error:", e); }
         }
 
         async function loadTrendingGrid() {
             try {
-                const res = await fetch(`${API_URL}/animes/trending`);
-                const data = await res.json();
+                let data;
+                try {
+                    const jsonRes = await fetch(JSON_ENDPOINTS.trending);
+                    if (!jsonRes.ok) throw new Error('Static trending JSON failed');
+                    data = await jsonRes.json();
+                } catch (jsonError) {
+                    console.warn('Static trending JSON unavailable, falling back to API:', jsonError);
+
+                    const res = await fetch(`${API_URL}/animes/trending`);
+                    data = await res.json();
+                }
                 renderGrid(data, 'trending-grid');
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error("Trending grid error:", e); }
         }
 
         // --- 2. HERO CAROUSEL LOGIC ---
@@ -497,17 +559,49 @@
             trigger.classList.replace('opacity-0', 'opacity-100');
 
             try {
-                const res = await fetch(`${API_URL}/animes/archive?page=${archivePage}&seed=${sessionSeed}`);
-                const data = await res.json();
-
-                if (data.length === 0) {
-                    endOfArchive = true;
-                    trigger.innerHTML = `<span class="text-[10px] text-slate-600 font-bold uppercase tracking-widest">End of Library</span>`;
-                    return;
+                if (!useArchiveApiFallback && archiveDatabase === null) {
+                    try {
+                        const jsonRes = await fetch(JSON_ENDPOINTS.archive);
+                        if (!jsonRes.ok) throw new Error('Static archive JSON failed');
+                        const rawData = await jsonRes.json();
+                        archiveDatabase = seededShuffle(rawData, sessionSeed);
+                    } catch (jsonError) {
+                        console.warn('Static archive JSON unavailable, falling back to API:', jsonError);
+                        useArchiveApiFallback = true;
+                    }
                 }
-                renderGrid(data, 'archive-grid', true);
-                archivePage++;
-            } catch (e) { console.error(e); }
+
+                if (!useArchiveApiFallback && archiveDatabase !== null) {
+                    const pageSize = 24;
+                    const startIndex = (archivePage - 1) * pageSize;
+                    const batch = archiveDatabase.slice(startIndex, startIndex + pageSize);
+
+                    if (batch.length === 0) {
+                        endOfArchive = true;
+                        trigger.innerHTML = `<span class="text-[10px] text-slate-600 font-bold uppercase tracking-widest">End of Library</span>`;
+                        return;
+                    }
+
+                    renderGrid(batch, 'archive-grid', true);
+                    archivePage++;
+
+                    if (startIndex + pageSize >= archiveDatabase.length) {
+                        endOfArchive = true;
+                        trigger.innerHTML = `<span class="text-[10px] text-slate-600 font-bold uppercase tracking-widest">End of Library</span>`;
+                    }
+                } else {
+                    const res = await fetch(`${API_URL}/animes/archive?page=${archivePage}&seed=${sessionSeed}`);
+                    const data = await res.json();
+
+                    if (data.length === 0) {
+                        endOfArchive = true;
+                        trigger.innerHTML = `<span class="text-[10px] text-slate-600 font-bold uppercase tracking-widest">End of Library</span>`;
+                        return;
+                    }
+                    renderGrid(data, 'archive-grid', true);
+                    archivePage++;
+                }
+            } catch (e) { console.error("Archive error:", e); }
             finally {
                 isArchiveLoading = false;
                 if (!endOfArchive) trigger.classList.replace('opacity-100', 'opacity-0');
@@ -698,6 +792,7 @@
         }
         */
     </script>
+
     <!-- ==== FOOTER ==== -->
     <footer class="mt-20 border-t border-white/5 bg-slate-950/80 backdrop-blur-2xl pt-16 pb-8">
         <div class="container mx-auto px-6">
@@ -812,6 +907,5 @@
         </div>
     </footer>
 </body>
-
 
 </html>
