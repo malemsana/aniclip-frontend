@@ -305,10 +305,10 @@
             const gitHubRawUrl = `https://raw.githubusercontent.com/adsjust460/aniclips-jsons/main/${path}`;
 
             const chain = [];
-            const jsonDeliver = True;
-            if (jsonDeliver === True) {
-                chain.push(jsDelivrUrl, gitHubRawUrl);
-            } else if (FALLBACK_LEVEL === 2) {
+            const jsonJsdelivr = true;
+            if (jsonJsdelivr === true) {
+                chain.push(jsDelivrUrl, );
+            } else {
                 chain.push(gitHubRawUrl);
             }
             return chain;
