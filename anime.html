@@ -301,11 +301,12 @@
         }
 
         function getStaticJsonUrlChain(path) {
-            const jsDelivrUrl = `https://cdn.jsdelivr.net/gh/malemsana2/aniclips-jsons@main/${path}`;
-            const gitHubRawUrl = `https://raw.githubusercontent.com/malemsana2/aniclips-jsons/main/${path}`;
+            const jsDelivrUrl = `https://cdn.jsdelivr.net/gh/adsjust460/aniclips-jsons@main/${path}`;
+            const gitHubRawUrl = `https://raw.githubusercontent.com/adsjust460/aniclips-jsons/main/${path}`;
 
             const chain = [];
-            if (FALLBACK_LEVEL === 1) {
+            const jsonDeliver = True;
+            if (jsonDeliver === True) {
                 chain.push(jsDelivrUrl, gitHubRawUrl);
             } else if (FALLBACK_LEVEL === 2) {
                 chain.push(gitHubRawUrl);
