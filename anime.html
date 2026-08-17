@@ -262,7 +262,7 @@
         // 1: jsDelivr -> GitHub -> Proxy (Starts at jsDelivr, falls back to GitHub, then Proxy)
         // 2: GitHub -> Proxy (Bypasses jsDelivr; starts at GitHub, falls back to Proxy)
         // 3: Proxy (Only uses Proxy/CDN)
-        const FALLBACK_LEVEL = 2;
+        const FALLBACK_LEVEL = 1;
 
         // Ad Initialization
         const runAdSdk = window.show_11112598 || null;
@@ -301,8 +301,8 @@
         }
 
         function getStaticJsonUrlChain(path) {
-            const jsDelivrUrl = `https://cdn.jsdelivr.net/gh/malemsana2/aniclips-jsons@main/${path}`;
-            const gitHubRawUrl = `https://raw.githubusercontent.com/malemsana2/aniclips-jsons/main/${path}`;
+            const jsDelivrUrl = `https://cdn.jsdelivr.net/gh/adsjust460/aniclips-jsons@main/${path}`;
+            const gitHubRawUrl = `https://raw.githubusercontent.com/adsjust460/aniclips-jsons/main/${path}`;
 
             const chain = [];
             if (FALLBACK_LEVEL === 1) {
