@@ -247,6 +247,88 @@
                 </div>
 
                 <div id="download-container" class="space-y-3 pb-4"></div>
+    </div>
+
+    <!-- In-Page Feedback Prompt Toast -->
+    <div id="feedback-prompt-toast"
+        class="fixed bottom-5 right-5 z-40 max-w-sm bg-slate-900/90 border border-blue-500/30 rounded-2xl p-4 shadow-2xl backdrop-blur-md opacity-0 invisible translate-y-4 transition-all duration-300">
+        <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center shrink-0">
+                <span class="material-symbols-rounded text-lg">chat_bubble</span>
+            </div>
+            <div class="flex-1">
+                <h4 class="text-xs font-bold text-white">How's your experience?</h4>
+                <p class="text-[11px] text-slate-300 mt-0.5 leading-snug">Spotted a bug or have a suggestion? Let us know!</p>
+                <div class="flex items-center gap-2 mt-3">
+                    <button onclick="openFeedbackModalFromPrompt()"
+                        class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] rounded-lg shadow transition-colors flex items-center gap-1">
+                        Feedback
+                    </button>
+                    <button onclick="dismissFeedbackPrompt()"
+                        class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-[11px] font-medium rounded-lg transition-colors">
+                        Later
+                    </button>
+                </div>
+            </div>
+            <button onclick="dismissFeedbackPrompt()" class="text-slate-500 hover:text-white text-xs"><span class="material-symbols-rounded text-sm">close</span></button>
+        </div>
+    </div>
+
+    <!-- In-Page Quick Feedback Modal -->
+    <div id="quick-feedback-modal" onclick="closeQuickFeedbackModal()"
+        class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-[70] p-4 opacity-0 invisible transition-all duration-200">
+        <div class="bg-slate-900 border border-slate-700 p-6 sm:p-8 rounded-2xl shadow-2xl w-full max-w-lg flex flex-col relative"
+            onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-4 border-b border-white/5 pb-4">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <span class="material-symbols-rounded text-blue-500">rate_review</span> Send Feedback
+                </h3>
+                <button onclick="closeQuickFeedbackModal()" class="text-slate-500 hover:text-white transition-colors">
+                    <span class="material-symbols-rounded">close</span>
+                </button>
+            </div>
+
+            <div id="modal-context-info" class="mb-4 text-[11px] text-slate-400 bg-slate-950/60 p-2.5 rounded-lg border border-white/5 font-mono truncate">
+                Context: <span id="modal-context-text" class="text-blue-300"></span>
+            </div>
+
+            <form id="quick-feedback-form" onsubmit="handleQuickFeedbackSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Category</label>
+                    <div class="grid grid-cols-2 gap-2" id="quick-cat-pills">
+                        <button type="button" onclick="selectQuickCat('General')" data-qcat="General" class="qcat-pill active py-2 px-2.5 rounded-lg border border-blue-500 bg-blue-600/20 text-blue-300 text-xs font-bold transition-all">💬 General</button>
+                        <button type="button" onclick="selectQuickCat('Bug')" data-qcat="Bug" class="qcat-pill py-2 px-2.5 rounded-lg border border-slate-800 bg-slate-950/60 text-slate-400 text-xs font-bold transition-all">🐛 Bug</button>
+                        <button type="button" onclick="selectQuickCat('Clip Request')" data-qcat="Clip Request" class="qcat-pill py-2 px-2.5 rounded-lg border border-slate-800 bg-slate-950/60 text-slate-400 text-xs font-bold transition-all">🎬 Clip Request</button>
+                        <button type="button" onclick="selectQuickCat('Feature')" data-qcat="Feature" class="qcat-pill py-2 px-2.5 rounded-lg border border-slate-800 bg-slate-950/60 text-slate-400 text-xs font-bold transition-all">💡 Feature</button>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="quick-feedback-msg" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Feedback <span class="text-blue-400">*</span></label>
+                    <textarea id="quick-feedback-msg" required rows="3" placeholder="Tell us what's on your mind..."
+                        class="w-full bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-xs text-white placeholder-slate-600 focus:border-blue-500 outline-none transition-all custom-scrollbar"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="text" id="quick-user-name" placeholder="Name (optional)"
+                        class="bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-blue-500 outline-none">
+                    <input type="email" id="quick-user-email" placeholder="Email (optional)"
+                        class="bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-blue-500 outline-none">
+                </div>
+
+                <div id="quick-status-container" class="hidden text-xs"></div>
+
+                <button type="submit" id="quick-submit-btn"
+                    class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-rounded text-base">send</span> Send Feedback
+                </button>
+            </form>
+
+            <div id="quick-success-card" class="hidden text-center py-6 space-y-3">
+                <span class="material-symbols-rounded text-4xl text-emerald-400">check_circle</span>
+                <h4 class="text-lg font-bold text-white">Feedback Sent!</h4>
+                <p class="text-slate-400 text-xs">Thank you for helping us improve AniClips!</p>
+                <button onclick="closeQuickFeedbackModal()" class="mt-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-lg border border-slate-700">Done</button>
             </div>
         </div>
     </div>
@@ -385,6 +467,7 @@
                 createListStructure();
                 populateNavGrid();
                 initMemoryManager();
+                initFeedbackPromptLogic();
                 if (localStorage.getItem('ac_autoplay') === 'true') {
                     els.autoPlayInput.checked = true;
                     state.autoplay = true;
@@ -1302,6 +1385,141 @@
         });
 
         function trackDownload() { fetch(`${API_URL}/animes/${state.animeId}/track-download`, { method: 'POST' }).catch(() => { }); }
+
+        // --- SMART FEEDBACK PROMPT FREQUENCY SYSTEM ---
+        const FEEDBACK_STORAGE = {
+            PROMPT_SHOWN: 'ac_fb_prompt_shown',
+            DISMISSED_UNTIL: 'ac_fb_dismissed_until',
+            SUBMITTED: 'ac_fb_submitted'
+        };
+
+        let quickSelectedCategory = 'General';
+
+        function initFeedbackPromptLogic() {
+            const now = Date.now();
+            const dismissedUntil = parseInt(localStorage.getItem(FEEDBACK_STORAGE.DISMISSED_UNTIL) || '0', 10);
+            const submittedAt = parseInt(localStorage.getItem(FEEDBACK_STORAGE.SUBMITTED) || '0', 10);
+            const lastShownAt = parseInt(localStorage.getItem(FEEDBACK_STORAGE.PROMPT_SHOWN) || '0', 10);
+
+            if (submittedAt && (now - submittedAt < 30 * 24 * 60 * 60 * 1000)) return;
+            if (dismissedUntil && now < dismissedUntil) return;
+            if (lastShownAt && (now - lastShownAt < 7 * 24 * 60 * 60 * 1000)) return;
+
+            // Trigger prompt after 25 seconds on page
+            setTimeout(() => {
+                showFeedbackToast();
+            }, 25000);
+        }
+
+        function showFeedbackToast() {
+            const toast = document.getElementById('feedback-prompt-toast');
+            if (!toast) return;
+            toast.classList.remove('invisible', 'opacity-0', 'translate-y-4');
+            localStorage.setItem(FEEDBACK_STORAGE.PROMPT_SHOWN, Date.now().toString());
+        }
+
+        function dismissFeedbackPrompt() {
+            const toast = document.getElementById('feedback-prompt-toast');
+            if (toast) toast.classList.add('invisible', 'opacity-0', 'translate-y-4');
+            const cooldown = Date.now() + (14 * 24 * 60 * 60 * 1000);
+            localStorage.setItem(FEEDBACK_STORAGE.DISMISSED_UNTIL, cooldown.toString());
+        }
+
+        function openQuickFeedbackModal(customContext = null) {
+            dismissFeedbackPrompt();
+
+            let contextText = state.animeSlug || 'Library';
+            if (activeCtx && activeCtx.epId) {
+                const ep = state.episodesList.find(e => e.id == activeCtx.epId);
+                const epNum = ep ? ep.number : '?';
+                contextText += ` | Ep ${epNum}`;
+                if (activeCtx.idx !== null && activeCtx.idx !== undefined && activeCtx.idx >= 0) {
+                    contextText += ` | Clip #${activeCtx.idx + 1}`;
+                }
+            }
+
+            document.getElementById('modal-context-text').textContent = contextText;
+            document.getElementById('quick-feedback-form').classList.remove('hidden');
+            document.getElementById('quick-success-card').classList.add('hidden');
+            document.getElementById('quick-feedback-msg').value = '';
+            document.getElementById('quick-status-container').className = 'hidden';
+            
+            const modal = document.getElementById('quick-feedback-modal');
+            modal.classList.remove('invisible', 'opacity-0');
+        }
+
+        function openFeedbackModalFromPrompt() {
+            openQuickFeedbackModal();
+        }
+
+        function closeQuickFeedbackModal() {
+            const modal = document.getElementById('quick-feedback-modal');
+            modal.classList.add('invisible', 'opacity-0');
+        }
+
+        function selectQuickCat(cat) {
+            quickSelectedCategory = cat;
+            document.querySelectorAll('.qcat-pill').forEach(btn => {
+                if (btn.getAttribute('data-qcat') === cat) {
+                    btn.className = "qcat-pill active py-2 px-2.5 rounded-lg border border-blue-500 bg-blue-600/20 text-blue-300 text-xs font-bold transition-all";
+                } else {
+                    btn.className = "qcat-pill py-2 px-2.5 rounded-lg border border-slate-800 bg-slate-950/60 text-slate-400 text-xs font-bold transition-all";
+                }
+            });
+        }
+
+        async function handleQuickFeedbackSubmit(e) {
+            e.preventDefault();
+            const msg = document.getElementById('quick-feedback-msg').value.trim();
+            const name = document.getElementById('quick-user-name').value.trim();
+            const email = document.getElementById('quick-user-email').value.trim();
+            const btn = document.getElementById('quick-submit-btn');
+            const statusDiv = document.getElementById('quick-status-container');
+
+            if (!msg) return;
+
+            btn.disabled = true;
+            btn.innerHTML = `<span class="material-symbols-rounded animate-spin text-base">progress_activity</span> Sending...`;
+
+            let currentEpNum = null;
+            if (activeCtx && activeCtx.epId) {
+                const ep = state.episodesList.find(e => e.id == activeCtx.epId);
+                if (ep) currentEpNum = ep.number;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/feedback`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        feedback: msg,
+                        name: name || undefined,
+                        email: email || undefined,
+                        pageUrl: window.location.href,
+                        meta: {
+                            category: quickSelectedCategory,
+                            anime: state.animeSlug,
+                            episode: currentEpNum,
+                            clipIndex: activeCtx ? activeCtx.idx : null
+                        }
+                    })
+                });
+
+                if (!res.ok) throw new Error("Feedback request failed");
+
+                localStorage.setItem(FEEDBACK_STORAGE.SUBMITTED, Date.now().toString());
+
+                document.getElementById('quick-feedback-form').classList.add('hidden');
+                document.getElementById('quick-success-card').classList.remove('hidden');
+
+            } catch (err) {
+                console.error(err);
+                statusDiv.className = "p-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-[11px] text-center mb-2";
+                statusDiv.textContent = "Could not send. Please try again.";
+                btn.disabled = false;
+                btn.innerHTML = `<span class="material-symbols-rounded text-base">send</span> Send Feedback`;
+            }
+        }
     </script>
 
     <!-- ==== FOOTER ==== -->
@@ -1343,6 +1561,7 @@
                                 <span
                                     class="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1 rounded uppercase tracking-widest text-[9px] font-bold">New</span></a>
                         </li>
+                        <li><a href="feedback" class="hover:text-blue-400 transition-colors flex items-center gap-1.5"><span class="material-symbols-rounded text-sm">chat_bubble</span> Feedback</a></li>
                     </ul>
                 </div>
 
@@ -1407,7 +1626,7 @@
                 <div class="flex gap-6">
                     <a href="#" class="hover:text-white transition-colors">Privacy</a>
                     <a href="#" class="hover:text-white transition-colors">Terms</a>
-                    <a href="#" class="hover:text-white transition-colors">Contact</a>
+                    <a href="feedback" class="hover:text-white transition-colors">Feedback</a>
                 </div>
             </div>
         </div>

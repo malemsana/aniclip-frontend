@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Feedback | AniClips</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script>
+        tailwind.config = { theme: { extend: { colors: { gray: { 900: '#0f172a', 950: '#020617' } }, animation: { 'spin-slow': 'spin 3s linear infinite' } } } }
+    </script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            background-image: radial-gradient(circle at 50% 0%, #1e3a8a 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        .material-symbols-rounded {
+            font-size: 24px;
+        }
+    </style>
+</head>
+
+<body class="text-slate-100 antialiased min-h-screen flex flex-col">
+
+    <!-- ==== HEADER (Reused from site) ==== -->
+    <header class="sticky top-0 z-40 border-b border-white/5 bg-slate-950/80 backdrop-blur-xl">
+        <nav class="container mx-auto px-4 h-16 flex justify-between items-center">
+            <a href="/" class="flex items-center gap-3 group">
+                <div
+                    class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                    <span class="material-symbols-rounded text-white text-lg">movie</span>
+                </div>
+                <span class="font-black text-xl tracking-tight text-slate-100">Ani<span
+                        class="text-blue-500">Clips</span></span>
+            </a>
+            <a href="/"
+                class="text-xs font-bold text-slate-500 hover:text-white transition-colors flex items-center gap-1 uppercase tracking-wider"><span
+                    class="material-symbols-rounded text-sm">arrow_back</span> Library</a>
+        </nav>
+    </header>
+
+    <!-- ==== MAIN CONTENT ==== -->
+    <main class="flex-grow container mx-auto p-4 sm:p-6 lg:p-8 max-w-3xl">
+        <a href="/" class="inline-flex items-center text-slate-400 hover:text-blue-400 mb-6 text-sm transition-colors">
+            <span class="material-symbols-rounded text-lg mr-1">arrow_back</span> Back to Library
+        </a>
+
+        <div class="bg-slate-900/60 border border-white/10 rounded-2xl p-6 sm:p-10 shadow-2xl backdrop-blur-md">
+            <div class="mb-8 border-b border-white/5 pb-6">
+                <div
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-600/10 border border-blue-500/20 text-blue-400 text-xs font-semibold mb-3">
+                    <span class="material-symbols-rounded text-sm">rate_review</span> Feedback & Support
+                </div>
+                <h1 class="text-2xl sm:text-4xl font-black text-white tracking-tight">We'd love your feedback!</h1>
+                <p class="text-slate-400 text-sm mt-2">
+                    Spotted a broken video, missing clip, or have a feature idea? Let us know below—our team receives
+                    instant updates on Telegram.
+                </p>
+            </div>
+
+            <!-- Context Notification Badge (If parameters present) -->
+            <div id="context-badge"
+                class="hidden mb-6 p-3.5 bg-blue-950/40 border border-blue-500/30 rounded-xl flex items-center justify-between">
+                <div class="flex items-center gap-2 text-xs text-blue-300">
+                    <span class="material-symbols-rounded text-base text-blue-400">info</span>
+                    <span>Attached Context: <strong id="context-text" class="text-white font-mono"></strong></span>
+                </div>
+                <button onclick="clearContext()" class="text-slate-400 hover:text-white text-xs"><span
+                        class="material-symbols-rounded text-sm">close</span></button>
+            </div>
+
+            <!-- Feedback Form -->
+            <form id="feedback-form" onsubmit="handleFeedbackSubmit(event)" class="space-y-6">
+
+                <!-- Category Select -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Category</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="category-pills">
+                        <button type="button" onclick="selectCategory('General')" data-cat="General"
+                            class="cat-pill active py-2.5 px-3 rounded-xl border border-blue-500 bg-blue-600/20 text-blue-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
+                            <span>💬</span> General
+                        </button>
+                        <button type="button" onclick="selectCategory('Bug')" data-cat="Bug"
+                            class="cat-pill py-2.5 px-3 rounded-xl border border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
+                            <span>🐛</span> Bug Report
+                        </button>
+                        <button type="button" onclick="selectCategory('Clip Request')" data-cat="Clip Request"
+                            class="cat-pill py-2.5 px-3 rounded-xl border border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
+                            <span>🎬</span> Clip Request
+                        </button>
+                        <button type="button" onclick="selectCategory('Feature')" data-cat="Feature"
+                            class="cat-pill py-2.5 px-3 rounded-xl border border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
+                            <span>💡</span> Feature Idea
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Message Textarea -->
+                <div>
+                    <label for="feedback-msg"
+                        class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Your Feedback <span
+                            class="text-blue-400">*</span></label>
+                    <textarea id="feedback-msg" required rows="5"
+                        placeholder="Describe your thoughts, issue, or request here..."
+                        class="w-full bg-slate-950/80 border border-slate-800 rounded-xl p-4 text-sm text-white placeholder-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all custom-scrollbar"></textarea>
+                </div>
+
+                <!-- Optional Details (Name & Email) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="user-name"
+                            class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Your Name <span
+                                class="text-slate-600 font-normal">(Optional)</span></label>
+                        <input type="text" id="user-name" placeholder="Itachi Hotarou"
+                            class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:border-blue-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label for="user-email"
+                            class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Email Address
+                            <span class="text-slate-600 font-normal">(Optional)</span></label>
+                        <input type="email" id="user-email" placeholder="ren-awesomeEdit@gmail.com"
+                            class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:border-blue-500 outline-none transition-all">
+                    </div>
+                </div>
+
+                <!-- Status alert container -->
+                <div id="status-container" class="hidden"></div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submit-btn"
+                    class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 active:scale-[0.99]">
+                    <span class="material-symbols-rounded text-lg">send</span> Send Feedback
+                </button>
+            </form>
+
+            <!-- Success Card (hidden by default) -->
+            <div id="success-card" class="hidden text-center py-10 space-y-4">
+                <div
+                    class="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto border border-emerald-500/30 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
+                    <span class="material-symbols-rounded text-3xl">check_circle</span>
+                </div>
+                <h3 class="text-2xl font-bold text-white">Thank You!</h3>
+                <p class="text-slate-300 text-sm max-w-md mx-auto">
+                    Your feedback has been delivered directly to our team. We appreciate your contribution to making
+                    AniClips better!
+                </p>
+                <div class="pt-4">
+                    <button onclick="resetForm()"
+                        class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs rounded-xl border border-slate-700 transition-colors">
+                        Send Another Message
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ==== FOOTER (Reused from site) ==== -->
+    <footer class="mt-20 border-t border-white/5 bg-slate-950/80 backdrop-blur-2xl pt-16 pb-8">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
+
+                <!-- Column 1: Brand & About (4 Cols) -->
+                <div class="lg:col-span-4 space-y-6">
+                    <a href="/" class="flex items-center gap-3 group">
+                        <div
+                            class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                            <span class="material-symbols-rounded text-white text-lg">movie</span>
+                        </div>
+                        <span class="font-black text-xl tracking-tight text-slate-100">Ani<span
+                                class="text-blue-500">Clips</span></span>
+                    </a>
+                    <p class="text-slate-400 text-sm leading-relaxed max-w-sm">
+                        AniClips is your ultimate destination for high-quality anime moments. We provide a seamless
+                        experience for discovering, previewing, and collecting your favorite clips from the world's most
+                        popular series.
+                    </p>
+                    <div class="flex gap-4">
+                        <a target="_blank" href="https://t.me/+QTrHC5GUA9w5NjI9" title="Telegram"
+                            class="w-10 h-10 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#26A5E4] hover:border-[#26A5E4]/30 transition-all shadow-lg">
+                            <i class="fa-brands fa-telegram text-xl"></i>
+                        </a>
+                        <a target="_blank" href="https://www.reddit.com/r/aniclips_site/" title="Reddit"
+                            class="w-10 h-10 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#FF4500] hover:border-[#FF4500]/30 transition-all shadow-lg">
+                            <i class="fa-brands fa-reddit-alien text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Column 2: Navigation (2 Cols) -->
+                <div class="lg:col-span-2">
+                    <h4 class="text-white font-bold mb-6 text-xs uppercase tracking-widest">Library</h4>
+                    <ul class="space-y-4 text-slate-400 text-sm">
+                        <li><a href="/" class="hover:text-blue-400 transition-colors">Home</a></li>
+                        <li><a href="/" class="hover:text-blue-400 transition-colors">Trending</a></li>
+                        <li><a href="/#browse-genres" class="hover:text-blue-400 transition-colors">Collections</a></li>
+                        <li><a href="blogs"
+                                class="text-blue-400 hover:text-blue-300 font-medium transition-colors flex items-center gap-1">Blogs
+                                <span
+                                    class="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1 rounded uppercase tracking-widest text-[9px] font-bold">New</span></a>
+                        </li>
+                        <li><a href="feedback"
+                                class="text-blue-400 hover:text-blue-300 font-medium transition-colors flex items-center gap-1.5"><span
+                                    class="material-symbols-rounded text-sm">chat_bubble</span> Feedback</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Collapsible FOQA (6 Cols) -->
+                <div class="lg:col-span-6">
+                    <h4 class="text-white font-bold mb-6 text-xs uppercase tracking-widest">Quick FOQA</h4>
+                    <div class="space-y-3">
+                        <details
+                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary
+                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                                <span class="text-sm font-bold text-slate-200">Is the library free to use?</span>
+                                <span
+                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                            </summary>
+                            <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
+                                Yes, AniClips is a free community-driven project. We do not charge for access to our
+                                standard or 4K/RAW library segments.
+                            </div>
+                        </details>
+
+                        <details
+                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary
+                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                                <span class="text-sm font-bold text-slate-200">How do I download RAW clips?</span>
+                                <span
+                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                            </summary>
+                            <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
+                                Open any episode, click on a clip card, and use the "Download Ready" button. You can
+                                choose between 'Fast' (standard) or 'HQ' (RAW) depending on availability.
+                            </div>
+                        </details>
+
+                        <details
+                            class="group bg-slate-900/50 border border-white/5 rounded-xl overflow-hidden transition-all">
+                            <summary
+                                class="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-white/5">
+                                <span class="text-sm font-bold text-slate-200">What about copyrights of the
+                                    clips?</span>
+                                <span
+                                    class="material-symbols-rounded text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                            </summary>
+                            <div class="px-4 pb-4 text-sm text-slate-400 leading-relaxed">
+                                They are rightfully owned by the respective owners of the anime. We are just an editor
+                                community operate on principle of fair use and keeping the fanbase alive.
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div
+                class="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                <p>&copy; 2025 AniClips Library. All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-white transition-colors">Privacy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms</a>
+                    <a href="feedback" class="hover:text-white transition-colors">Feedback</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const API_URL = 'https://aniclip-backend-runo.onrender.com/api';
+        let selectedCategory = 'General';
+        let attachedContext = {};
+
+        // Parse query params for auto-context
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const anime = params.get('anime');
+            const ep = params.get('ep') || params.get('episode');
+            const clip = params.get('clip');
+
+            if (anime || ep || clip) {
+                attachedContext = { anime, episode: ep, clip };
+                const text = [
+                    anime ? `Anime: ${anime}` : '',
+                    ep ? `Ep: ${ep}` : '',
+                    clip ? `Clip: ${clip}` : ''
+                ].filter(Boolean).join(' | ');
+
+                document.getElementById('context-text').textContent = text;
+                document.getElementById('context-badge').classList.remove('hidden');
+            }
+        });
+
+        function clearContext() {
+            attachedContext = {};
+            document.getElementById('context-badge').classList.add('hidden');
+        }
+
+        function selectCategory(cat) {
+            selectedCategory = cat;
+            document.querySelectorAll('.cat-pill').forEach(btn => {
+                if (btn.getAttribute('data-cat') === cat) {
+                    btn.className = "cat-pill active py-2.5 px-3 rounded-xl border border-blue-500 bg-blue-600/20 text-blue-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all";
+                } else {
+                    btn.className = "cat-pill py-2.5 px-3 rounded-xl border border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 text-xs font-bold flex items-center justify-center gap-1.5 transition-all";
+                }
+            });
+        }
+
+        async function handleFeedbackSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const statusDiv = document.getElementById('status-container');
+            const msg = document.getElementById('feedback-msg').value.trim();
+            const name = document.getElementById('user-name').value.trim();
+            const email = document.getElementById('user-email').value.trim();
+
+            if (!msg) return;
+
+            btn.disabled = true;
+            btn.innerHTML = `<span class="material-symbols-rounded animate-spin text-lg">progress_activity</span> Sending...`;
+            statusDiv.className = 'hidden';
+
+            try {
+                const res = await fetch(`${API_URL}/feedback`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        feedback: msg,
+                        name: name || undefined,
+                        email: email || undefined,
+                        pageUrl: window.location.href,
+                        meta: {
+                            category: selectedCategory,
+                            ...attachedContext,
+                            referrer: document.referrer || undefined
+                        }
+                    })
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Server returned ${res.status}`);
+                }
+
+                // Show success card
+                document.getElementById('feedback-form').classList.add('hidden');
+                document.getElementById('success-card').classList.remove('hidden');
+
+            } catch (err) {
+                console.error("Feedback error:", err);
+                statusDiv.className = 'p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs text-center font-medium';
+                statusDiv.textContent = 'Failed to send feedback. Please check your connection and try again.';
+                btn.disabled = false;
+                btn.innerHTML = `<span class="material-symbols-rounded text-lg">send</span> Send Feedback`;
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('feedback-form').reset();
+            document.getElementById('feedback-form').classList.remove('hidden');
+            document.getElementById('success-card').classList.add('hidden');
+            document.getElementById('submit-btn').disabled = false;
+            document.getElementById('submit-btn').innerHTML = `<span class="material-symbols-rounded text-lg">send</span> Send Feedback`;
+            selectCategory('General');
+        }
+    </script>
+</body>
+
+</html>
