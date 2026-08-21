@@ -935,12 +935,9 @@
             els.modal.classList.remove('invisible', 'opacity-0');
             document.body.style.overflow = 'hidden';
             loadPlayer(true);
-            precalculateCloseAd();
         }
 
         function closePreview() {
-            triggerCloseAd();
-
             clearInterval(state.adTimer);
             state.adTimer = null;
             els.modal.classList.add('invisible', 'opacity-0');
@@ -1138,14 +1135,6 @@
             pushScript.async = true;
 
             document.body.appendChild(pushScript);
-        }
-
-        function precalculateCloseAd() {}
-
-        function triggerCloseAd() {
-            if (state.monetagSmartlink) {
-                window.open(state.monetagSmartlink, '_blank');
-            }
         }
 
         function maybeRefreshAd() {
