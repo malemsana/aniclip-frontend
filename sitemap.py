@@ -2,7 +2,7 @@ import requests
 from datetime import datetime
 from xml.etree.ElementTree import Element, SubElement, ElementTree
 
-BASE_API = "https://aniclip-backend-nycl.onrender.com/api"
+BASE_API = "https://aniclip-backend-runo.onrender.com/api"
 ARCHIVE_ENDPOINT = "/animes/archive"
 
 SITE_URL = "https://aniclips.site"
