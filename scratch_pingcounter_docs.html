@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Documentation | PingCounter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #09090b;
+        }
+
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        .glass-card {
+            background: rgba(18, 18, 20, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .endpoint-badge {
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .get { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .post { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    </style>
+</head>
+<body class="text-zinc-300 custom-scrollbar">
+
+    <!-- Header Navigation -->
+    <header class="fixed top-0 left-0 right-0 z-50 border-b border-zinc-800/50 bg-[#09090b]/80 backdrop-blur-md">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="p-1.5 bg-blue-600 rounded-lg">
+                    <svg class="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                </div>
+                <span class="text-lg font-bold text-white tracking-tight">PingCounter <span class="text-zinc-500 font-medium">Docs</span></span>
+            </div>
+            <a href="/dashboard" class="text-sm font-medium text-zinc-400 hover:text-white transition flex items-center gap-2">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Back to Dashboard
+            </a>
+        </div>
+    </header>
+
+    <main class="pt-24 pb-20 px-6 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-12">
+        
+        <!-- Sticky Sidebar Nav -->
+        <aside class="hidden lg:block">
+            <nav class="sticky top-32 space-y-8">
+                <div class="space-y-3">
+                    <h5 class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest px-2">Fundamentals</h5>
+                    <ul class="space-y-1">
+                        <li><a href="#introduction" class="block px-2 py-1.5 text-sm text-zinc-400 hover:text-blue-400 transition">Introduction</a></li>
+                        <li><a href="#authentication" class="block px-2 py-1.5 text-sm text-zinc-400 hover:text-blue-400 transition">Authentication</a></li>
+                        <li><a href="#scopes" class="block px-2 py-1.5 text-sm text-zinc-400 hover:text-blue-400 transition">API Scopes</a></li>
+                    </ul>
+                </div>
+                <div class="space-y-3">
+                    <h5 class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest px-2">Endpoints</h5>
+                    <ul class="space-y-1">
+                        <li><a href="#ingestion" class="block px-2 py-1.5 text-sm text-zinc-400 hover:text-blue-400 transition">Ingestion (Pings)</a></li>
+                        <li><a href="#badges" class="block px-2 py-1.5 text-sm text-zinc-400 hover:text-blue-400 transition">Visual Badges</a></li>
+                        <li><a href="#retrieval" class="block px-2 py-1.5 text-sm text-zinc-400 hover:text-blue-400 transition">Data Retrieval</a></li>
+                        <li><a href="#history" class="block px-2 py-1.5 text-sm text-zinc-400 hover:text-blue-400 transition">Historical Stats</a></li>
+                    </ul>
+                </div>
+                <div class="space-y-3">
+                    <h5 class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest px-2">Workflows</h5>
+                    <ul class="space-y-1">
+                        <li><a href="#auto-creation" class="block px-2 py-1.5 text-sm text-zinc-400 hover:text-blue-400 transition">Auto-Creation</a></li>
+                        <li><a href="#privacy" class="block px-2 py-1.5 text-sm text-zinc-400 hover:text-blue-400 transition">Privacy & Public Slugs</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Documentation Content -->
+        <div class="space-y-24">
+            
+            <!-- Intro Section -->
+            <section id="introduction" class="animate-fade-in">
+                <h1 class="text-4xl font-extrabold text-white mb-6 tracking-tight">The Modern Metric Engine.</h1>
+                <p class="text-lg text-zinc-400 leading-relaxed max-w-3xl">
+                    PingCounter is a high-performance, developer-first service designed for real-time tracking, 
+                    visual analytics, and secure metric aggregation. Whether you're tracking page loads, 
+                    API hits, or user interactions, we provide the infrastructure to capture and visualize it instantly.
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+                    <div class="glass-card p-6 rounded-2xl border border-zinc-800/50">
+                        <i data-lucide="zap" class="text-amber-400 w-6 h-6 mb-4"></i>
+                        <h4 class="text-white font-bold mb-2">High Speed</h4>
+                        <p class="text-xs text-zinc-500 leading-relaxed">Redis-backed ingestion capable of handling thousands of pings per second with minimal latency.</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-2xl border border-zinc-800/50">
+                        <i data-lucide="shield-check" class="text-blue-400 w-6 h-6 mb-4"></i>
+                        <h4 class="text-white font-bold mb-2">Secure Scopes</h4>
+                        <p class="text-xs text-zinc-500 leading-relaxed">Granular access control ensuring your data is only visible to authorized keys and users.</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-2xl border border-zinc-800/50">
+                        <i data-lucide="layout" class="text-purple-400 w-6 h-6 mb-4"></i>
+                        <h4 class="text-white font-bold mb-2">Visual-First</h4>
+                        <p class="text-xs text-zinc-500 leading-relaxed">Beautiful SVG badges built-in, with zero-config embedding for any web environment.</p>
+                    </div>
+                </div>
+
+                <div class="mt-16 p-8 bg-blue-500/5 border border-blue-500/10 rounded-3xl relative overflow-hidden group">
+                    <div class="absolute -right-8 -top-8 text-blue-500/5 rotate-12 group-hover:rotate-0 transition-transform duration-700">
+                        <i data-lucide="server" size="160"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-white font-bold text-lg mb-4 flex items-center gap-2">
+                            <i data-lucide="globe" class="text-blue-400 w-5 h-5"></i>
+                            API Base URL
+                        </h3>
+                        <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
+                            <code class="px-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-blue-400 font-mono text-sm shadow-inner select-all">
+                                https://pingcounter.onrender.com
+                            </code>
+                            <p class="text-xs text-zinc-500 italic">All requests should be sent to this base endpoint unless running a local instance.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scopes Section -->
+            <section id="scopes" class="space-y-8 scroll-mt-24">
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                        <i data-lucide="key" class="text-zinc-500"></i>
+                        API Scopes & Security
+                    </h2>
+                    <p class="text-zinc-400 leading-relaxed">
+                        API keys are scoped to specific operations. This allows you to expose keys for 
+                        different parts of your application without risking the security of your full dataset.
+                    </p>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="flex gap-6 p-6 glass-card rounded-2xl border-l-4 border-l-emerald-500/50">
+                        <div class="shrink-0 text-emerald-400 font-mono text-sm font-bold uppercase tracking-widest pt-1">ping</div>
+                        <div class="space-y-2">
+                            <h4 class="text-white font-semibold">Write-Only Access</h4>
+                            <p class="text-sm text-zinc-500">Allows triggering event counts. This is the safest key to expose in client-side code. It cannot be used to retrieve statistics or view badges.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-6 p-6 glass-card rounded-2xl border-l-4 border-l-blue-500/50">
+                        <div class="shrink-0 text-blue-400 font-mono text-sm font-bold uppercase tracking-widest pt-1">read</div>
+                        <div class="space-y-2">
+                            <h4 class="text-white font-semibold">Data Retrieval Access</h4>
+                            <p class="text-sm text-zinc-500">Allows viewing event stats and generating authenticated badges. Use this key in backend environments to pull metrics securely.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-6 p-6 glass-card rounded-2xl border-l-4 border-l-purple-500/50">
+                        <div class="shrink-0 text-purple-400 font-mono text-sm font-bold uppercase tracking-widest pt-1">admin</div>
+                        <div class="space-y-2">
+                            <h4 class="text-white font-semibold">Full Control</h4>
+                            <p class="text-sm text-zinc-500">Grants both ping and read permissions. This is the recommended scope for administrative internal tools.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-8 mt-12 space-y-6">
+                    <h3 class="text-white font-bold flex items-center gap-3">
+                        <i data-lucide="shield" class="text-blue-400"></i>
+                        Advanced Security Rules
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-3">
+                            <h4 class="text-sm font-semibold text-zinc-200">Allowed Origins (CORS)</h4>
+                            <p class="text-xs text-zinc-500 leading-relaxed">
+                                Restrict `ping` requests to specific domains. If set, the server will reject any request coming from an origin not in your whitelist.
+                            </p>
+                        </div>
+                        <div class="space-y-3">
+                            <h4 class="text-sm font-semibold text-zinc-200">Allowed IPs</h4>
+                            <p class="text-xs text-zinc-500 leading-relaxed">
+                                Hard-lock your data retrieval. Restrict `read` and `admin` operations to specific static IP addresses (e.g., your office or server IP).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Ingestion Section -->
+            <section id="ingestion" class="space-y-8 scroll-mt-24">
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                        <i data-lucide="terminal" class="text-zinc-500"></i>
+                        Ingestion Engine
+                    </h2>
+                    <p class="text-zinc-400 leading-relaxed">
+                        To increment a counter, send a request to the ingestion endpoint. 
+                        We support both GET and POST to make integration as simple as possible.
+                    </p>
+                </div>
+
+                <div class="bg-zinc-950 rounded-2xl border border-zinc-800 overflow-hidden">
+                    <div class="p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/30">
+                        <div class="flex items-center gap-3">
+                            <span class="endpoint-badge get">GET</span>
+                            <span class="endpoint-badge post">POST</span>
+                            <code class="text-sm text-zinc-300 font-mono">/p/:api_key/:project/:event</code>
+                        </div>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div class="space-y-3">
+                            <h5 class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Parameters</h5>
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center text-sm border-b border-zinc-800/50 pb-2">
+                                    <span class="font-mono text-blue-400">api_key</span>
+                                    <span class="text-zinc-500">A key with <code class="bg-zinc-900 px-1 rounded">ping</code> scope</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm border-b border-zinc-800/50 pb-2">
+                                    <span class="font-mono text-blue-400">project</span>
+                                    <span class="text-zinc-500">The project namespace slug</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm border-b border-zinc-800/50 pb-2">
+                                    <span class="font-mono text-blue-400">event</span>
+                                    <span class="text-zinc-500">The specific event identifier</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <h5 class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Integration Methods</h5>
+                            
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                                <!-- JS Fetch -->
+                                <div class="space-y-3">
+                                    <div class="text-[11px] font-semibold text-zinc-300">JavaScript Fetch</div>
+                                    <div class="bg-zinc-900 rounded-xl p-4 font-mono text-[10px] text-zinc-400 border border-zinc-800/50">
+                                        <code class="block text-blue-400">
+fetch('https://pingcounter.onrender.com/p/pc_123/site/signup', {
+  method: 'POST',
+  mode: 'no-cors'
+});
+                                        </code>
+                                    </div>
+                                </div>
+
+                                <!-- Image Pixel -->
+                                <div class="space-y-3">
+                                    <div class="text-[11px] font-semibold text-zinc-300">Image Pixel (Zero JS)</div>
+                                    <div class="bg-zinc-900 rounded-xl p-4 font-mono text-[10px] text-zinc-400 border border-zinc-800/50">
+                                        <code class="block text-emerald-400">
+&lt;img src="https://pingcounter.onrender.com/p/pc_123/site/view" 
+     width="1" height="1" style="display:none" /&gt;
+                                        </code>
+                                    </div>
+                                </div>
+
+                                <!-- Shell -->
+                                <div class="space-y-3">
+                                    <div class="text-[11px] font-semibold text-zinc-300">Shell (cURL)</div>
+                                    <div class="bg-zinc-900 rounded-xl p-4 font-mono text-[10px] text-zinc-400 border border-zinc-800/50">
+                                        <code class="block text-purple-400">
+curl -X POST "https://pingcounter.onrender.com/p/pc_123/site/test"
+                                        </code>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Explanation of Image Tracking -->
+                            <div class="bg-blue-500/5 border border-blue-500/20 rounded-xl p-5 space-y-3">
+                                <h4 class="text-blue-400 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                                    <i data-lucide="info" class="w-4 h-4"></i>
+                                    How does Image Tracking work?
+                                </h4>
+                                <p class="text-xs text-zinc-500 leading-relaxed">
+                                    When a browser encounters an <code class="bg-zinc-900 px-1 rounded">img</code> tag, it automatically sends a <strong>GET request</strong> 
+                                    to the URL to retrieve the image. PingCounter intercepts this request, increments your event count, 
+                                    and returns a 204 No Content response. 
+                                </p>
+                                <ul class="text-[10px] text-zinc-600 space-y-1 list-disc pl-4">
+                                    <li>Works even if the user has JavaScript disabled.</li>
+                                    <li>Zero performance impact on the main thread.</li>
+                                    <li>Perfect for Email tracking, Markdown files (GitHub READMEs), and static sites.</li>
+                                </ul>
+                            </div>
+
+                            <!-- Advanced: Navigator.sendBeacon -->
+                            <div class="space-y-3">
+                                <h5 class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Advanced: Analytics Beacon</h5>
+                                <p class="text-[11px] text-zinc-500">For tracking data when a user leaves a page without delaying the navigation:</p>
+                                <div class="bg-zinc-900 rounded-xl p-4 font-mono text-[10px] text-zinc-400">
+                                    <code class="block text-purple-400">
+window.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    navigator.sendBeacon('https://pingcounter.onrender.com/p/pc_123/site/exit');
+  }
+});
+                                    </code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Badges Section -->
+            <section id="badges" class="space-y-8 scroll-mt-24">
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                        <i data-lucide="palette" class="text-zinc-500"></i>
+                        Visual Badges
+                    </h2>
+                    <p class="text-zinc-400 leading-relaxed">
+                        Visualize your metrics anywhere with zero dependencies. Badges are rendered 
+                        dynamically as SVGs on our edge servers.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-card p-6 rounded-2xl border border-zinc-800/50 space-y-4">
+                        <h4 class="text-white font-bold flex items-center gap-2">
+                            <i data-lucide="globe" class="w-4 h-4 text-emerald-400"></i>
+                            Public Badge
+                        </h4>
+                        <p class="text-xs text-zinc-500 leading-relaxed">Requires the event to have "Public Access" enabled. Uses a secure hash slug.</p>
+                        <code class="block bg-zinc-950 p-3 rounded-lg text-[10px] font-mono text-zinc-400">/badge/:public_slug?style=flat</code>
+                    </div>
+                    <div class="glass-card p-6 rounded-2xl border border-zinc-800/50 space-y-4">
+                        <h4 class="text-white font-bold flex items-center gap-2">
+                            <i data-lucide="lock" class="w-4 h-4 text-blue-400"></i>
+                            Authenticated Badge
+                        </h4>
+                        <p class="text-xs text-zinc-500 leading-relaxed">Works for private events. Requires a key with <code class="text-blue-400">read</code> scope passed in the URL.</p>
+                        <code class="block bg-zinc-950 p-3 rounded-lg text-[10px] font-mono text-zinc-400">/api/v1/badge/:key/:project/:event</code>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <h5 class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest px-2">Supported Styles</h5>
+                    <div class="flex flex-wrap gap-4">
+                        <span class="px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-md text-[10px] font-mono">flat</span>
+                        <span class="px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-md text-[10px] font-mono">flat-square</span>
+                        <span class="px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-md text-[10px] font-mono">plastic</span>
+                        <span class="px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-md text-[10px] font-mono">for-the-badge</span>
+                        <span class="px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-md text-[10px] font-mono">social</span>
+                        <span class="px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-md text-[10px] font-mono">minimal</span>
+                        <span class="px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-md text-[10px] font-mono">glass</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Retrieval Section -->
+            <section id="retrieval" class="space-y-8 scroll-mt-24">
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                        <i data-lucide="database" class="text-zinc-500"></i>
+                        Data Retrieval (JSON API)
+                    </h2>
+                    <p class="text-zinc-400 leading-relaxed">
+                        Pull raw metric data into your own applications, dashboards, or scripts. 
+                        Returns comprehensive statistics including real-time hits.
+                    </p>
+                </div>
+
+                <div class="bg-zinc-950 rounded-2xl border border-zinc-800 overflow-hidden">
+                    <div class="p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/30">
+                        <div class="flex items-center gap-3">
+                            <span class="endpoint-badge get">GET</span>
+                            <code class="text-sm text-zinc-300 font-mono">/api/v1/data/:api_key/:project/:event</code>
+                        </div>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div class="space-y-3">
+                            <h5 class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest px-2">Query Parameters</h5>
+                            <div class="flex justify-between items-center text-sm border-b border-zinc-800/50 pb-2 px-2">
+                                <span class="font-mono text-zinc-400">days</span>
+                                <span class="text-zinc-500 italic">Optional. Number of days to return (default: 30)</span>
+                            </div>
+                        </div>
+                        <div class="bg-zinc-900 rounded-xl p-6 font-mono text-[11px] text-zinc-400 overflow-x-auto">
+<pre class="text-emerald-400">{
+  "project": "my-site",
+  "event": "signup",
+  "total": 14209,
+  "today": 412,
+  "live": 12,
+  "history": [
+    { "date": "2026-05-01", "count": 102 },
+    { "date": "2026-05-02", "count": 145 },
+    ...
+  ]
+}</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historical Stats Section -->
+                <div id="history" class="bg-zinc-950 rounded-2xl border border-zinc-800 overflow-hidden mt-8 scroll-mt-24">
+                    <div class="p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/30">
+                        <div class="flex items-center gap-3">
+                            <span class="endpoint-badge get">GET</span>
+                            <code class="text-sm text-zinc-300 font-mono">/api/v1/history/:api_key/:project/:event</code>
+                        </div>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div class="space-y-4">
+                            <h4 class="text-white font-semibold flex items-center gap-2">
+                                <i data-lucide="bar-chart-3" class="w-4 h-4 text-emerald-400"></i>
+                                Time-Series Distribution
+                            </h4>
+                            <p class="text-sm text-zinc-500 leading-relaxed">
+                                A specialized endpoint optimized for analytics. It returns an array of daily aggregates, 
+                                ideal for populating line charts, bar graphs, or activity maps.
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-3">
+                                <h5 class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest px-1">Shell Example</h5>
+                                <div class="bg-zinc-900 rounded-xl p-4 font-mono text-[10px] text-zinc-400 border border-zinc-800/50">
+                                    <code class="block text-blue-400">
+curl -X GET "https://pingcounter.onrender.com/api/v1/history/YOUR_KEY/project/event?days=7"
+                                    </code>
+                                </div>
+                            </div>
+                            <div class="space-y-3">
+                                <h5 class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest px-1">JSON Response</h5>
+                                <div class="bg-zinc-900 rounded-xl p-4 font-mono text-[10px] text-emerald-400 border border-zinc-800/50 overflow-x-auto">
+<pre>{
+  "history": [
+    { "date": "2026-05-13", "count": 412 },
+    { "date": "2026-05-14", "count": 528 }
+  ]
+}</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4">
+                            <h5 class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3">Schema Breakdown</h5>
+                            <ul class="space-y-2">
+                                <li class="flex items-center justify-between text-[11px] border-b border-zinc-800 pb-2">
+                                    <span class="font-mono text-zinc-300">date</span>
+                                    <span class="text-zinc-500 italic">ISO 8601 String (YYYY-MM-DD)</span>
+                                </li>
+                                <li class="flex items-center justify-between text-[11px]">
+                                    <span class="font-mono text-zinc-300">count</span>
+                                    <span class="text-zinc-500 italic">Total hits recorded on that day</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- Workflows Section -->
+            <section id="auto-creation" class="space-y-8 scroll-mt-24">
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                        <i data-lucide="refresh-cw" class="text-zinc-500"></i>
+                        Developer Workflows
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <h4 class="text-white font-bold">Zero-Config Ingestion</h4>
+                        <p class="text-sm text-zinc-500 leading-relaxed">
+                            You don't need to create projects or events manually in the dashboard. 
+                            If a valid API key triggers an ingestion call for a project/event that 
+                            doesn't exist, we'll create it instantly in <code class="bg-zinc-900 px-1 rounded text-zinc-400">pending</code> mode.
+                        </p>
+                    </div>
+                    <div class="space-y-4">
+                        <h4 class="text-white font-bold">Auto-Approve Events</h4>
+                        <p class="text-sm text-zinc-500 leading-relaxed">
+                            For highly dynamic environments, enable **Auto-Approve** in Project Settings. 
+                            New events will bypass the pending queue and start tracking instantly 
+                            the moment they are first triggered.
+                        </p>
+                    </div>
+                    <div class="space-y-4">
+                        <h4 class="text-white font-bold">The Pending Queue</h4>
+                        <p class="text-sm text-zinc-500 leading-relaxed">
+                            By default, unknown events are put in the "Pending" state. This protects 
+                            your metric history from accidental spam or "ghost" events created by 
+                            typos in your integration code.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="pt-20 border-t border-zinc-800 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-3">
+                    <div class="p-1.5 bg-zinc-800 rounded-lg">
+                        <svg class="h-4 w-4 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    </div>
+                    <span class="text-sm font-bold text-zinc-400">PingCounter v1.4</span>
+                </div>
+                <div class="flex items-center gap-8 text-xs font-medium text-zinc-500">
+                    <a href="#" class="hover:text-zinc-300">Terms of Service</a>
+                    <a href="#" class="hover:text-zinc-300">Privacy Policy</a>
+                    <a href="#" class="hover:text-zinc-300">Security</a>
+                </div>
+            </footer>
+
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+        
+        // Smooth scroll for nav links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

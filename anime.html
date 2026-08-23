@@ -243,7 +243,8 @@
                 <span id="preview-duration" class="hidden">--:--</span>
 
                 <div class="flex-1 min-h-0 overflow-hidden mb-6 flex justify-center items-start">
-                    <div id="kadam-banner-slot" class="w-[300px] h-[250px] overflow-hidden rounded-lg flex-shrink-0"></div>
+                    <div id="kadam-banner-slot" class="w-[300px] h-[250px] overflow-hidden rounded-lg flex-shrink-0">
+                    </div>
                 </div>
 
                 <div id="download-container" class="space-y-3 pb-4"></div>
@@ -255,12 +256,14 @@
     <div id="feedback-prompt-toast"
         class="fixed bottom-5 right-5 z-40 max-w-sm bg-slate-900/90 border border-blue-500/30 rounded-2xl p-4 shadow-2xl backdrop-blur-md opacity-0 invisible translate-y-4 transition-all duration-300">
         <div class="flex items-start gap-3">
-            <div class="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center shrink-0">
+            <div
+                class="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center shrink-0">
                 <span class="material-symbols-rounded text-lg">chat_bubble</span>
             </div>
             <div class="flex-1">
                 <h4 class="text-xs font-bold text-white">How's your experience?</h4>
-                <p class="text-[11px] text-slate-300 mt-0.5 leading-snug">Spotted a bug or have a suggestion? Let us know!</p>
+                <p class="text-[11px] text-slate-300 mt-0.5 leading-snug">Spotted a bug or have a suggestion? Let us
+                    know!</p>
                 <div class="flex items-center gap-2 mt-3">
                     <button onclick="openFeedbackModalFromPrompt()"
                         class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] rounded-lg shadow transition-colors flex items-center gap-1">
@@ -272,7 +275,8 @@
                     </button>
                 </div>
             </div>
-            <button onclick="dismissFeedbackPrompt()" class="text-slate-500 hover:text-white text-xs"><span class="material-symbols-rounded text-sm">close</span></button>
+            <button onclick="dismissFeedbackPrompt()" class="text-slate-500 hover:text-white text-xs"><span
+                    class="material-symbols-rounded text-sm">close</span></button>
         </div>
     </div>
 
@@ -290,23 +294,35 @@
                 </button>
             </div>
 
-            <div id="modal-context-info" class="mb-4 text-[11px] text-slate-400 bg-slate-950/60 p-2.5 rounded-lg border border-white/5 font-mono truncate">
+            <div id="modal-context-info"
+                class="mb-4 text-[11px] text-slate-400 bg-slate-950/60 p-2.5 rounded-lg border border-white/5 font-mono truncate">
                 Context: <span id="modal-context-text" class="text-blue-300"></span>
             </div>
 
             <form id="quick-feedback-form" onsubmit="handleQuickFeedbackSubmit(event)" class="space-y-4">
                 <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Category</label>
+                    <label
+                        class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Category</label>
                     <div class="grid grid-cols-2 gap-2" id="quick-cat-pills">
-                        <button type="button" onclick="selectQuickCat('General')" data-qcat="General" class="qcat-pill active py-2 px-2.5 rounded-lg border border-blue-500 bg-blue-600/20 text-blue-300 text-xs font-bold transition-all">💬 General</button>
-                        <button type="button" onclick="selectQuickCat('Bug')" data-qcat="Bug" class="qcat-pill py-2 px-2.5 rounded-lg border border-slate-800 bg-slate-950/60 text-slate-400 text-xs font-bold transition-all">🐛 Bug</button>
-                        <button type="button" onclick="selectQuickCat('Clip Request')" data-qcat="Clip Request" class="qcat-pill py-2 px-2.5 rounded-lg border border-slate-800 bg-slate-950/60 text-slate-400 text-xs font-bold transition-all">🎬 Clip Request</button>
-                        <button type="button" onclick="selectQuickCat('Feature')" data-qcat="Feature" class="qcat-pill py-2 px-2.5 rounded-lg border border-slate-800 bg-slate-950/60 text-slate-400 text-xs font-bold transition-all">💡 Feature</button>
+                        <button type="button" onclick="selectQuickCat('General')" data-qcat="General"
+                            class="qcat-pill active py-2 px-2.5 rounded-lg border border-blue-500 bg-blue-600/20 text-blue-300 text-xs font-bold transition-all">💬
+                            General</button>
+                        <button type="button" onclick="selectQuickCat('Bug')" data-qcat="Bug"
+                            class="qcat-pill py-2 px-2.5 rounded-lg border border-slate-800 bg-slate-950/60 text-slate-400 text-xs font-bold transition-all">🐛
+                            Bug</button>
+                        <button type="button" onclick="selectQuickCat('Clip Request')" data-qcat="Clip Request"
+                            class="qcat-pill py-2 px-2.5 rounded-lg border border-slate-800 bg-slate-950/60 text-slate-400 text-xs font-bold transition-all">🎬
+                            Clip Request</button>
+                        <button type="button" onclick="selectQuickCat('Feature')" data-qcat="Feature"
+                            class="qcat-pill py-2 px-2.5 rounded-lg border border-slate-800 bg-slate-950/60 text-slate-400 text-xs font-bold transition-all">💡
+                            Feature</button>
                     </div>
                 </div>
 
                 <div>
-                    <label for="quick-feedback-msg" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Feedback <span class="text-blue-400">*</span></label>
+                    <label for="quick-feedback-msg"
+                        class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Feedback
+                        <span class="text-blue-400">*</span></label>
                     <textarea id="quick-feedback-msg" required rows="3" placeholder="Tell us what's on your mind..."
                         class="w-full bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-xs text-white placeholder-slate-600 focus:border-blue-500 outline-none transition-all custom-scrollbar"></textarea>
                 </div>
@@ -330,7 +346,8 @@
                 <span class="material-symbols-rounded text-4xl text-emerald-400">check_circle</span>
                 <h4 class="text-lg font-bold text-white">Feedback Sent!</h4>
                 <p class="text-slate-400 text-xs">Thank you for helping us improve AniClips!</p>
-                <button onclick="closeQuickFeedbackModal()" class="mt-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-lg border border-slate-700">Done</button>
+                <button onclick="closeQuickFeedbackModal()"
+                    class="mt-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-lg border border-slate-700">Done</button>
             </div>
         </div>
     </div>
@@ -391,7 +408,7 @@
             const chain = [];
             const jsonJsdelivr = true;
             if (jsonJsdelivr === true) {
-                chain.push(jsDelivrUrl, );
+                chain.push(jsDelivrUrl,);
             } else {
                 chain.push(gitHubRawUrl);
             }
@@ -1110,7 +1127,7 @@
                 try {
                     const doc = iframe.contentDocument || iframe.contentWindow.document;
                     if (!doc || doc.body.querySelector('#container-57d2b16d41ebda7ec2475422aae2ada3')) return;
-                    
+
                     doc.body.style.margin = '0';
                     doc.body.style.padding = '0';
                     doc.body.style.overflow = 'hidden';
@@ -1143,7 +1160,7 @@
             if (availableWidth <= 0) return;
 
             const config = calculateAdConfig(availableWidth);
-            
+
             // Check if already rendered with the exact same count and width
             const prevCount = parseInt(slotContainer.dataset.adCount || '0', 10);
             const prevWidth = parseInt(slotContainer.dataset.adWidth || '0', 10);
@@ -1445,7 +1462,7 @@
             document.getElementById('quick-success-card').classList.add('hidden');
             document.getElementById('quick-feedback-msg').value = '';
             document.getElementById('quick-status-container').className = 'hidden';
-            
+
             const modal = document.getElementById('quick-feedback-modal');
             modal.classList.remove('invisible', 'opacity-0');
         }
@@ -1563,7 +1580,9 @@
                                 <span
                                     class="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1 rounded uppercase tracking-widest text-[9px] font-bold">New</span></a>
                         </li>
-                        <li><a href="feedback" class="hover:text-blue-400 transition-colors flex items-center gap-1.5"><span class="material-symbols-rounded text-sm">chat_bubble</span> Feedback</a></li>
+                        <li><a href="feedback"
+                                class="hover:text-blue-400 transition-colors flex items-center gap-1.5"><span
+                                    class="material-symbols-rounded text-sm">chat_bubble</span> Feedback</a></li>
                     </ul>
                 </div>
 
